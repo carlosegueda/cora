@@ -32,7 +32,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 1. **Menú principal**: *Jugar* (reto diario), *Maratón*, *Supervivencia*, *Entrenamiento* y *Clasificación*, y a la derecha el **top 5 de hoy**. *Configuración* es el engranaje de abajo a la derecha. Detrás, el globo gira solo.
 2. Al elegir un modo se pide **el nombre del jugador** y, salvo en *Jugar*, la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “Ya”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
-4. Para cada país se hace clic en el globo:
+4. Para cada país se **mantiene pulsado** sobre el globo **1.5 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*).
    - **Acierto**: el país se pinta de verde y aparece su nombre sobre el pin.
    - **Fallo**: el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
    - Un clic en el **mar** lejos del país no cuenta como respuesta (aviso “Mar”).
@@ -40,9 +40,9 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 
 | Modo | Países | Objetivo | Un fallo… | Clasificación |
 | --- | --- | --- | --- | --- |
-| **Jugar** | 10 estados, los mismos para todos y distintos cada día | Más aciertos en menos tiempo | cuenta como fallo y sigue | Tabla del día; **un intento al día** |
+| **Jugar** | 10 estados, los mismos para todos y distintos cada día | Más puntos (cercanía + rapidez) | puntúa según lo cerca que quedó | Tabla del día; **un intento al día** |
 | **Maratón** | Todos los de la dificultad (198 o 239) | Completarlos todos en el menor tiempo | el país vuelve a salir más adelante | Por dificultad, por tiempo |
-| **Supervivencia** | Todos los de la dificultad | Aguantar con el reloj (15 s, +5 s por acierto) | el país vuelve a salir más adelante | Por dificultad, por aciertos |
+| **Supervivencia** | Todos los de la dificultad | Aguantar con el reloj (20 s, +5 s por acierto) | el país vuelve a salir más adelante | Por dificultad, por aciertos |
 | **Entrenamiento** | Los que elijas | Practicar | cuenta como fallo y sigue | No |
 
 En **Maratón** el marcador muestra *Quedan* (países por acertar), *Fallos* y *Tiempo*, y el resultado muestra el tiempo total y los fallos. Al tardar bastante (un par de centenares de países), la pausa es útil.
@@ -74,7 +74,17 @@ Un reto al día igual para todo el mundo:
 - El día cambia a las **00:00 UTC** (a la misma hora en todo el mundo).
 - La pista es **nombre y bandera**, en el idioma de *Configuración*, y **sin fronteras**.
 - **Un intento por jugador y día.** El intento cuenta desde que empieza: si se sale a mitad (la pausa lo avisa: “Si sales, pierdes el intento de hoy”), ya no se puede repetir. Al volver a entrar se ve “Ya jugaste hoy” con el resultado y el puesto.
-- **Clasificación del día**: primero quien más aciertos tenga y, a igualdad, el más rápido. Al terminar se ve el puesto en la tabla completa (“Puesto 12 de 340 hoy”).
+- **Puntos**: cada país vale hasta **1000** (máximo del día: 10 000). En este modo **cualquier clic cuenta** como respuesta, también en el mar, y tras cada uno se ve la distancia y los puntos (“Era Guyana · a 520 km · +412”).
+
+  | Parte | Puntos | Cómo |
+  | --- | --- | --- |
+  | Cercanía | hasta 700 | 700 si se acierta; si no, `700 × e^(−distancia / escala)`, con la distancia del clic al país. |
+  | Ponderación por país | — | La escala depende del tamaño del territorio principal del país: de 1200 km (países diminutos) a 400 km (los más grandes). Fallar un país enorme por 800 km penaliza más que quedarse a 800 km de una isla diminuta. |
+  | Rapidez | hasta 300 | Entera por debajo de 2 s, nada a partir de 20 s, multiplicada por la cercanía (hacer clic rápido al azar no puntúa). |
+
+  Ejemplos: Francia acertada en 3 s → 983; a 800 km en 3 s → 457; Rusia a 800 km → 133; Vanuatu a 800 km → 501. Los valores están en las constantes `DAILY_*` de `src/game.js` (`dailyPoints`).
+- **Clasificación del día**: primero quien más puntos tenga y, a igualdad, el más rápido. Al terminar se ve el puesto en la tabla completa (“Puesto 12 de 340 hoy”).
+- **Resultado**: los puntos en grande, aciertos y tiempo, y la lista de los 10 países con los puntos de cada uno. **Al pulsar un país de la lista** se pinta de verde en el globo y la cámara va hasta él, acercándose según su tamaño (también funciona con el teclado: `Tab` y `Enter`).
 - **Menú principal**: el top 5 del día, en directo, con *Ver todo*, que abre la tabla completa con el puesto, la **bandera del país del jugador**, el nombre, los aciertos y el tiempo.
 - La **bandera del país del jugador** sale de su IP: en Vercel la da la función `api/country.js` (ver más abajo). En local, sin esa función, se usa la región del idioma del navegador (es-MX → México), si la tiene.
 
@@ -84,7 +94,7 @@ El “un intento al día” va ligado al jugador (el token guardado en su navega
 
 Desde el menú principal, *Supervivencia* lleva a la misma pantalla de dificultad (las 4 dificultades deciden qué países entran, qué pista se da y si se ven las fronteras).
 
-- Un **reloj** empieza en **15 s** y va bajando. Cada **acierto suma 5 s**.
+- Un **reloj** empieza en **20 s** y va bajando. Cada **acierto suma 5 s**.
 - Un país **acertado** se descarta: no vuelve a salir. Un país **fallado** vuelve a salir más adelante en la misma partida (nunca justo a continuación).
 - La partida termina cuando el reloj llega a 0 (se enseña el país que estaba saliendo) o cuando se aciertan **todos** los países de la dificultad.
 - El reloj solo baja mientras se busca el país (no durante la cuenta atrás, la pausa ni mientras se ve la respuesta).
@@ -123,12 +133,20 @@ La pantalla **Clasificación** (menú principal) tiene una tabla por **modo** (M
 
 Sin conexión o sin Convex configurado, el juego funciona igual y la clasificación dice “Clasificación no disponible”.
 
+### Idiomas
+
+Toda la interfaz está en **inglés por defecto**, y también en español y portugués. Se cambia en *Configuración → Language/Idioma* y cambia al instante (sin recargar): menús, partida, resultados, clasificaciones, la lista de países y también los **nombres de los países**.
+
+- Las traducciones están en **`src/i18n.js`**: `t('clave', variables)` devuelve el texto en el idioma actual (si falta, en inglés); en el HTML, `data-i18n="clave"` traduce el texto de un elemento y `data-i18n-attr="atributo:clave"` sus atributos (`aria-label`, `title`, `placeholder`…). Para añadir un idioma: un bloque nuevo en `STRINGS`, su locale en `LOCALES` y su nombre en `LANGUAGES` (`settings.js`); los países ya traen `name_en`, `name_es` y `name_pt`.
+- **Migración**: la configuración guardada lleva un número de versión. Quien tenía guardado el español de antes (el juego guardaba el idioma por defecto al guardar cualquier cosa) pasa una sola vez al inglés; luego se respeta lo que elija.
+- El *Entrenamiento* tiene además su propio “idioma de los nombres” (inglés por defecto).
+
 ### Configuración
 
 Se guarda en el navegador (`localStorage`), así que se recuerda entre visitas:
 
 - **Sonido**: activa o desactiva los efectos (cuenta atrás, acierto, fallo, tiempo agotado, fin de partida). Se generan en el navegador, sin archivos de audio.
-- **Idioma de las pistas**: español, inglés o portugués. Cambia el nombre de los países en las pistas, en el aviso de fallo, en la etiqueta del pin y en la lista del resultado; el resto de la interfaz sigue en español.
+- **Idioma de las pistas**: español, inglés o portugués. Por defecto, **inglés** (quien ya lo había cambiado conserva su elección). Cambia el nombre de los países en las pistas, en el aviso de fallo, en la etiqueta del pin y en la lista del resultado; el resto de la interfaz sigue en español.
 
 ## Estructura de archivos
 
@@ -428,7 +446,7 @@ Opciones: `url`, `maxZoom`, `radius`, `createMaterial`, `anisotropy` y, con valo
 | `createCountryMask({ name, color, opacity })` | Pinta el país en un canvas que cubre solo su recuadro lon/lat (hasta 2048 px de lado, así que los países pequeños tienen mucha resolución), con regla *even-odd* para respetar los huecos. `name` es el prefijo de sus uniforms, para poder tener varias a la vez. Devuelve `uniforms` (los enlaza el shader de la Tierra) y `draw(country)`. |
 | `distanceKm(lon1, lat1, lon2, lat2)` | Distancia sobre la superficie (haversine). |
 | `distanceToCountryKm(country, lon, lat)` | Distancia desde un punto al vértice más cercano del contorno del país. |
-| `countrySizeKm(country)` | Tamaño aproximado del país (diagonal de su recuadro). |
+| `countrySizeKm(country)` | Tamaño característico del país en km: el de su territorio principal (polígono más grande), como la diagonal de un cuadrado de la misma área. No usa el recuadro de todo el país porque los territorios de ultramar o cruzar el meridiano 180° lo deforman. |
 | `countryCenter(country)` | Centro de su polígono más grande, para llevar la cámara hasta él. |
 
 Natural Earth corta los países en el antimeridiano (±180°), así que Rusia o Fiyi no necesitan tratamiento especial.
@@ -450,7 +468,7 @@ Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, po
 
 | Constante / función | Qué hace |
 | --- | --- |
-| `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` / `SURVIVAL_LOW_S` | Supervivencia: tiempo inicial (15 s), segundos por acierto (5 s) y umbral del reloj en rojo (5 s). |
+| `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` / `SURVIVAL_LOW_S` | Supervivencia: tiempo inicial (20 s), segundos por acierto (5 s) y umbral del reloj en rojo (5 s). |
 | `survivalRules(d)` | Reglas de supervivencia a partir de una dificultad (mismos países y pista, sin límite por país, todos los países). |
 | `COUNTDOWN_FROM` | Desde dónde cuenta la cuenta atrás (3). |
 | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` | Pausa tras acertar (1200 ms) y tras fallar (2600 ms) antes del siguiente país. |

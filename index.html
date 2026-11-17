@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>CORA</title>
     <meta name="theme-color" content="#07090f" />
@@ -21,31 +21,31 @@
     <section id="screen-menu" class="screen" hidden>
       <div class="sheet">
         <h1 class="wordmark">CORA</h1>
-        <nav class="menu" aria-label="Menú principal">
+        <nav class="menu">
           <button data-action="daily" class="menu-item">
-            <span class="menu-label">Jugar</span>
+            <span class="menu-label" data-i18n="menu.play">Play</span>
           </button>
           <button data-action="play" class="menu-item">
-            <span class="menu-label">Maratón</span>
+            <span class="menu-label" data-i18n="menu.marathon">Marathon</span>
           </button>
           <button data-action="survival" class="menu-item">
-            <span class="menu-label">Supervivencia</span>
+            <span class="menu-label" data-i18n="menu.survival">Survival</span>
           </button>
           <button data-action="practice" class="menu-item">
-            <span class="menu-label">Entrenamiento</span>
+            <span class="menu-label" data-i18n="menu.training">Training</span>
           </button>
           <button data-action="leaderboard" class="menu-item">
-            <span class="menu-label">Clasificación</span>
+            <span class="menu-label" data-i18n="menu.leaderboard">Leaderboard</span>
           </button>
         </nav>
-        <a class="foot-link" href="/paises.html" target="_blank">Lista de países ↗</a>
+        <a class="foot-link" href="/paises.html" target="_blank" data-i18n="menu.countryList">Country list ↗</a>
       </div>
 
       <!-- Top 5 del Diario de hoy (se actualiza solo) -->
       <aside id="daily-card" class="daily-card" hidden>
         <div class="daily-head">
-          <span class="field-label">Hoy</span>
-          <button data-action="daily-board" class="link-button">Ver todo</button>
+          <span class="field-label" data-i18n="daily.today">Today</span>
+          <button data-action="daily-board" class="link-button" data-i18n="daily.seeAll">See all</button>
         </div>
         <ol id="daily-top" class="daily-list"></ol>
         <p id="daily-empty" class="daily-empty"></p>
@@ -55,18 +55,18 @@
     <!-- Jugar (reto diario): avisos (ya jugaste hoy, no disponible, cargando) -->
     <section id="screen-daily-info" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Jugar</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="menu.play">Play</h2>
         <p id="daily-info-text" class="info-text"></p>
-        <button data-action="daily-board" class="ghost">Ver la tabla de hoy</button>
+        <button data-action="daily-board" class="ghost" data-i18n="daily.seeToday">See today's leaderboard</button>
       </div>
     </section>
 
     <!-- Jugar (reto diario): tabla completa del día -->
     <section id="screen-daily-board" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Hoy</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="daily.today">Today</h2>
         <p id="daily-board-date" class="field-label"></p>
         <ol id="daily-board-list" class="daily-list daily-list-full"></ol>
         <p id="daily-board-status" class="daily-empty"></p>
@@ -76,12 +76,12 @@
     <!-- Nombre del jugador: se pide al pulsar Jugar o Supervivencia y se usa en la clasificación -->
     <section id="screen-name" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Tu nombre</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="name.title">Your name</h2>
         <form id="name-form" class="name-form" autocomplete="off">
           <input type="text" id="player-name" class="text-input text-input-big" maxlength="20" minlength="2" required
-            autocomplete="nickname" spellcheck="false" aria-label="Tu nombre" />
-          <button type="submit" id="name-continue" class="primary">Continuar</button>
+            autocomplete="nickname" spellcheck="false" data-i18n-attr="aria-label:name.aria" />
+          <button type="submit" id="name-continue" class="primary" data-i18n="name.continue">Continue</button>
         </form>
       </div>
     </section>
@@ -89,8 +89,8 @@
     <!-- Elegir dificultad (las filas las crea game.js a partir de DIFFICULTIES) -->
     <section id="screen-difficulty" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title" id="difficulty-title">Dificultad</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" id="difficulty-title"></h2>
         <div id="difficulty-list" class="rows"></div>
       </div>
     </section>
@@ -98,12 +98,12 @@
     <!-- Entrenamiento: reglas a medida (el formulario lo crea game.js) -->
     <section id="screen-practice" class="screen" hidden>
       <div class="sheet sheet-wide">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Entrenamiento</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="menu.training">Training</h2>
         <form id="practice-form" onsubmit="return false"></form>
         <div class="sheet-footer">
           <p id="practice-summary"></p>
-          <button id="practice-start" data-action="start-practice" class="primary">Empezar</button>
+          <button id="practice-start" data-action="start-practice" class="primary" data-i18n="practice.start">Start</button>
         </div>
       </div>
     </section>
@@ -111,8 +111,8 @@
     <!-- Clasificación online (Convex) -->
     <section id="screen-leaderboard" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Clasificación</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="board.title">Leaderboard</h2>
         <div id="board-mode" class="tabs"></div>
         <div id="board-difficulty" class="tabs"></div>
         <ol id="board-list"></ol>
@@ -123,37 +123,37 @@
     <!-- Configuración -->
     <section id="screen-settings" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Configuración</h2>
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="settings.title">Settings</h2>
         <div class="field">
           <label class="field-row" for="setting-sound">
-            <span>Sonido</span>
+            <span data-i18n="settings.sound">Sound</span>
             <input type="checkbox" id="setting-sound" class="switch" />
           </label>
         </div>
         <div class="field">
-          <span class="field-label">Idioma de las pistas</span>
+          <span class="field-label" data-i18n="settings.language">Language</span>
           <div id="setting-language" class="tabs"></div>
         </div>
         <div class="field">
-          <span class="field-label">Créditos</span>
+          <span class="field-label" data-i18n="settings.credits">Credits</span>
           <dl class="credits-list">
-            <dt>Imágenes de satélite</dt>
+            <dt data-i18n="credits.satellite">Satellite imagery</dt>
             <dd>
               <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
-              (contiene datos modificados de Copernicus Sentinel 2024) · CC BY-NC-SA 4.0
+              <span data-i18n="credits.copernicus">(contains modified Copernicus Sentinel data 2024)</span> · CC BY-NC-SA 4.0
             </dd>
-            <dt>Tierra base, sol y luna</dt>
+            <dt data-i18n="credits.base">Base Earth, Sun and Moon</dt>
             <dd><a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">Solar System Scope</a> · CC BY 4.0</dd>
-            <dt>Cielo</dt>
+            <dt data-i18n="credits.sky">Sky</dt>
             <dd><a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener">ESO/S. Brunier</a> · CC BY 4.0</dd>
-            <dt>Fronteras y nombres de países</dt>
-            <dd><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> · dominio público</dd>
-            <dt>Banderas</dt>
+            <dt data-i18n="credits.borders">Borders and country names</dt>
+            <dd><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> · <span data-i18n="credits.publicDomain">public domain</span></dd>
+            <dt data-i18n="credits.flags">Flags</dt>
             <dd><a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> · MIT</dd>
-            <dt>Icono de configuración</dt>
+            <dt data-i18n="credits.icon">Settings icon</dt>
             <dd><a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a> · ISC</dd>
-        <dt>Tipografías</dt>
+            <dt data-i18n="credits.fonts">Typeface</dt>
             <dd>Bricolage Grotesque · SIL Open Font License</dd>
           </dl>
         </div>
@@ -166,16 +166,16 @@
         <h2 class="title" id="results-difficulty"></h2>
         <div class="score">
           <span class="score-value"><strong id="results-score"></strong><span id="results-total"></span></span>
-          <span class="score-time"><span class="k" id="results-time-k">Tiempo</span><span id="results-time"></span></span>
+          <span class="score-time"><span class="k" id="results-time-k"></span><span id="results-time"></span></span>
         </div>
         <p id="results-record" hidden></p>
         <p id="results-rank" hidden></p>
         <ol id="results-list"></ol>
         <div id="results-flags" hidden></div>
         <div class="actions">
-          <button data-action="replay" id="results-replay" class="primary">Jugar otra vez</button>
-          <button data-action="daily-board" id="results-daily-board" class="primary" hidden>Ver la tabla de hoy</button>
-          <button data-action="menu" class="ghost">Menú</button>
+          <button data-action="replay" id="results-replay" class="primary" data-i18n="results.replay">Play again</button>
+          <button data-action="daily-board" id="results-daily-board" class="primary" hidden data-i18n="daily.seeToday">See today's leaderboard</button>
+          <button data-action="menu" class="ghost" data-i18n="results.menu">Menu</button>
         </div>
       </div>
     </section>
@@ -183,18 +183,18 @@
     <!-- Durante la partida -->
     <div id="hud" hidden>
       <div class="hud-stats">
-        <div><span class="k" id="hud-k-round">País</span><span class="v" id="hud-round"></span></div>
-        <div><span class="k" id="hud-k-score">Puntos</span><span class="v" id="hud-score"></span></div>
+        <div><span class="k" id="hud-k-round"></span><span class="v" id="hud-round"></span></div>
+        <div><span class="k" id="hud-k-score"></span><span class="v" id="hud-score"></span></div>
         <div id="hud-time-block">
-          <span class="k" id="hud-k-time">Tiempo</span><span class="v" id="hud-time"></span>
+          <span class="k" id="hud-k-time"></span><span class="v" id="hud-time"></span>
           <span id="hud-bonus" aria-hidden="true"></span>
         </div>
       </div>
-      <button data-action="pause" class="hud-pause" aria-label="Pausa"><span class="pause-icon" aria-hidden="true"></span>Pausa</button>
+      <button data-action="pause" class="hud-pause"><span class="pause-icon" aria-hidden="true"></span><span data-i18n="hud.pause">Pause</span></button>
       <div class="hud-center">
         <div id="hint" hidden>
           <div class="hint-body">
-            <img id="hint-flag" alt="Bandera del país que hay que encontrar" />
+            <img id="hint-flag" alt="" data-i18n-attr="alt:hud.flagAlt" />
             <span id="hint-name"></span>
           </div>
         </div>
@@ -206,18 +206,23 @@
     <!-- Pausa: tapa el globo; Esc o Reanudar para seguir -->
     <div id="pause" hidden>
       <div class="pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">
-        <h2 id="pause-title" class="title">Pausa</h2>
-        <p id="pause-note" class="pause-note" hidden>Si sales, pierdes el intento de hoy</p>
-        <button data-action="resume" class="primary">Reanudar</button>
-        <button data-action="menu" class="ghost">Salir</button>
+        <h2 id="pause-title" class="title" data-i18n="pause.title">Paused</h2>
+        <p id="pause-note" class="pause-note" hidden data-i18n="pause.dailyNote">If you quit, you lose today's attempt</p>
+        <button data-action="resume" class="primary" data-i18n="pause.resume">Resume</button>
+        <button data-action="menu" class="ghost" data-i18n="pause.quit">Quit</button>
       </div>
+    </div>
+
+    <!-- Anillo de carga al mantener pulsado sobre el globo (selección de país) -->
+    <div id="hold-ring" hidden aria-hidden="true">
+      <svg viewBox="0 0 48 48"><circle class="track" cx="24" cy="24" r="20" /><circle class="fill" cx="24" cy="24" r="20" /></svg>
     </div>
 
     <!-- Cuenta atrás 3, 2, 1 -->
     <div id="countdown" hidden></div>
 
     <!-- Configuración: botón de engranaje abajo a la derecha (fuera de la partida) -->
-    <button id="settings-button" data-action="settings" type="button" aria-label="Configuración" title="Configuración">
+    <button id="settings-button" data-action="settings" type="button" data-i18n-attr="aria-label:menu.settings;title:menu.settings">
       <!-- Icono "settings" de Lucide (lucide.dev, licencia ISC) -->
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

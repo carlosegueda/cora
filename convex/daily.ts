@@ -1,5 +1,8 @@
-// Modo Diario: 10 estados, los mismos para todos, distintos cada día (UTC); un intento por
-// jugador y día; tabla del día ordenada por aciertos y, a igualdad, por menos tiempo.
+// Reto diario (Jugar): 10 estados, los mismos para todos, distintos cada día (UTC); un intento
+// por jugador y día. Cada país vale hasta 1000 puntos (cercanía del clic al país, ponderada por
+// su tamaño, más rapidez); la tabla del día se ordena por puntos y, a igualdad, por menos tiempo.
+// Los puntos los calcula el cliente (necesita los contornos de los países); el servidor
+// comprueba que estén dentro de lo posible.
 import { query, mutation } from './_generated/server';
 import { ConvexError, v } from 'convex/values';
 import { DAILY_COUNTRIES } from './dailyCountries';
@@ -8,12 +11,14 @@ import { dailyRanking } from './rankings';
 
 const DAY_MS = 86_400_000;
 const PER_DAY = 10;
+const MAX_POINTS_PER_COUNTRY = 1000;
 const MIN_MS_PER_ANSWER = 300; // nadie responde un país en menos de esto
 const CLOCK_SLACK_MS = 5000; // margen entre el reloj del jugador y el del servidor
 
 const dayKey = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 const isDayKey = (day: string) => /^\d{4}-\d{2}-\d{2}$/.test(day);
-const rankOf = (score: number, timeMs: number) => score * 1e9 - timeMs;
+// Más puntos primero; a igualdad, menos tiempo
+const rankOf = (points: number, timeMs: number) => points * 1e9 - timeMs;
 
 // Generador pseudoaleatorio determinista (mulberry32): mismo número de partida → misma secuencia
 function mulberry32(seed: number) {
@@ -64,6 +69,7 @@ export const start = mutation({
         day,
         finished: true as const,
         score: existing.score ?? 0,
+        points: existing.points ?? 0,
         timeMs: existing.timeMs ?? 0,
         position,
         total,
@@ -83,9 +89,15 @@ export const start = mutation({
   },
 });
 
-// Termina el intento: guarda aciertos y tiempo y devuelve el puesto en la tabla del día
+// Termina el intento: guarda puntos, aciertos y tiempo y devuelve el puesto en la tabla del día
 export const finish = mutation({
-  args: { token: v.string(), attemptId: v.id('dailyAttempts'), score: v.number(), timeMs: v.number() },
+  args: {
+    token: v.string(),
+    attemptId: v.id('dailyAttempts'),
+    score: v.number(),
+    points: v.number(),
+    timeMs: v.number(),
+  },
   handler: async (ctx, args) => {
     const player = await findPlayer(ctx, args.token);
     const attempt = await ctx.db.get(args.attemptId);
@@ -93,6 +105,9 @@ export const finish = mutation({
     if (attempt.finished) throw new ConvexError('Este intento ya terminó');
     if (!Number.isInteger(args.score) || args.score < 0 || args.score > PER_DAY) {
       throw new ConvexError('Puntuación no válida');
+    }
+    if (!Number.isInteger(args.points) || args.points < 0 || args.points > PER_DAY * MAX_POINTS_PER_COUNTRY) {
+      throw new ConvexError('Puntos no válidos');
     }
     // El tiempo del jugador no cuenta las pausas, así que puede ser menor que el del servidor,
     // pero nunca mayor (más un margen), ni más rápido de lo humanamente posible
@@ -106,7 +121,13 @@ export const finish = mutation({
     }
 
     const timeMs = Math.round(args.timeMs);
-    await ctx.db.patch(attempt._id, { finished: true, score: args.score, timeMs, rank: rankOf(args.score, timeMs) });
+    await ctx.db.patch(attempt._id, {
+      finished: true,
+      score: args.score,
+      points: args.points,
+      timeMs,
+      rank: rankOf(args.points, timeMs),
+    });
     const done = (await ctx.db.get(attempt._id))!;
     await dailyRanking.insert(ctx, done);
     const position = (await dailyRanking.indexOfDoc(ctx, done)) + 1;
@@ -126,11 +147,12 @@ export const top = query({
       .withIndex('by_day_and_finished_and_rank', (q) => q.eq('day', day).eq('finished', true))
       .order('desc')
       .take(Math.min(limit ?? 5, 500));
-    return rows.map(({ _id, name, country, score, timeMs }) => ({
+    return rows.map(({ _id, name, country, score, points, timeMs }) => ({
       _id,
       name,
       country,
       score: score ?? 0,
+      points: points ?? 0,
       timeMs: timeMs ?? 0,
     }));
   },

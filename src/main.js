@@ -5,7 +5,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 import { loadCountries, findCountry, createBorders, createCountryOutline, createCountryMask } from './countries.js';
 import { vector3ToLonLat, lonLatToVector3 } from './geo.js';
 import { createTileLayer } from './tiles.js';
-import { createGame } from './game.js';
+import { createGame, HOLD_TO_SELECT_MS } from './game.js';
 
 const SPHERE_RADIUS = 1;
 const CLICK_MOVE_TOLERANCE = 5; // px: más movimiento que esto cuenta como arrastre, no clic
@@ -547,59 +547,117 @@ function updatePin() {
   label.visible = pinNormal.dot(toCamera) > 0.05;
 }
 
-// --- Clic vs. arrastre ------------------------------------------------------
+// --- Selección de país: mantener pulsado ----------------------------------------
+// Un clic normal no hace nada. Para elegir un país hay que mantener pulsado sobre el globo
+// HOLD_TO_SELECT_MS (1.5 s): mientras tanto se llena un anillo de carga junto al puntero.
+// Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo
+// (pellizco), se cancela. Al completarse se elige el punto que hay bajo el puntero en ese momento.
 const raycaster = new THREE.Raycaster();
 const earthBounds = new THREE.Sphere(new THREE.Vector3(0, 0, 0), SPHERE_RADIUS);
 const pointer = new THREE.Vector2();
-let downPos = null;
+const holdRing = document.getElementById('hold-ring');
+holdRing.style.setProperty('--hold-ms', `${HOLD_TO_SELECT_MS}ms`);
+const activePointers = new Set();
+let hold = null; // { id, x, y, timer }
 
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
-  downPos = { x: e.clientX, y: e.clientY };
-});
-
-renderer.domElement.addEventListener('pointerup', (e) => {
-  if (e.button !== 0 || !downPos) return;
-  const moved = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
-  downPos = null;
-  if (moved > CLICK_MOVE_TOLERANCE) return; // fue un arrastre para rotar
-
-  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+// Punto de la Tierra bajo unas coordenadas de pantalla (o null si no hay Tierra debajo)
+function earthInfoAt(clientX, clientY) {
+  pointer.x = (clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
-
   // Contra la esfera matemática exacta (no contra la malla, que es poligonal y va algo más baja):
-  // así el punto cae justo donde se hace clic aunque la cámara esté a pocos km del suelo
+  // así el punto cae justo donde se pulsa aunque la cámara esté a pocos km del suelo
   const hit = raycaster.ray.intersectSphere(earthBounds, new THREE.Vector3());
-  if (!hit || !globe.onEarthClick) return;
-
+  if (!hit) return null;
   const localPoint = sphere.worldToLocal(hit.clone());
   const { lon, lat } = vector3ToLonLat(localPoint);
   // Cuántos km de suelo ocupa un píxel de pantalla en ese punto
   const distanceKm = camera.position.distanceTo(hit) * EARTH_RADIUS_KM;
   const kmPerPixel =
     (2 * distanceKm * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / renderer.domElement.clientHeight;
-  globe.onEarthClick({
-    lon,
-    lat,
-    localPoint,
-    kmPerPixel,
-    country: countries ? findCountry(countries, lon, lat) : null,
-  });
+  return { lon, lat, localPoint, kmPerPixel, country: countries ? findCountry(countries, lon, lat) : null };
+}
+
+function showHoldRing(x, y) {
+  holdRing.style.left = `${x}px`;
+  holdRing.style.top = `${y}px`;
+  holdRing.classList.remove('is-filling', 'is-done');
+  holdRing.hidden = false;
+  void holdRing.offsetWidth; // reinicia la animación
+  holdRing.classList.add('is-filling');
+}
+
+function hideHoldRing(done = false) {
+  if (done) {
+    holdRing.classList.add('is-done');
+    setTimeout(() => (holdRing.hidden = true), 220);
+  } else {
+    holdRing.hidden = true;
+  }
+  holdRing.classList.remove('is-filling');
+}
+
+function cancelHold() {
+  if (!hold) return;
+  clearTimeout(hold.timer);
+  hold = null;
+  hideHoldRing();
+}
+
+function completeHold() {
+  const { x, y } = hold;
+  hold = null;
+  hideHoldRing(true);
+  if (!globe.canSelect?.() || !globe.onEarthClick) return;
+  const info = earthInfoAt(x, y);
+  if (info) globe.onEarthClick(info);
+}
+
+const canvas = renderer.domElement;
+canvas.addEventListener('pointerdown', (e) => {
+  activePointers.add(e.pointerId);
+  if (activePointers.size > 1) return cancelHold(); // pellizco con dos dedos
+  if (e.button !== 0 || !globe.canSelect?.() || !earthInfoAt(e.clientX, e.clientY)) return;
+  cancelHold();
+  hold = { id: e.pointerId, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY };
+  hold.timer = setTimeout(completeHold, HOLD_TO_SELECT_MS);
+  showHoldRing(e.clientX, e.clientY);
 });
+
+canvas.addEventListener('pointermove', (e) => {
+  if (!hold || e.pointerId !== hold.id) return;
+  // Moverse más de unos píxeles es girar el globo, no seleccionar
+  if (Math.hypot(e.clientX - hold.startX, e.clientY - hold.startY) > CLICK_MOVE_TOLERANCE) cancelHold();
+});
+
+for (const type of ['pointerup', 'pointercancel', 'pointerleave']) {
+  canvas.addEventListener(type, (e) => {
+    activePointers.delete(e.pointerId);
+    if (hold && e.pointerId === hold.id) cancelHold(); // se soltó antes de tiempo
+  });
+}
+
+// En pantallas táctiles, mantener pulsado no debe abrir el menú contextual del navegador
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // --- Vuelo de la cámara hasta un punto -------------------------------------
 // Gira la cámara alrededor del planeta hasta quedar sobre (lon, lat), manteniendo la altura
 // (o alejándose un poco si está muy cerca, para que se vea el país entero).
 let flight = null;
 let controlsLocked = false; // true con la partida en pausa
-function flyTo(lon, lat, duration = 1.2) {
+// `targetAltitude` (opcional, en radios terrestres) fija la altura final, p. ej. para acercarse
+// a un país pequeño; siempre dentro de los límites de zoom.
+function flyTo(lon, lat, duration = 1.2, targetAltitude = null) {
   const altitude = camera.position.length() - SPHERE_RADIUS;
+  const toAltitude =
+    targetAltitude == null
+      ? THREE.MathUtils.clamp(altitude, 0.35, 3)
+      : THREE.MathUtils.clamp(targetAltitude, MIN_ALTITUDE, Math.min(3, MAX_ALTITUDE));
   flight = {
     from: camera.position.clone().normalize(),
     to: lonLatToVector3(lon, lat, 1),
     fromAltitude: altitude,
-    toAltitude: THREE.MathUtils.clamp(altitude, 0.35, 3),
+    toAltitude,
     t: 0,
     duration,
   };
@@ -627,6 +685,7 @@ function updateFlight(dt) {
 const globe = {
   countriesReady, // promesa con la lista de países
   onEarthClick: null, // (info) => void; info = { lon, lat, localPoint, kmPerPixel, country }
+  canSelect: null, // () => boolean: si ahora se puede elegir país (lo asigna el juego)
   menuBordersVisible: SHOW_BORDERS,
   setBordersVisible,
   setHighlights,
@@ -637,6 +696,7 @@ const globe = {
   setViewShift,
   // Bloquea o desbloquea girar y hacer zoom (p. ej. con la partida en pausa)
   setControlsEnabled(enabled) {
+    if (!enabled) cancelHold();
     controlsLocked = !enabled;
     controls.enabled = enabled && !flight;
     if (!enabled) zooming = false;

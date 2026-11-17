@@ -1,38 +1,39 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <title>CORA · Países</title>
+    <title>CORA</title>
     <link rel="stylesheet" href="/src/paises.css" />
   </head>
   <body>
     <main>
       <header>
-        <h1>Países y territorios</h1>
+        <h1 data-i18n="list.title">Countries and territories</h1>
         <p id="summary"></p>
-        <input id="search" type="search" placeholder="Buscar por nombre, código o continente…" autocomplete="off" />
+        <input id="search" type="search" data-i18n-attr="placeholder:list.search" autocomplete="off" />
       </header>
       <table>
         <thead>
           <tr>
-            <th>Bandera</th>
+            <th data-i18n="list.flag">Flag</th>
             <th>Español</th>
             <th>English</th>
             <th>Português</th>
-            <th>ISO</th>
-            <th>Tipo</th>
-            <th>Continente</th>
+            <th data-i18n="list.iso">ISO</th>
+            <th data-i18n="list.type">Type</th>
+            <th data-i18n="list.continent">Continent</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
       </table>
       <p class="source">
-        Datos: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> (dominio público) ·
-        Banderas: <a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> (MIT)
+        <span data-i18n="list.data">Data</span>: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>
+        (<span data-i18n="credits.publicDomain">public domain</span>) ·
+        <span data-i18n="list.flags">Flags</span>: <a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> (MIT)
       </p>
     </main>
     <script type="module" src="/src/paises.js"></script>

@@ -199,16 +199,29 @@ export function distanceToCountryKm(country, lon, lat) {
   return min;
 }
 
-// Tamaño aproximado del país en km (diagonal de su recuadro lon/lat)
-export function countrySizeKm(country) {
-  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
-  for (const b of country.bboxes) {
-    minLon = Math.min(minLon, b.minLon);
-    maxLon = Math.max(maxLon, b.maxLon);
-    minLat = Math.min(minLat, b.minLat);
-    maxLat = Math.max(maxLat, b.maxLat);
+// Área aproximada (km²) de un anillo lon/lat, proyectándolo en plano alrededor de su latitud media
+function ringAreaKm2(ring) {
+  const meanLat = ring.reduce((sum, [, lat]) => sum + lat, 0) / ring.length;
+  const kx = 111.32 * Math.cos((meanLat * Math.PI) / 180); // km por grado de longitud
+  const ky = 110.57; // km por grado de latitud
+  let twice = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    twice += ring[j][0] * kx * ring[i][1] * ky - ring[i][0] * kx * ring[j][1] * ky;
   }
-  return distanceKm(minLon, minLat, maxLon, maxLat);
+  return Math.abs(twice) / 2;
+}
+
+// Tamaño característico del país en km: el del territorio principal (su polígono más grande),
+// como la diagonal de un cuadrado de la misma área. No usa el recuadro de todo el país porque
+// los territorios de ultramar (Francia, Países Bajos…) o cruzar el meridiano 180° (Rusia) lo
+// deforman. Se usa para la ayuda con países diminutos y para los puntos del reto diario.
+const sizeCache = new WeakMap();
+export function countrySizeKm(country) {
+  if (sizeCache.has(country)) return sizeCache.get(country);
+  const largest = Math.max(...country.polygons.map(([outer]) => ringAreaKm2(outer)));
+  const size = Math.sqrt(largest) * Math.SQRT2;
+  sizeCache.set(country, size);
+  return size;
 }
 
 // Punto representativo del país (para llevar la cámara hasta él): el centro de su polígono

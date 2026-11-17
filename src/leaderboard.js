@@ -125,13 +125,14 @@ export async function startDaily() {
 }
 
 // Termina el intento. Devuelve { position, total, day } o null si no se pudo guardar.
-export async function finishDaily(attemptId, score, timeMs) {
+export async function finishDaily(attemptId, score, points, timeMs) {
   if (!client) return null;
   try {
     return await client.mutation(api.daily.finish, {
       token: playerToken(),
       attemptId,
       score,
+      points: Math.round(points),
       timeMs: Math.round(timeMs),
     });
   } catch (err) {
