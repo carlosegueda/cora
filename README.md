@@ -133,6 +133,21 @@ La pantalla **Clasificación** (menú principal) tiene una tabla por **modo** (M
 
 Sin conexión o sin Convex configurado, el juego funciona igual y la clasificación dice “Clasificación no disponible”.
 
+### Minijuegos
+
+En el menú, *Minigames/Minijuegos* (la clasificación pasa a ser el **trofeo** que hay a la izquierda del engranaje, abajo a la derecha). Código en **`src/minigames.js`**.
+
+- **Adivina la bandera**: sale una bandera en grande y se escribe el país.
+- **Adivina el país**: se ilumina un país en verde en el globo (la cámara viaja hasta él, más cerca cuanto más pequeño es) y se escribe su nombre. Los países de menos de 250 km llevan además un pin con “?” para que se vean. La tarjeta pasa a ser una barra abajo y el globo se puede girar y acercar mientras tanto; se ven las fronteras. En pausa se quita el resaltado.
+- **Adivina la capital**: salen la bandera y el país y se escribe su capital.
+- Antes de empezar se eligen continentes, tipos de país y cuántos (10, 20, 50 o todos); se recuerda en `settings.minigames`. Hay cuenta atrás 3, 2, 1 y un cronómetro (no cuenta con la pestaña oculta); al terminar se ve el tiempo total. **Sin clasificación**.
+- **Saltar** (botón o Tab) manda el país al final de la cola: vuelve a salir.
+- **Pausa** (botón arriba a la izquierda o Esc; también sola al cambiar de pestaña): para el cronómetro y tapa la bandera y el país para no poder mirarlos con el reloj parado. Desde ahí se reanuda o se sale a la lista de minijuegos. En la cuenta atrás Esc no hace nada.
+- **Tolerancia** (`answerKey` y `matches`): vale en inglés, español o portugués; da igual tildes, mayúsculas, guiones, espacios y artículos (*La Paz* = *paz*), *St.* = *Saint*; se aceptan nombres oficiales y variantes (Eswatini/Suazilandia/Swaziland, Czechia/República Checa, Costa de Marfil/Côte d'Ivoire, Birmania/Myanmar, EEUU…); y se perdonan erratas (1 hasta 8 letras, 2 a partir de 9; dos letras intercambiadas cuentan como una). Nunca se acepta el nombre de **otro** país (*Mali* no vale por *Malta*, *Niger* no vale por *Nigeria*). Si lo escrito coincide exactamente, se acepta sin pulsar Enter; con erratas, al pulsar Enter.
+- **Datos**: `countries.json` incluye `aliases` (nombres alternativos) y `capital` (`en`/`es`/`pt` y todos los nombres aceptados), generados por `scripts/prepare-countries.mjs` a partir de Natural Earth (`ne_50m_populated_places`) más unas listas propias en el script (`EXTRA_ALIASES`, `EXTRA_CAPITALS`, `DISPLAY_CAPITAL`). En países con varias capitales vale cualquiera (Bolivia: Sucre o La Paz; Sudáfrica: Pretoria, Bloemfontein o Ciudad del Cabo…). 230 países tienen capital; los que no (Antártida, Palestina, Sahara Occidental, Hong Kong, Macao y algunos territorios deshabitados) no salen en el de capitales.
+
+    node scripts/prepare-countries.mjs ne_50m_admin_0_countries.geojson ne_50m_populated_places.geojson
+
 ### Idiomas
 
 Toda la interfaz está en **inglés por defecto**, y también en español y portugués. Se cambia en *Configuración → Language/Idioma* y cambia al instante (sin recargar): menús, partida, resultados, clasificaciones, la lista de países y también los **nombres de los países**.

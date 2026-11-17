@@ -34,8 +34,8 @@
           <button data-action="practice" class="menu-item">
             <span class="menu-label" data-i18n="menu.training">Training</span>
           </button>
-          <button data-action="leaderboard" class="menu-item">
-            <span class="menu-label" data-i18n="menu.leaderboard">Leaderboard</span>
+          <button data-action="minigames" class="menu-item">
+            <span class="menu-label" data-i18n="menu.minigames">Minigames</span>
           </button>
         </nav>
         <a class="foot-link" href="/paises.html" target="_blank" data-i18n="menu.countryList">Country list ↗</a>
@@ -117,6 +117,84 @@
         <div id="board-difficulty" class="tabs"></div>
         <ol id="board-list"></ol>
         <p id="board-status"></p>
+      </div>
+    </section>
+
+    <!-- Minijuegos: lista -->
+    <section id="screen-minigames" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="menu.minigames">Minigames</h2>
+        <div class="rows">
+          <button class="row" data-minigame="flags">
+            <span class="row-title" data-i18n="mini.flags">Guess the flag</span>
+            <span class="row-desc" data-i18n="mini.flagsDesc">See a flag, type the country</span>
+          </button>
+          <button class="row" data-minigame="map">
+            <span class="row-title" data-i18n="mini.map">Guess the country</span>
+            <span class="row-desc" data-i18n="mini.mapDesc">A country lights up on the globe, type its name</span>
+          </button>
+          <button class="row" data-minigame="capitals">
+            <span class="row-title" data-i18n="mini.capitals">Guess the capital</span>
+            <span class="row-desc" data-i18n="mini.capitalsDesc">See a country, type its capital</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Minijuegos: qué países (el formulario lo crea minigames.js) -->
+    <section id="screen-minigame-setup" class="screen" hidden>
+      <div class="sheet sheet-wide">
+        <button data-action="minigames" class="back" data-i18n="mini.back">← Minigames</button>
+        <h2 class="title" id="minigame-setup-title"></h2>
+        <form id="minigame-form" onsubmit="return false"></form>
+        <div class="sheet-footer">
+          <p id="minigame-summary"></p>
+          <button id="minigame-start" class="primary" data-i18n="practice.start">Start</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Minijuegos: partida -->
+    <section id="screen-minigame-play" class="screen" hidden>
+      <div class="mg-card">
+        <div class="mg-top">
+          <button id="mg-pause-button" class="hud-pause mg-pause-button" type="button"><span class="pause-icon" aria-hidden="true"></span><span data-i18n="hud.pause">Pause</span></button>
+          <span class="mg-progress" id="mg-progress"></span>
+          <span class="mg-clock" id="mg-clock">0:00.0</span>
+        </div>
+        <img id="mg-flag" class="mg-flag" alt="" />
+        <p id="mg-country" class="mg-country"></p>
+        <input id="mg-input" class="text-input text-input-big mg-input" type="text" autocomplete="off"
+          autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+        <div class="mg-bottom">
+          <p id="mg-last" class="mg-last"></p>
+          <button id="mg-skip" class="ghost mg-skip" type="button" data-i18n="mini.skip">Skip</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Minijuegos: pausa -->
+    <div id="mg-pause" class="pause-overlay" hidden>
+      <div class="pause-panel" role="dialog" aria-modal="true" aria-labelledby="mg-pause-title">
+        <h2 id="mg-pause-title" class="title" data-i18n="pause.title">Paused</h2>
+        <button id="mg-resume" class="primary" data-i18n="pause.resume">Resume</button>
+        <button data-action="minigames" class="ghost" data-i18n="pause.quit">Quit</button>
+      </div>
+    </div>
+
+    <!-- Minijuegos: resultado -->
+    <section id="screen-minigame-results" class="screen" hidden>
+      <div class="sheet">
+        <h2 class="title" id="mg-results-title"></h2>
+        <div class="score">
+          <span class="score-value"><strong id="mg-results-time"></strong></span>
+          <span class="score-time" id="mg-results-detail"></span>
+        </div>
+        <div class="actions">
+          <button id="mg-replay" class="primary" data-i18n="results.replay">Play again</button>
+          <button data-action="minigames" class="ghost" data-i18n="mini.back">← Minigames</button>
+        </div>
       </div>
     </section>
 
@@ -221,8 +299,22 @@
     <!-- Cuenta atrás 3, 2, 1 -->
     <div id="countdown" hidden></div>
 
+    <!-- Clasificación: trofeo a la izquierda del engranaje (fuera de la partida) -->
+    <button id="board-button" class="corner-button" data-action="leaderboard" type="button" data-i18n-attr="aria-label:menu.leaderboard;title:menu.leaderboard">
+      <!-- Icono "trophy" de Lucide (lucide.dev, licencia ISC) -->
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+        <path d="M4 22h16" />
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+      </svg>
+    </button>
+
     <!-- Configuración: botón de engranaje abajo a la derecha (fuera de la partida) -->
-    <button id="settings-button" data-action="settings" type="button" data-i18n-attr="aria-label:menu.settings;title:menu.settings">
+    <button id="settings-button" class="corner-button" data-action="settings" type="button" data-i18n-attr="aria-label:menu.settings;title:menu.settings">
       <!-- Icono "settings" de Lucide (lucide.dev, licencia ISC) -->
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -11,6 +11,7 @@
 import { loadSettings, saveSettings, LANGUAGES, DEFAULT_PRACTICE } from './settings.js';
 import { createSound } from './sound.js';
 import { t, setLanguage, locale } from './i18n.js';
+import { createMinigames } from './minigames.js';
 import { countryCenter, countrySizeKm, distanceToCountryKm } from './countries.js';
 import {
   leaderboardAvailable,
@@ -259,7 +260,12 @@ export function createGame(globe) {
     dailyInfo: $('screen-daily-info'),
     dailyBoard: $('screen-daily-board'),
     results: $('screen-results'),
+    minigames: $('screen-minigames'),
+    minigameSetup: $('screen-minigame-setup'),
+    minigamePlay: $('screen-minigame-play'),
+    minigameResults: $('screen-minigame-results'),
   };
+  const isMinigameScreen = (name) => name?.startsWith('minigame');
   const hud = $('hud');
   const hudRound = $('hud-round');
   const hudScore = $('hud-score');
@@ -343,16 +349,21 @@ export function createGame(globe) {
   // En el menú principal de pantallas anchas, el top 5 del Diario ocupa la derecha: el planeta
   // va casi al centro, entre el menú y esa columna. En el resto de menús, a la derecha.
   const viewShiftFor = (name) => {
-    if (!name || !wideScreen()) return 0;
+    if (!name || name === 'minigamePlay' || !wideScreen()) return 0;
     if (name === 'menu' && leaderboardAvailable && window.innerWidth >= 1100) return 0.02;
     return MENU_VIEW_SHIFT;
   };
 
   // --- Pantallas ---
   const settingsButton = $('settings-button');
+  const boardButton = $('board-button');
+  let minigames = null;
   function showScreen(name) {
-    settingsButton.hidden = !name; // durante la partida (sin pantalla de menú) no se ve
+    // Durante la partida (sin pantalla de menú) y en un minijuego no se ven
+    settingsButton.hidden = boardButton.hidden = !name || name === 'minigamePlay';
     settingsButton.classList.toggle('is-active', name === 'settings');
+    boardButton.classList.toggle('is-active', name === 'leaderboard');
+    if (screen === 'minigamePlay' && name !== 'minigamePlay') minigames?.stop();
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
     if (screen === 'dailyBoard' && name !== 'dailyBoard') stopDailyBoard();
     if (name === 'menu') watchDailyTop();
@@ -1041,6 +1052,7 @@ export function createGame(globe) {
       renderDifficulties();
       setupBoard();
       rebuildPractice();
+      minigames.rebuild();
     });
     option.append(input, label);
     languageList.append(option);
@@ -1064,6 +1076,7 @@ export function createGame(globe) {
     }
     else if (action === 'settings') showScreen('settings');
     else if (action === 'leaderboard') openBoard();
+    else if (action === 'minigames') showScreen('minigames');
     else if (action === 'practice') showScreen('practice');
     else if (action === 'start-practice') startGame(rulesFromPractice(settings.practice));
     else if (action === 'menu') goToMenu();
@@ -1084,6 +1097,11 @@ export function createGame(globe) {
         sound.play('click');
         if (paused) resume();
         else pause();
+      } else if (state === 'menu' && isMinigameScreen(screen)) {
+        // En un minijuego en marcha, Esc pausa / reanuda; en el resto, vuelve a la lista
+        e.preventDefault();
+        sound.play('click');
+        if (screen !== 'minigamePlay' || !minigames.togglePause()) showScreen('minigames');
       } else if (state !== 'menu' || screen !== 'menu') {
         e.preventDefault();
         sound.play('click');
@@ -1110,6 +1128,14 @@ export function createGame(globe) {
   });
 
   const rebuildPractice = setupPractice();
+  minigames = createMinigames({
+    settings,
+    sound,
+    showScreen,
+    globe,
+    continents: CONTINENTS,
+    types: TYPES,
+  });
   setupBoard();
   goToMenu();
 

@@ -5,6 +5,19 @@
     "name_pt": "Afeganistão",
     "iso": "AF",
     "iso3": "AFG",
+    "aliases": [
+      "Afghanistan",
+      "Islamic State of Afghanistan"
+    ],
+    "capital": {
+      "en": "Kabul",
+      "es": "Kabul",
+      "pt": "Cabul",
+      "names": [
+        "Kabul",
+        "Cabul"
+      ]
+    },
     "type": "estado",
     "sovereign": "Afghanistan",
     "continent": "Asia",
@@ -16,6 +29,19 @@
     "name_pt": "Åland",
     "iso": "AX",
     "iso3": "ALA",
+    "aliases": [
+      "Åland",
+      "Åland Islands",
+      "Aland"
+    ],
+    "capital": {
+      "en": "Mariehamn",
+      "es": "Mariehamn",
+      "pt": "Mariehamn",
+      "names": [
+        "Mariehamn"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Finland",
     "continent": "Europe",
@@ -27,6 +53,18 @@
     "name_pt": "Albânia",
     "iso": "AL",
     "iso3": "ALB",
+    "aliases": [
+      "Albania",
+      "Republic of Albania"
+    ],
+    "capital": {
+      "en": "Tirana",
+      "es": "Tirana",
+      "pt": "Tirana",
+      "names": [
+        "Tirana"
+      ]
+    },
     "type": "estado",
     "sovereign": "Albania",
     "continent": "Europe",
@@ -38,6 +76,20 @@
     "name_pt": "Alemanha",
     "iso": "DE",
     "iso3": "DEU",
+    "aliases": [
+      "Germany",
+      "Federal Republic of Germany"
+    ],
+    "capital": {
+      "en": "Berlin",
+      "es": "Berlín",
+      "pt": "Berlim",
+      "names": [
+        "Berlin",
+        "Berlín",
+        "Berlim"
+      ]
+    },
     "type": "estado",
     "sovereign": "Germany",
     "continent": "Europe",
@@ -49,6 +101,21 @@
     "name_pt": "Andorra",
     "iso": "AD",
     "iso3": "AND",
+    "aliases": [
+      "Andorra",
+      "Principality of Andorra"
+    ],
+    "capital": {
+      "en": "Andorra la Vella",
+      "es": "Andorra la Vieja",
+      "pt": "Andorra-a-Velha",
+      "names": [
+        "Andorra la Vella",
+        "Andorra la Vieja",
+        "Andorra-a-Velha",
+        "Andorra"
+      ]
+    },
     "type": "estado",
     "sovereign": "Andorra",
     "continent": "Europe",
@@ -60,6 +127,18 @@
     "name_pt": "Angola",
     "iso": "AO",
     "iso3": "AGO",
+    "aliases": [
+      "Angola",
+      "People's Republic of Angola"
+    ],
+    "capital": {
+      "en": "Luanda",
+      "es": "Luanda",
+      "pt": "Luanda",
+      "names": [
+        "Luanda"
+      ]
+    },
     "type": "estado",
     "sovereign": "Angola",
     "continent": "Africa",
@@ -71,6 +150,18 @@
     "name_pt": "Anguilla",
     "iso": "AI",
     "iso3": "AIA",
+    "aliases": [
+      "Anguilla"
+    ],
+    "capital": {
+      "en": "The Valley",
+      "es": "The Valley",
+      "pt": "The Valley",
+      "names": [
+        "The Valley",
+        "El Valle"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -82,6 +173,10 @@
     "name_pt": "Antártida",
     "iso": "AQ",
     "iso3": "ATA",
+    "aliases": [
+      "Antarctica"
+    ],
+    "capital": null,
     "type": "indeterminado",
     "sovereign": "Antarctica",
     "continent": "Antarctica",
@@ -93,6 +188,19 @@
     "name_pt": "Antígua e Barbuda",
     "iso": "AG",
     "iso3": "ATG",
+    "aliases": [
+      "Antigua and Barb.",
+      "Antigua and Barbuda"
+    ],
+    "capital": {
+      "en": "Saint John's",
+      "es": "Saint John",
+      "pt": "Saint John's",
+      "names": [
+        "Saint John's",
+        "Saint John"
+      ]
+    },
     "type": "estado",
     "sovereign": "Antigua and Barbuda",
     "continent": "North America",
@@ -104,6 +212,21 @@
     "name_pt": "Arábia Saudita",
     "iso": "SA",
     "iso3": "SAU",
+    "aliases": [
+      "Saudi Arabia",
+      "Kingdom of Saudi Arabia"
+    ],
+    "capital": {
+      "en": "Riyadh",
+      "es": "Riad",
+      "pt": "Riade",
+      "names": [
+        "Riyadh",
+        "Riad",
+        "Riade",
+        "Ar-Riyadh"
+      ]
+    },
     "type": "estado",
     "sovereign": "Saudi Arabia",
     "continent": "Asia",
@@ -115,6 +238,20 @@
     "name_pt": "Argélia",
     "iso": "DZ",
     "iso3": "DZA",
+    "aliases": [
+      "Algeria",
+      "People's Democratic Republic of Algeria"
+    ],
+    "capital": {
+      "en": "Algiers",
+      "es": "Argel",
+      "pt": "Argel",
+      "names": [
+        "Algiers",
+        "Argel",
+        "El Djazacr"
+      ]
+    },
     "type": "estado",
     "sovereign": "Algeria",
     "continent": "Africa",
@@ -126,6 +263,18 @@
     "name_pt": "Argentina",
     "iso": "AR",
     "iso3": "ARG",
+    "aliases": [
+      "Argentina",
+      "Argentine Republic"
+    ],
+    "capital": {
+      "en": "Buenos Aires",
+      "es": "Buenos Aires",
+      "pt": "Buenos Aires",
+      "names": [
+        "Buenos Aires"
+      ]
+    },
     "type": "estado",
     "sovereign": "Argentina",
     "continent": "South America",
@@ -137,6 +286,20 @@
     "name_pt": "Arménia",
     "iso": "AM",
     "iso3": "ARM",
+    "aliases": [
+      "Armenia",
+      "Republic of Armenia"
+    ],
+    "capital": {
+      "en": "Yerevan",
+      "es": "Ereván",
+      "pt": "Erevan",
+      "names": [
+        "Yerevan",
+        "Ereván",
+        "Erevan"
+      ]
+    },
     "type": "estado",
     "sovereign": "Armenia",
     "continent": "Asia",
@@ -148,6 +311,17 @@
     "name_pt": "Aruba",
     "iso": "AW",
     "iso3": "ABW",
+    "aliases": [
+      "Aruba"
+    ],
+    "capital": {
+      "en": "Oranjestad",
+      "es": "Oranjestad",
+      "pt": "Oranjestad",
+      "names": [
+        "Oranjestad"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Netherlands",
     "continent": "North America",
@@ -159,6 +333,19 @@
     "name_pt": "Austrália",
     "iso": "AU",
     "iso3": "AUS",
+    "aliases": [
+      "Australia",
+      "Commonwealth of Australia"
+    ],
+    "capital": {
+      "en": "Canberra",
+      "es": "Canberra",
+      "pt": "Camberra",
+      "names": [
+        "Canberra",
+        "Camberra"
+      ]
+    },
     "type": "estado",
     "sovereign": "Australia",
     "continent": "Oceania",
@@ -170,6 +357,19 @@
     "name_pt": "Áustria",
     "iso": "AT",
     "iso3": "AUT",
+    "aliases": [
+      "Austria",
+      "Republic of Austria"
+    ],
+    "capital": {
+      "en": "Vienna",
+      "es": "Viena",
+      "pt": "Viena",
+      "names": [
+        "Vienna",
+        "Viena"
+      ]
+    },
     "type": "estado",
     "sovereign": "Austria",
     "continent": "Europe",
@@ -181,6 +381,19 @@
     "name_pt": "Azerbaijão",
     "iso": "AZ",
     "iso3": "AZE",
+    "aliases": [
+      "Azerbaijan",
+      "Republic of Azerbaijan"
+    ],
+    "capital": {
+      "en": "Baku",
+      "es": "Bakú",
+      "pt": "Baku",
+      "names": [
+        "Baku",
+        "Bakú"
+      ]
+    },
     "type": "estado",
     "sovereign": "Azerbaijan",
     "continent": "Asia",
@@ -192,6 +405,21 @@
     "name_pt": "Bahamas",
     "iso": "BS",
     "iso3": "BHS",
+    "aliases": [
+      "Bahamas",
+      "Commonwealth of the Bahamas",
+      "Bahamas, The",
+      "The Bahamas"
+    ],
+    "capital": {
+      "en": "Nassau",
+      "es": "Nasáu",
+      "pt": "Nassau",
+      "names": [
+        "Nassau",
+        "Nasáu"
+      ]
+    },
     "type": "estado",
     "sovereign": "The Bahamas",
     "continent": "North America",
@@ -203,6 +431,20 @@
     "name_pt": "Bangladesh",
     "iso": "BD",
     "iso3": "BGD",
+    "aliases": [
+      "Bangladesh",
+      "People's Republic of Bangladesh"
+    ],
+    "capital": {
+      "en": "Dhaka",
+      "es": "Dacca",
+      "pt": "Daca",
+      "names": [
+        "Dhaka",
+        "Dacca",
+        "Daca"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bangladesh",
     "continent": "Asia",
@@ -214,6 +456,17 @@
     "name_pt": "Barbados",
     "iso": "BB",
     "iso3": "BRB",
+    "aliases": [
+      "Barbados"
+    ],
+    "capital": {
+      "en": "Bridgetown",
+      "es": "Bridgetown",
+      "pt": "Bridgetown",
+      "names": [
+        "Bridgetown"
+      ]
+    },
     "type": "estado",
     "sovereign": "Barbados",
     "continent": "North America",
@@ -225,6 +478,18 @@
     "name_pt": "Bahrein",
     "iso": "BH",
     "iso3": "BHR",
+    "aliases": [
+      "Bahrain",
+      "Kingdom of Bahrain"
+    ],
+    "capital": {
+      "en": "Manama",
+      "es": "Manama",
+      "pt": "Manama",
+      "names": [
+        "Manama"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bahrain",
     "continent": "Asia",
@@ -236,6 +501,21 @@
     "name_pt": "Bélgica",
     "iso": "BE",
     "iso3": "BEL",
+    "aliases": [
+      "Belgium",
+      "Kingdom of Belgium"
+    ],
+    "capital": {
+      "en": "Brussels",
+      "es": "Bruselas",
+      "pt": "Bruxelas",
+      "names": [
+        "Brussels",
+        "Bruselas",
+        "Bruxelas",
+        "Bruxelles-Brussel"
+      ]
+    },
     "type": "estado",
     "sovereign": "Belgium",
     "continent": "Europe",
@@ -247,6 +527,18 @@
     "name_pt": "Belize",
     "iso": "BZ",
     "iso3": "BLZ",
+    "aliases": [
+      "Belize"
+    ],
+    "capital": {
+      "en": "Belmopan",
+      "es": "Belmopán",
+      "pt": "Belmopan",
+      "names": [
+        "Belmopan",
+        "Belmopán"
+      ]
+    },
     "type": "estado",
     "sovereign": "Belize",
     "continent": "North America",
@@ -258,6 +550,21 @@
     "name_pt": "Benim",
     "iso": "BJ",
     "iso3": "BEN",
+    "aliases": [
+      "Benin",
+      "Republic of Benin"
+    ],
+    "capital": {
+      "en": "Porto-Novo",
+      "es": "Porto Novo",
+      "pt": "Porto-Novo",
+      "names": [
+        "Porto-Novo",
+        "Porto Novo",
+        "Cotonou",
+        "Cotonú"
+      ]
+    },
     "type": "estado",
     "sovereign": "Benin",
     "continent": "Africa",
@@ -269,6 +576,18 @@
     "name_pt": "Bermudas",
     "iso": "BM",
     "iso3": "BMU",
+    "aliases": [
+      "Bermuda",
+      "The Bermudas or Somers Isles"
+    ],
+    "capital": {
+      "en": "Hamilton",
+      "es": "Hamilton",
+      "pt": "Hamilton",
+      "names": [
+        "Hamilton"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -280,6 +599,21 @@
     "name_pt": "Bielorrússia",
     "iso": "BY",
     "iso3": "BLR",
+    "aliases": [
+      "Belarus",
+      "Republic of Belarus",
+      "Belorussia",
+      "Bielorrusia",
+      "Bielorrússia"
+    ],
+    "capital": {
+      "en": "Minsk",
+      "es": "Minsk",
+      "pt": "Minsk",
+      "names": [
+        "Minsk"
+      ]
+    },
     "type": "estado",
     "sovereign": "Belarus",
     "continent": "Europe",
@@ -291,6 +625,26 @@
     "name_pt": "Myanmar",
     "iso": "MM",
     "iso3": "MMR",
+    "aliases": [
+      "Myanmar",
+      "Republic of the Union of Myanmar",
+      "Burma",
+      "Birmania",
+      "Birmânia"
+    ],
+    "capital": {
+      "en": "Naypyidaw",
+      "es": "Naipyidó",
+      "pt": "Naypyidaw",
+      "names": [
+        "Naypyidaw",
+        "Naipyidó",
+        "Nay Pyi Taw",
+        "Yangon",
+        "Rangún",
+        "Rangoon"
+      ]
+    },
     "type": "estado",
     "sovereign": "Myanmar",
     "continent": "Asia",
@@ -302,6 +656,19 @@
     "name_pt": "Bolívia",
     "iso": "BO",
     "iso3": "BOL",
+    "aliases": [
+      "Bolivia",
+      "Plurinational State of Bolivia"
+    ],
+    "capital": {
+      "en": "Sucre",
+      "es": "Sucre",
+      "pt": "Sucre",
+      "names": [
+        "Sucre",
+        "La Paz"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bolivia",
     "continent": "South America",
@@ -313,6 +680,20 @@
     "name_pt": "Bósnia e Herzegovina",
     "iso": "BA",
     "iso3": "BIH",
+    "aliases": [
+      "Bosnia and Herz.",
+      "Bosnia and Herzegovina",
+      "Bosnia",
+      "Bosnia-Herzegovina"
+    ],
+    "capital": {
+      "en": "Sarajevo",
+      "es": "Sarajevo",
+      "pt": "Sarajevo",
+      "names": [
+        "Sarajevo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bosnia and Herzegovina",
     "continent": "Europe",
@@ -324,6 +705,18 @@
     "name_pt": "Botsuana",
     "iso": "BW",
     "iso3": "BWA",
+    "aliases": [
+      "Botswana",
+      "Republic of Botswana"
+    ],
+    "capital": {
+      "en": "Gaborone",
+      "es": "Gaborone",
+      "pt": "Gaborone",
+      "names": [
+        "Gaborone"
+      ]
+    },
     "type": "estado",
     "sovereign": "Botswana",
     "continent": "Africa",
@@ -335,6 +728,19 @@
     "name_pt": "Brasil",
     "iso": "BR",
     "iso3": "BRA",
+    "aliases": [
+      "Brazil",
+      "Federative Republic of Brazil"
+    ],
+    "capital": {
+      "en": "Brasília",
+      "es": "Brasilia",
+      "pt": "Brasília",
+      "names": [
+        "Brasília",
+        "Brasilia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Brazil",
     "continent": "South America",
@@ -346,6 +752,19 @@
     "name_pt": "Brunei",
     "iso": "BN",
     "iso3": "BRN",
+    "aliases": [
+      "Brunei",
+      "Brunei Darussalam",
+      "Negara Brunei Darussalam"
+    ],
+    "capital": {
+      "en": "Bandar Seri Begawan",
+      "es": "Bandar Seri Begawan",
+      "pt": "Bandar Seri Begawan",
+      "names": [
+        "Bandar Seri Begawan"
+      ]
+    },
     "type": "estado",
     "sovereign": "Brunei",
     "continent": "Asia",
@@ -357,6 +776,20 @@
     "name_pt": "Bulgária",
     "iso": "BG",
     "iso3": "BGR",
+    "aliases": [
+      "Bulgaria",
+      "Republic of Bulgaria"
+    ],
+    "capital": {
+      "en": "Sofia",
+      "es": "Sofía",
+      "pt": "Sófia",
+      "names": [
+        "Sofia",
+        "Sofía",
+        "Sófia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bulgaria",
     "continent": "Europe",
@@ -368,6 +801,18 @@
     "name_pt": "Burkina Faso",
     "iso": "BF",
     "iso3": "BFA",
+    "aliases": [
+      "Burkina Faso"
+    ],
+    "capital": {
+      "en": "Ouagadougou",
+      "es": "Uagadugú",
+      "pt": "Ouagadougou",
+      "names": [
+        "Ouagadougou",
+        "Uagadugú"
+      ]
+    },
     "type": "estado",
     "sovereign": "Burkina Faso",
     "continent": "Africa",
@@ -379,6 +824,19 @@
     "name_pt": "Burundi",
     "iso": "BI",
     "iso3": "BDI",
+    "aliases": [
+      "Burundi",
+      "Republic of Burundi"
+    ],
+    "capital": {
+      "en": "Bujumbura",
+      "es": "Buyumbura",
+      "pt": "Bujumbura",
+      "names": [
+        "Bujumbura",
+        "Buyumbura"
+      ]
+    },
     "type": "estado",
     "sovereign": "Burundi",
     "continent": "Africa",
@@ -390,6 +848,20 @@
     "name_pt": "Butão",
     "iso": "BT",
     "iso3": "BTN",
+    "aliases": [
+      "Bhutan",
+      "Kingdom of Bhutan"
+    ],
+    "capital": {
+      "en": "Thimphu",
+      "es": "Timbu",
+      "pt": "Thimbu",
+      "names": [
+        "Thimphu",
+        "Timbu",
+        "Thimbu"
+      ]
+    },
     "type": "estado",
     "sovereign": "Bhutan",
     "continent": "Asia",
@@ -401,6 +873,19 @@
     "name_pt": "Cabo Verde",
     "iso": "CV",
     "iso3": "CPV",
+    "aliases": [
+      "Cabo Verde",
+      "Republic of Cabo Verde",
+      "Cape Verde"
+    ],
+    "capital": {
+      "en": "Praia",
+      "es": "Praia",
+      "pt": "Praia",
+      "names": [
+        "Praia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Cabo Verde",
     "continent": "Africa",
@@ -412,6 +897,20 @@
     "name_pt": "Camboja",
     "iso": "KH",
     "iso3": "KHM",
+    "aliases": [
+      "Cambodia",
+      "Kingdom of Cambodia"
+    ],
+    "capital": {
+      "en": "Phnom Penh",
+      "es": "Nom Pen",
+      "pt": "Phnom Penh",
+      "names": [
+        "Phnom Penh",
+        "Nom Pen",
+        "Phnum Penh"
+      ]
+    },
     "type": "estado",
     "sovereign": "Cambodia",
     "continent": "Asia",
@@ -423,6 +922,20 @@
     "name_pt": "Camarões",
     "iso": "CM",
     "iso3": "CMR",
+    "aliases": [
+      "Cameroon",
+      "Republic of Cameroon"
+    ],
+    "capital": {
+      "en": "Yaoundé",
+      "es": "Yaundé",
+      "pt": "Yaoundé",
+      "names": [
+        "Yaoundé",
+        "Yaundé",
+        "Yaounde"
+      ]
+    },
     "type": "estado",
     "sovereign": "Cameroon",
     "continent": "Africa",
@@ -434,6 +947,18 @@
     "name_pt": "Canadá",
     "iso": "CA",
     "iso3": "CAN",
+    "aliases": [
+      "Canada"
+    ],
+    "capital": {
+      "en": "Ottawa",
+      "es": "Ottawa",
+      "pt": "Ottawa",
+      "names": [
+        "Ottawa",
+        "Ottawa-Gatineau"
+      ]
+    },
     "type": "estado",
     "sovereign": "Canada",
     "continent": "North America",
@@ -445,6 +970,18 @@
     "name_pt": "Catar",
     "iso": "QA",
     "iso3": "QAT",
+    "aliases": [
+      "Qatar",
+      "State of Qatar"
+    ],
+    "capital": {
+      "en": "Doha",
+      "es": "Doha",
+      "pt": "Doha",
+      "names": [
+        "Doha"
+      ]
+    },
     "type": "estado",
     "sovereign": "Qatar",
     "continent": "Asia",
@@ -456,6 +993,22 @@
     "name_pt": "Chade",
     "iso": "TD",
     "iso3": "TCD",
+    "aliases": [
+      "Chad",
+      "Republic of Chad"
+    ],
+    "capital": {
+      "en": "N'Djamena",
+      "es": "Yamena",
+      "pt": "Jamena",
+      "names": [
+        "N'Djamena",
+        "Yamena",
+        "Jamena",
+        "Ndjamena",
+        "N'Djamnna"
+      ]
+    },
     "type": "estado",
     "sovereign": "Chad",
     "continent": "Africa",
@@ -467,6 +1020,19 @@
     "name_pt": "Chile",
     "iso": "CL",
     "iso3": "CHL",
+    "aliases": [
+      "Chile",
+      "Republic of Chile"
+    ],
+    "capital": {
+      "en": "Santiago",
+      "es": "Santiago de Chile",
+      "pt": "Santiago",
+      "names": [
+        "Santiago",
+        "Santiago de Chile"
+      ]
+    },
     "type": "estado",
     "sovereign": "Chile",
     "continent": "South America",
@@ -478,6 +1044,20 @@
     "name_pt": "China",
     "iso": "CN",
     "iso3": "CHN",
+    "aliases": [
+      "China",
+      "People's Republic of China"
+    ],
+    "capital": {
+      "en": "Beijing",
+      "es": "Pekín",
+      "pt": "Pequim",
+      "names": [
+        "Beijing",
+        "Pekín",
+        "Pequim"
+      ]
+    },
     "type": "estado",
     "sovereign": "China",
     "continent": "Asia",
@@ -489,6 +1069,19 @@
     "name_pt": "Chipre",
     "iso": "CY",
     "iso3": "CYP",
+    "aliases": [
+      "Cyprus",
+      "Republic of Cyprus"
+    ],
+    "capital": {
+      "en": "Nicosia",
+      "es": "Nicosia",
+      "pt": "Nicósia",
+      "names": [
+        "Nicosia",
+        "Nicósia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Cyprus",
     "continent": "Asia",
@@ -500,6 +1093,24 @@
     "name_pt": "Vaticano",
     "iso": "VA",
     "iso3": "VAT",
+    "aliases": [
+      "Vatican",
+      "State of the Vatican City",
+      "Holy See",
+      "Vatican (Holy See)",
+      "Santa Sede",
+      "Vaticano"
+    ],
+    "capital": {
+      "en": "Vatican City",
+      "es": "Ciudad del Vaticano",
+      "pt": "Vaticano",
+      "names": [
+        "Vatican City",
+        "Ciudad del Vaticano",
+        "Vaticano"
+      ]
+    },
     "type": "estado",
     "sovereign": "Vatican",
     "continent": "Europe",
@@ -511,6 +1122,19 @@
     "name_pt": "Colômbia",
     "iso": "CO",
     "iso3": "COL",
+    "aliases": [
+      "Colombia",
+      "Republic of Colombia"
+    ],
+    "capital": {
+      "en": "Bogotá",
+      "es": "Bogotá",
+      "pt": "Bogotá",
+      "names": [
+        "Bogotá",
+        "Bogota"
+      ]
+    },
     "type": "estado",
     "sovereign": "Colombia",
     "continent": "South America",
@@ -522,6 +1146,18 @@
     "name_pt": "Comores",
     "iso": "KM",
     "iso3": "COM",
+    "aliases": [
+      "Comoros",
+      "Union of the Comoros"
+    ],
+    "capital": {
+      "en": "Moroni",
+      "es": "Moroni",
+      "pt": "Moroni",
+      "names": [
+        "Moroni"
+      ]
+    },
     "type": "estado",
     "sovereign": "Comoros",
     "continent": "Africa",
@@ -533,6 +1169,25 @@
     "name_pt": "Coreia do Norte",
     "iso": "KP",
     "iso3": "PRK",
+    "aliases": [
+      "North Korea",
+      "Dem. Rep. Korea",
+      "Democratic People's Republic of Korea",
+      "Korea, Dem. Rep.",
+      "DPRK",
+      "Corea del Norte",
+      "Coreia do Norte"
+    ],
+    "capital": {
+      "en": "Pyongyang",
+      "es": "Pionyang",
+      "pt": "Pyongyang",
+      "names": [
+        "Pyongyang",
+        "Pionyang",
+        "P'yongyang"
+      ]
+    },
     "type": "estado",
     "sovereign": "North Korea",
     "continent": "Asia",
@@ -544,6 +1199,24 @@
     "name_pt": "Coreia do Sul",
     "iso": "KR",
     "iso3": "KOR",
+    "aliases": [
+      "South Korea",
+      "Republic of Korea",
+      "Korea, Rep.",
+      "Korea",
+      "Corea",
+      "Coreia"
+    ],
+    "capital": {
+      "en": "Seoul",
+      "es": "Seúl",
+      "pt": "Seul",
+      "names": [
+        "Seoul",
+        "Seúl",
+        "Seul"
+      ]
+    },
     "type": "estado",
     "sovereign": "South Korea",
     "continent": "Asia",
@@ -555,6 +1228,24 @@
     "name_pt": "Costa do Marfim",
     "iso": "CI",
     "iso3": "CIV",
+    "aliases": [
+      "Côte d'Ivoire",
+      "Republic of Ivory Coast",
+      "Ivory Coast",
+      "Costa de Marfil",
+      "Costa do Marfim"
+    ],
+    "capital": {
+      "en": "Yamoussoukro",
+      "es": "Yamusukro",
+      "pt": "Yamoussoukro",
+      "names": [
+        "Yamoussoukro",
+        "Yamusukro",
+        "Abidjan",
+        "Abiyán"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ivory Coast",
     "continent": "Africa",
@@ -566,6 +1257,19 @@
     "name_pt": "Costa Rica",
     "iso": "CR",
     "iso3": "CRI",
+    "aliases": [
+      "Costa Rica",
+      "Republic of Costa Rica"
+    ],
+    "capital": {
+      "en": "San José",
+      "es": "San José",
+      "pt": "San José",
+      "names": [
+        "San José",
+        "San Jose"
+      ]
+    },
     "type": "estado",
     "sovereign": "Costa Rica",
     "continent": "North America",
@@ -577,6 +1281,18 @@
     "name_pt": "Croácia",
     "iso": "HR",
     "iso3": "HRV",
+    "aliases": [
+      "Croatia",
+      "Republic of Croatia"
+    ],
+    "capital": {
+      "en": "Zagreb",
+      "es": "Zagreb",
+      "pt": "Zagreb",
+      "names": [
+        "Zagreb"
+      ]
+    },
     "type": "estado",
     "sovereign": "Croatia",
     "continent": "Europe",
@@ -588,6 +1304,19 @@
     "name_pt": "Cuba",
     "iso": "CU",
     "iso3": "CUB",
+    "aliases": [
+      "Cuba",
+      "Republic of Cuba"
+    ],
+    "capital": {
+      "en": "Havana",
+      "es": "La Habana",
+      "pt": "Havana",
+      "names": [
+        "Havana",
+        "La Habana"
+      ]
+    },
     "type": "estado",
     "sovereign": "Cuba",
     "continent": "North America",
@@ -599,6 +1328,17 @@
     "name_pt": "Curaçao",
     "iso": "CW",
     "iso3": "CUW",
+    "aliases": [
+      "Curaçao"
+    ],
+    "capital": {
+      "en": "Willemstad",
+      "es": "Willemstad",
+      "pt": "Willemstad",
+      "names": [
+        "Willemstad"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Netherlands",
     "continent": "North America",
@@ -610,6 +1350,22 @@
     "name_pt": "Dinamarca",
     "iso": "DK",
     "iso3": "DNK",
+    "aliases": [
+      "Denmark",
+      "Kingdom of Denmark"
+    ],
+    "capital": {
+      "en": "Copenhagen",
+      "es": "Copenhague",
+      "pt": "Copenhaga",
+      "names": [
+        "Copenhagen",
+        "Copenhague",
+        "Copenhaga",
+        "København",
+        "Kobenhavn"
+      ]
+    },
     "type": "estado",
     "sovereign": "Denmark",
     "continent": "Europe",
@@ -621,6 +1377,18 @@
     "name_pt": "Dominica",
     "iso": "DM",
     "iso3": "DMA",
+    "aliases": [
+      "Dominica",
+      "Commonwealth of Dominica"
+    ],
+    "capital": {
+      "en": "Roseau",
+      "es": "Roseau",
+      "pt": "Roseau",
+      "names": [
+        "Roseau"
+      ]
+    },
     "type": "estado",
     "sovereign": "Dominica",
     "continent": "North America",
@@ -632,6 +1400,18 @@
     "name_pt": "Equador",
     "iso": "EC",
     "iso3": "ECU",
+    "aliases": [
+      "Ecuador",
+      "Republic of Ecuador"
+    ],
+    "capital": {
+      "en": "Quito",
+      "es": "Quito",
+      "pt": "Quito",
+      "names": [
+        "Quito"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ecuador",
     "continent": "South America",
@@ -643,6 +1423,21 @@
     "name_pt": "Egito",
     "iso": "EG",
     "iso3": "EGY",
+    "aliases": [
+      "Egypt",
+      "Arab Republic of Egypt",
+      "Egypt, Arab Rep."
+    ],
+    "capital": {
+      "en": "Cairo",
+      "es": "El Cairo",
+      "pt": "Cairo",
+      "names": [
+        "Cairo",
+        "El Cairo",
+        "Al-Qahirah"
+      ]
+    },
     "type": "estado",
     "sovereign": "Egypt",
     "continent": "Africa",
@@ -654,6 +1449,18 @@
     "name_pt": "El Salvador",
     "iso": "SV",
     "iso3": "SLV",
+    "aliases": [
+      "El Salvador",
+      "Republic of El Salvador"
+    ],
+    "capital": {
+      "en": "San Salvador",
+      "es": "San Salvador",
+      "pt": "San Salvador",
+      "names": [
+        "San Salvador"
+      ]
+    },
     "type": "estado",
     "sovereign": "El Salvador",
     "continent": "North America",
@@ -665,6 +1472,22 @@
     "name_pt": "Emirados Árabes Unidos",
     "iso": "AE",
     "iso3": "ARE",
+    "aliases": [
+      "United Arab Emirates",
+      "UAE",
+      "Emirates",
+      "EAU",
+      "Emiratos Arabes",
+      "Emirados Arabes"
+    ],
+    "capital": {
+      "en": "Abu Dhabi",
+      "es": "Abu Dhabi",
+      "pt": "Abu Dhabi",
+      "names": [
+        "Abu Dhabi"
+      ]
+    },
     "type": "estado",
     "sovereign": "United Arab Emirates",
     "continent": "Asia",
@@ -676,6 +1499,18 @@
     "name_pt": "Eritreia",
     "iso": "ER",
     "iso3": "ERI",
+    "aliases": [
+      "Eritrea",
+      "State of Eritrea"
+    ],
+    "capital": {
+      "en": "Asmara",
+      "es": "Asmara",
+      "pt": "Asmara",
+      "names": [
+        "Asmara"
+      ]
+    },
     "type": "estado",
     "sovereign": "Eritrea",
     "continent": "Africa",
@@ -687,6 +1522,18 @@
     "name_pt": "Eslováquia",
     "iso": "SK",
     "iso3": "SVK",
+    "aliases": [
+      "Slovakia",
+      "Slovak Republic"
+    ],
+    "capital": {
+      "en": "Bratislava",
+      "es": "Bratislava",
+      "pt": "Bratislava",
+      "names": [
+        "Bratislava"
+      ]
+    },
     "type": "estado",
     "sovereign": "Slovakia",
     "continent": "Europe",
@@ -698,6 +1545,19 @@
     "name_pt": "Eslovénia",
     "iso": "SI",
     "iso3": "SVN",
+    "aliases": [
+      "Slovenia",
+      "Republic of Slovenia"
+    ],
+    "capital": {
+      "en": "Ljubljana",
+      "es": "Liubliana",
+      "pt": "Liubliana",
+      "names": [
+        "Ljubljana",
+        "Liubliana"
+      ]
+    },
     "type": "estado",
     "sovereign": "Slovenia",
     "continent": "Europe",
@@ -709,6 +1569,18 @@
     "name_pt": "Espanha",
     "iso": "ES",
     "iso3": "ESP",
+    "aliases": [
+      "Spain",
+      "Kingdom of Spain"
+    ],
+    "capital": {
+      "en": "Madrid",
+      "es": "Madrid",
+      "pt": "Madrid",
+      "names": [
+        "Madrid"
+      ]
+    },
     "type": "estado",
     "sovereign": "Spain",
     "continent": "Europe",
@@ -720,6 +1592,19 @@
     "name_pt": "Micronésia",
     "iso": "FM",
     "iso3": "FSM",
+    "aliases": [
+      "Micronesia",
+      "Federated States of Micronesia",
+      "Micronesia, Federated States of"
+    ],
+    "capital": {
+      "en": "Palikir",
+      "es": "Palikir",
+      "pt": "Palikir",
+      "names": [
+        "Palikir"
+      ]
+    },
     "type": "estado",
     "sovereign": "Federated States of Micronesia",
     "continent": "Oceania",
@@ -731,6 +1616,29 @@
     "name_pt": "Estados Unidos",
     "iso": "US",
     "iso3": "USA",
+    "aliases": [
+      "United States of America",
+      "United States",
+      "USA",
+      "US",
+      "America",
+      "EEUU",
+      "EE UU",
+      "Estados Unidos",
+      "EUA"
+    ],
+    "capital": {
+      "en": "Washington",
+      "es": "Washington D. C.",
+      "pt": "Washington",
+      "names": [
+        "Washington",
+        "Washington D. C.",
+        "Washington,  D.C.",
+        "Washington, D.C.",
+        "Washington D.C."
+      ]
+    },
     "type": "estado",
     "sovereign": "United States of America",
     "continent": "North America",
@@ -742,6 +1650,19 @@
     "name_pt": "Estónia",
     "iso": "EE",
     "iso3": "EST",
+    "aliases": [
+      "Estonia",
+      "Republic of Estonia"
+    ],
+    "capital": {
+      "en": "Tallinn",
+      "es": "Tallin",
+      "pt": "Tallinn",
+      "names": [
+        "Tallinn",
+        "Tallin"
+      ]
+    },
     "type": "estado",
     "sovereign": "Estonia",
     "continent": "Europe",
@@ -753,6 +1674,20 @@
     "name_pt": "Etiópia",
     "iso": "ET",
     "iso3": "ETH",
+    "aliases": [
+      "Ethiopia",
+      "Federal Democratic Republic of Ethiopia"
+    ],
+    "capital": {
+      "en": "Addis Ababa",
+      "es": "Adís Abeba",
+      "pt": "Adis Abeba",
+      "names": [
+        "Addis Ababa",
+        "Adís Abeba",
+        "Adis Abeba"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ethiopia",
     "continent": "Africa",
@@ -764,6 +1699,18 @@
     "name_pt": "Filipinas",
     "iso": "PH",
     "iso3": "PHL",
+    "aliases": [
+      "Philippines",
+      "Republic of the Philippines"
+    ],
+    "capital": {
+      "en": "Manila",
+      "es": "Manila",
+      "pt": "Manila",
+      "names": [
+        "Manila"
+      ]
+    },
     "type": "estado",
     "sovereign": "Philippines",
     "continent": "Asia",
@@ -775,6 +1722,19 @@
     "name_pt": "Finlândia",
     "iso": "FI",
     "iso3": "FIN",
+    "aliases": [
+      "Finland",
+      "Republic of Finland"
+    ],
+    "capital": {
+      "en": "Helsinki",
+      "es": "Helsinki",
+      "pt": "Helsínquia",
+      "names": [
+        "Helsinki",
+        "Helsínquia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Finland",
     "continent": "Europe",
@@ -786,6 +1746,18 @@
     "name_pt": "Fiji",
     "iso": "FJ",
     "iso3": "FJI",
+    "aliases": [
+      "Fiji",
+      "Republic of Fiji"
+    ],
+    "capital": {
+      "en": "Suva",
+      "es": "Suva",
+      "pt": "Suva",
+      "names": [
+        "Suva"
+      ]
+    },
     "type": "estado",
     "sovereign": "Fiji",
     "continent": "Oceania",
@@ -797,6 +1769,19 @@
     "name_pt": "França",
     "iso": "FR",
     "iso3": "FRA",
+    "aliases": [
+      "France",
+      "French Republic"
+    ],
+    "capital": {
+      "en": "Paris",
+      "es": "París",
+      "pt": "Paris",
+      "names": [
+        "Paris",
+        "París"
+      ]
+    },
     "type": "estado",
     "sovereign": "France",
     "continent": "Europe",
@@ -808,6 +1793,18 @@
     "name_pt": "Gabão",
     "iso": "GA",
     "iso3": "GAB",
+    "aliases": [
+      "Gabon",
+      "Gabonese Republic"
+    ],
+    "capital": {
+      "en": "Libreville",
+      "es": "Libreville",
+      "pt": "Libreville",
+      "names": [
+        "Libreville"
+      ]
+    },
     "type": "estado",
     "sovereign": "Gabon",
     "continent": "Africa",
@@ -819,6 +1816,20 @@
     "name_pt": "Gâmbia",
     "iso": "GM",
     "iso3": "GMB",
+    "aliases": [
+      "Gambia",
+      "The Gambia",
+      "Republic of the Gambia",
+      "Gambia, The"
+    ],
+    "capital": {
+      "en": "Banjul",
+      "es": "Banjul",
+      "pt": "Banjul",
+      "names": [
+        "Banjul"
+      ]
+    },
     "type": "estado",
     "sovereign": "Gambia",
     "continent": "Africa",
@@ -830,6 +1841,20 @@
     "name_pt": "Geórgia",
     "iso": "GE",
     "iso3": "GEO",
+    "aliases": [
+      "Georgia"
+    ],
+    "capital": {
+      "en": "Tbilisi",
+      "es": "Tiflis",
+      "pt": "Tiblíssi",
+      "names": [
+        "Tbilisi",
+        "Tiflis",
+        "Tiblíssi",
+        "T'Bilisi"
+      ]
+    },
     "type": "estado",
     "sovereign": "Georgia",
     "continent": "Asia",
@@ -841,6 +1866,19 @@
     "name_pt": "Gana",
     "iso": "GH",
     "iso3": "GHA",
+    "aliases": [
+      "Ghana",
+      "Republic of Ghana"
+    ],
+    "capital": {
+      "en": "Accra",
+      "es": "Acra",
+      "pt": "Acra",
+      "names": [
+        "Accra",
+        "Acra"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ghana",
     "continent": "Africa",
@@ -852,6 +1890,11 @@
     "name_pt": "Glaciar de Siachen",
     "iso": null,
     "iso3": "KAS",
+    "aliases": [
+      "Siachen Glacier",
+      "Kashmir"
+    ],
+    "capital": null,
     "type": "indeterminado",
     "sovereign": "Kashmir",
     "continent": "Asia",
@@ -863,6 +1906,19 @@
     "name_pt": "Granada",
     "iso": "GD",
     "iso3": "GRD",
+    "aliases": [
+      "Grenada"
+    ],
+    "capital": {
+      "en": "St. George's",
+      "es": "Saint George",
+      "pt": "Saint George's",
+      "names": [
+        "St. George's",
+        "Saint George",
+        "Saint George's"
+      ]
+    },
     "type": "estado",
     "sovereign": "Grenada",
     "continent": "North America",
@@ -874,6 +1930,20 @@
     "name_pt": "Grécia",
     "iso": "GR",
     "iso3": "GRC",
+    "aliases": [
+      "Greece",
+      "Hellenic Republic"
+    ],
+    "capital": {
+      "en": "Athens",
+      "es": "Atenas",
+      "pt": "Atenas",
+      "names": [
+        "Athens",
+        "Atenas",
+        "Athinai"
+      ]
+    },
     "type": "estado",
     "sovereign": "Greece",
     "continent": "Europe",
@@ -885,6 +1955,18 @@
     "name_pt": "Groenlândia",
     "iso": "GL",
     "iso3": "GRL",
+    "aliases": [
+      "Greenland"
+    ],
+    "capital": {
+      "en": "Nuuk",
+      "es": "Nuuk",
+      "pt": "Nuuk",
+      "names": [
+        "Nuuk",
+        "Godthab"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Denmark",
     "continent": "North America",
@@ -896,6 +1978,20 @@
     "name_pt": "Guam",
     "iso": "GU",
     "iso3": "GUM",
+    "aliases": [
+      "Guam",
+      "Territory of Guam"
+    ],
+    "capital": {
+      "en": "Hagåtña",
+      "es": "Hagåtña",
+      "pt": "Hagåtña",
+      "names": [
+        "Hagåtña",
+        "Hagatna",
+        "Agana"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United States of America",
     "continent": "Oceania",
@@ -907,6 +2003,22 @@
     "name_pt": "Guatemala",
     "iso": "GT",
     "iso3": "GTM",
+    "aliases": [
+      "Guatemala",
+      "Republic of Guatemala"
+    ],
+    "capital": {
+      "en": "Guatemala City",
+      "es": "Ciudad de Guatemala",
+      "pt": "Cidade da Guatemala",
+      "names": [
+        "Guatemala City",
+        "Ciudad de Guatemala",
+        "Cidade da Guatemala",
+        "Guatemala",
+        "Ciudad de Guatemala (Guatemala City)"
+      ]
+    },
     "type": "estado",
     "sovereign": "Guatemala",
     "continent": "North America",
@@ -918,6 +2030,19 @@
     "name_pt": "Guernsey",
     "iso": "GG",
     "iso3": "GGY",
+    "aliases": [
+      "Guernsey",
+      "Bailiwick of Guernsey"
+    ],
+    "capital": {
+      "en": "Saint Peter Port",
+      "es": "Saint Peter Port",
+      "pt": "Saint Peter Port",
+      "names": [
+        "Saint Peter Port",
+        "St Peter Port"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Europe",
@@ -929,6 +2054,20 @@
     "name_pt": "Guiné",
     "iso": "GN",
     "iso3": "GIN",
+    "aliases": [
+      "Guinea",
+      "Republic of Guinea"
+    ],
+    "capital": {
+      "en": "Conakry",
+      "es": "Conakri",
+      "pt": "Conacri",
+      "names": [
+        "Conakry",
+        "Conakri",
+        "Conacri"
+      ]
+    },
     "type": "estado",
     "sovereign": "Guinea",
     "continent": "Africa",
@@ -940,6 +2079,19 @@
     "name_pt": "Guiné Equatorial",
     "iso": "GQ",
     "iso3": "GNQ",
+    "aliases": [
+      "Eq. Guinea",
+      "Equatorial Guinea",
+      "Republic of Equatorial Guinea"
+    ],
+    "capital": {
+      "en": "Malabo",
+      "es": "Malabo",
+      "pt": "Malabo",
+      "names": [
+        "Malabo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Equatorial Guinea",
     "continent": "Africa",
@@ -951,6 +2103,19 @@
     "name_pt": "Guiné-Bissau",
     "iso": "GW",
     "iso3": "GNB",
+    "aliases": [
+      "Guinea-Bissau",
+      "Republic of Guinea-Bissau"
+    ],
+    "capital": {
+      "en": "Bissau",
+      "es": "Bisáu",
+      "pt": "Bissau",
+      "names": [
+        "Bissau",
+        "Bisáu"
+      ]
+    },
     "type": "estado",
     "sovereign": "Guinea-Bissau",
     "continent": "Africa",
@@ -962,6 +2127,18 @@
     "name_pt": "Guiana",
     "iso": "GY",
     "iso3": "GUY",
+    "aliases": [
+      "Guyana",
+      "Co-operative Republic of Guyana"
+    ],
+    "capital": {
+      "en": "Georgetown",
+      "es": "Georgetown",
+      "pt": "Georgetown",
+      "names": [
+        "Georgetown"
+      ]
+    },
     "type": "estado",
     "sovereign": "Guyana",
     "continent": "South America",
@@ -973,6 +2150,20 @@
     "name_pt": "Haiti",
     "iso": "HT",
     "iso3": "HTI",
+    "aliases": [
+      "Haiti",
+      "Republic of Haiti"
+    ],
+    "capital": {
+      "en": "Port-au-Prince",
+      "es": "Puerto Príncipe",
+      "pt": "Porto Príncipe",
+      "names": [
+        "Port-au-Prince",
+        "Puerto Príncipe",
+        "Porto Príncipe"
+      ]
+    },
     "type": "estado",
     "sovereign": "Haiti",
     "continent": "North America",
@@ -984,6 +2175,18 @@
     "name_pt": "Honduras",
     "iso": "HN",
     "iso3": "HND",
+    "aliases": [
+      "Honduras",
+      "Republic of Honduras"
+    ],
+    "capital": {
+      "en": "Tegucigalpa",
+      "es": "Tegucigalpa",
+      "pt": "Tegucigalpa",
+      "names": [
+        "Tegucigalpa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Honduras",
     "continent": "North America",
@@ -995,6 +2198,13 @@
     "name_pt": "Hong Kong",
     "iso": "HK",
     "iso3": "HKG",
+    "aliases": [
+      "Hong Kong",
+      "Hong Kong Special Administrative Region, PRC",
+      "Hong Kong SAR, China",
+      "Hong Kong S.A.R."
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "China",
     "continent": "Asia",
@@ -1006,6 +2216,19 @@
     "name_pt": "Hungria",
     "iso": "HU",
     "iso3": "HUN",
+    "aliases": [
+      "Hungary",
+      "Republic of Hungary"
+    ],
+    "capital": {
+      "en": "Budapest",
+      "es": "Budapest",
+      "pt": "Budapeste",
+      "names": [
+        "Budapest",
+        "Budapeste"
+      ]
+    },
     "type": "estado",
     "sovereign": "Hungary",
     "continent": "Europe",
@@ -1017,6 +2240,20 @@
     "name_pt": "Índia",
     "iso": "IN",
     "iso3": "IND",
+    "aliases": [
+      "India",
+      "Republic of India"
+    ],
+    "capital": {
+      "en": "New Delhi",
+      "es": "Nueva Delhi",
+      "pt": "Nova Deli",
+      "names": [
+        "New Delhi",
+        "Nueva Delhi",
+        "Nova Deli"
+      ]
+    },
     "type": "estado",
     "sovereign": "India",
     "continent": "Asia",
@@ -1028,6 +2265,20 @@
     "name_pt": "Indonésia",
     "iso": "ID",
     "iso3": "IDN",
+    "aliases": [
+      "Indonesia",
+      "Republic of Indonesia"
+    ],
+    "capital": {
+      "en": "Jakarta",
+      "es": "Yakarta",
+      "pt": "Jacarta",
+      "names": [
+        "Jakarta",
+        "Yakarta",
+        "Jacarta"
+      ]
+    },
     "type": "estado",
     "sovereign": "Indonesia",
     "continent": "Asia",
@@ -1039,6 +2290,20 @@
     "name_pt": "Iraque",
     "iso": "IQ",
     "iso3": "IRQ",
+    "aliases": [
+      "Iraq",
+      "Republic of Iraq"
+    ],
+    "capital": {
+      "en": "Baghdad",
+      "es": "Bagdad",
+      "pt": "Bagdade",
+      "names": [
+        "Baghdad",
+        "Bagdad",
+        "Bagdade"
+      ]
+    },
     "type": "estado",
     "sovereign": "Iraq",
     "continent": "Asia",
@@ -1050,6 +2315,21 @@
     "name_pt": "Irão",
     "iso": "IR",
     "iso3": "IRN",
+    "aliases": [
+      "Iran",
+      "Islamic Republic of Iran",
+      "Iran, Islamic Rep."
+    ],
+    "capital": {
+      "en": "Tehran",
+      "es": "Teherán",
+      "pt": "Teerão",
+      "names": [
+        "Tehran",
+        "Teherán",
+        "Teerão"
+      ]
+    },
     "type": "estado",
     "sovereign": "Iran",
     "continent": "Asia",
@@ -1061,6 +2341,18 @@
     "name_pt": "República da Irlanda",
     "iso": "IE",
     "iso3": "IRL",
+    "aliases": [
+      "Ireland"
+    ],
+    "capital": {
+      "en": "Dublin",
+      "es": "Dublín",
+      "pt": "Dublin",
+      "names": [
+        "Dublin",
+        "Dublín"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ireland",
     "continent": "Europe",
@@ -1072,6 +2364,17 @@
     "name_pt": "Ilha de Man",
     "iso": "IM",
     "iso3": "IMN",
+    "aliases": [
+      "Isle of Man"
+    ],
+    "capital": {
+      "en": "Douglas",
+      "es": "Douglas",
+      "pt": "Douglas",
+      "names": [
+        "Douglas"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Europe",
@@ -1083,6 +2386,18 @@
     "name_pt": "Ilha Norfolk",
     "iso": "NF",
     "iso3": "NFK",
+    "aliases": [
+      "Norfolk Island",
+      "Territory of Norfolk Island"
+    ],
+    "capital": {
+      "en": "Kingston",
+      "es": "Kingston",
+      "pt": "Kingston",
+      "names": [
+        "Kingston"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Australia",
     "continent": "Oceania",
@@ -1094,6 +2409,18 @@
     "name_pt": "Santa Helena",
     "iso": "SH",
     "iso3": "SHN",
+    "aliases": [
+      "Saint Helena",
+      "St. Helena"
+    ],
+    "capital": {
+      "en": "Jamestown",
+      "es": "Jamestown",
+      "pt": "Jamestown",
+      "names": [
+        "Jamestown"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Seven seas (open ocean)",
@@ -1105,6 +2432,20 @@
     "name_pt": "Islândia",
     "iso": "IS",
     "iso3": "ISL",
+    "aliases": [
+      "Iceland",
+      "Republic of Iceland"
+    ],
+    "capital": {
+      "en": "Reykjavík",
+      "es": "Reikiavik",
+      "pt": "Reykjavík",
+      "names": [
+        "Reykjavík",
+        "Reikiavik",
+        "Reykjavik"
+      ]
+    },
     "type": "estado",
     "sovereign": "Iceland",
     "continent": "Europe",
@@ -1116,6 +2457,12 @@
     "name_pt": "Ilhas Ashmore e Cartier",
     "iso": "AU",
     "iso3": "ATC",
+    "aliases": [
+      "Ashmore and Cartier Is.",
+      "Ashmore and Cartier Islands",
+      "Territory of Ashmore and Cartier Islands"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "Australia",
     "continent": "Oceania",
@@ -1127,6 +2474,18 @@
     "name_pt": "Ilhas Caimão",
     "iso": "KY",
     "iso3": "CYM",
+    "aliases": [
+      "Cayman Is.",
+      "Cayman Islands"
+    ],
+    "capital": {
+      "en": "George Town",
+      "es": "George Town",
+      "pt": "George Town",
+      "names": [
+        "George Town"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -1138,6 +2497,18 @@
     "name_pt": "Ilhas Cook",
     "iso": "CK",
     "iso3": "COK",
+    "aliases": [
+      "Cook Is.",
+      "Cook Islands"
+    ],
+    "capital": {
+      "en": "Avarua",
+      "es": "Avarua",
+      "pt": "Avarua",
+      "names": [
+        "Avarua"
+      ]
+    },
     "type": "territorio",
     "sovereign": "New Zealand",
     "continent": "Oceania",
@@ -1149,6 +2520,21 @@
     "name_pt": "Ilhas Feroe",
     "iso": "FO",
     "iso3": "FRO",
+    "aliases": [
+      "Faeroe Is.",
+      "Faeroe Islands",
+      "Føroyar Is. (Faeroe Is.)",
+      "Faroe Islands"
+    ],
+    "capital": {
+      "en": "Tórshavn",
+      "es": "Tórshavn",
+      "pt": "Tórshavn",
+      "names": [
+        "Tórshavn",
+        "Torshavn"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Denmark",
     "continent": "Europe",
@@ -1160,6 +2546,11 @@
     "name_pt": "Ilhas Geórgia do Sul e Sandwich do Sul",
     "iso": "GS",
     "iso3": "SGS",
+    "aliases": [
+      "S. Geo. and the Is.",
+      "South Georgia and the Islands"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Seven seas (open ocean)",
@@ -1171,6 +2562,13 @@
     "name_pt": "Ilha Heard e Ilhas McDonald",
     "iso": "HM",
     "iso3": "HMD",
+    "aliases": [
+      "Heard I. and McDonald Is.",
+      "Heard I. and McDonald Islands",
+      "Territory of Heard Island and McDonald Islands",
+      "Heard Island and McDonald Islands"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "Australia",
     "continent": "Seven seas (open ocean)",
@@ -1182,6 +2580,21 @@
     "name_pt": "Ilhas Malvinas",
     "iso": "FK",
     "iso3": "FLK",
+    "aliases": [
+      "Falkland Is.",
+      "Falkland Islands / Malvinas",
+      "Falkland Islands",
+      "Islas Malvinas"
+    ],
+    "capital": {
+      "en": "Stanley",
+      "es": "Stanley",
+      "pt": "Stanley",
+      "names": [
+        "Stanley",
+        "Puerto Argentino"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "South America",
@@ -1193,6 +2606,19 @@
     "name_pt": "Ilhas Marianas do Norte",
     "iso": "MP",
     "iso3": "MNP",
+    "aliases": [
+      "N. Mariana Is.",
+      "Northern Mariana Islands",
+      "Commonwealth of the Northern Mariana Islands"
+    ],
+    "capital": {
+      "en": "Saipan",
+      "es": "Saipan",
+      "pt": "Saipan",
+      "names": [
+        "Saipan"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United States of America",
     "continent": "Oceania",
@@ -1204,6 +2630,19 @@
     "name_pt": "Ilhas Marshall",
     "iso": "MH",
     "iso3": "MHL",
+    "aliases": [
+      "Marshall Is.",
+      "Marshall Islands",
+      "Republic of the Marshall Islands"
+    ],
+    "capital": {
+      "en": "Majuro",
+      "es": "Majuro",
+      "pt": "Majuro",
+      "names": [
+        "Majuro"
+      ]
+    },
     "type": "estado",
     "sovereign": "Marshall Islands",
     "continent": "Oceania",
@@ -1215,6 +2654,19 @@
     "name_pt": "Ilhas Pitcairn",
     "iso": "PN",
     "iso3": "PCN",
+    "aliases": [
+      "Pitcairn Is.",
+      "Pitcairn Islands",
+      "Pitcairn, Henderson, Ducie and Oeno Islands"
+    ],
+    "capital": {
+      "en": "Adamstown",
+      "es": "Adamstown",
+      "pt": "Adamstown",
+      "names": [
+        "Adamstown"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Oceania",
@@ -1226,6 +2678,18 @@
     "name_pt": "Ilhas Salomão",
     "iso": "SB",
     "iso3": "SLB",
+    "aliases": [
+      "Solomon Is.",
+      "Solomon Islands"
+    ],
+    "capital": {
+      "en": "Honiara",
+      "es": "Honiara",
+      "pt": "Honiara",
+      "names": [
+        "Honiara"
+      ]
+    },
     "type": "estado",
     "sovereign": "Solomon Islands",
     "continent": "Oceania",
@@ -1237,6 +2701,18 @@
     "name_pt": "Turks e Caicos",
     "iso": "TC",
     "iso3": "TCA",
+    "aliases": [
+      "Turks and Caicos Is.",
+      "Turks and Caicos Islands"
+    ],
+    "capital": {
+      "en": "Cockburn Town",
+      "es": "Cockburn Town",
+      "pt": "Cockburn Town",
+      "names": [
+        "Cockburn Town"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -1248,6 +2724,18 @@
     "name_pt": "Ilhas Virgens Britânicas",
     "iso": "VG",
     "iso3": "VGB",
+    "aliases": [
+      "British Virgin Is.",
+      "British Virgin Islands"
+    ],
+    "capital": {
+      "en": "Road Town",
+      "es": "Road Town",
+      "pt": "Road Town",
+      "names": [
+        "Road Town"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -1259,6 +2747,20 @@
     "name_pt": "Ilhas Virgens Americanas",
     "iso": "VI",
     "iso3": "VIR",
+    "aliases": [
+      "U.S. Virgin Is.",
+      "United States Virgin Islands",
+      "Virgin Islands of the United States",
+      "Virgin Islands (U.S.)"
+    ],
+    "capital": {
+      "en": "Charlotte Amalie",
+      "es": "Charlotte Amalie",
+      "pt": "Charlotte Amalie",
+      "names": [
+        "Charlotte Amalie"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United States of America",
     "continent": "North America",
@@ -1270,6 +2772,20 @@
     "name_pt": "Israel",
     "iso": "IL",
     "iso3": "ISR",
+    "aliases": [
+      "Israel",
+      "State of Israel"
+    ],
+    "capital": {
+      "en": "Jerusalem",
+      "es": "Jerusalén",
+      "pt": "Jerusalém",
+      "names": [
+        "Jerusalem",
+        "Jerusalén",
+        "Jerusalém"
+      ]
+    },
     "type": "estado",
     "sovereign": "Israel",
     "continent": "Asia",
@@ -1281,6 +2797,19 @@
     "name_pt": "Itália",
     "iso": "IT",
     "iso3": "ITA",
+    "aliases": [
+      "Italy",
+      "Italian Republic"
+    ],
+    "capital": {
+      "en": "Rome",
+      "es": "Roma",
+      "pt": "Roma",
+      "names": [
+        "Rome",
+        "Roma"
+      ]
+    },
     "type": "estado",
     "sovereign": "Italy",
     "continent": "Europe",
@@ -1292,6 +2821,17 @@
     "name_pt": "Jamaica",
     "iso": "JM",
     "iso3": "JAM",
+    "aliases": [
+      "Jamaica"
+    ],
+    "capital": {
+      "en": "Kingston",
+      "es": "Kingston",
+      "pt": "Kingston",
+      "names": [
+        "Kingston"
+      ]
+    },
     "type": "estado",
     "sovereign": "Jamaica",
     "continent": "North America",
@@ -1303,6 +2843,19 @@
     "name_pt": "Japão",
     "iso": "JP",
     "iso3": "JPN",
+    "aliases": [
+      "Japan"
+    ],
+    "capital": {
+      "en": "Tokyo",
+      "es": "Tokio",
+      "pt": "Tóquio",
+      "names": [
+        "Tokyo",
+        "Tokio",
+        "Tóquio"
+      ]
+    },
     "type": "estado",
     "sovereign": "Japan",
     "continent": "Asia",
@@ -1314,6 +2867,19 @@
     "name_pt": "Jersey",
     "iso": "JE",
     "iso3": "JEY",
+    "aliases": [
+      "Jersey",
+      "Bailiwick of Jersey"
+    ],
+    "capital": {
+      "en": "Saint Helier",
+      "es": "Saint Helier",
+      "pt": "Saint Helier",
+      "names": [
+        "Saint Helier",
+        "St Helier"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Europe",
@@ -1325,6 +2891,20 @@
     "name_pt": "Jordânia",
     "iso": "JO",
     "iso3": "JOR",
+    "aliases": [
+      "Jordan",
+      "Hashemite Kingdom of Jordan"
+    ],
+    "capital": {
+      "en": "Amman",
+      "es": "Amán",
+      "pt": "Amã",
+      "names": [
+        "Amman",
+        "Amán",
+        "Amã"
+      ]
+    },
     "type": "estado",
     "sovereign": "Jordan",
     "continent": "Asia",
@@ -1336,6 +2916,21 @@
     "name_pt": "Cazaquistão",
     "iso": "KZ",
     "iso3": "KAZ",
+    "aliases": [
+      "Kazakhstan",
+      "Republic of Kazakhstan"
+    ],
+    "capital": {
+      "en": "Nur-Sultan",
+      "es": "Nur-Sultán",
+      "pt": "Nur-Sultã",
+      "names": [
+        "Nur-Sultan",
+        "Nur-Sultán",
+        "Nur-Sultã",
+        "Astana"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kazakhstan",
     "continent": "Asia",
@@ -1347,6 +2942,19 @@
     "name_pt": "Quénia",
     "iso": "KE",
     "iso3": "KEN",
+    "aliases": [
+      "Kenya",
+      "Republic of Kenya"
+    ],
+    "capital": {
+      "en": "Nairobi",
+      "es": "Nairobi",
+      "pt": "Nairóbi",
+      "names": [
+        "Nairobi",
+        "Nairóbi"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kenya",
     "continent": "Africa",
@@ -1358,6 +2966,23 @@
     "name_pt": "Quirguistão",
     "iso": "KG",
     "iso3": "KGZ",
+    "aliases": [
+      "Kyrgyzstan",
+      "Kyrgyz Republic",
+      "Kirghizia",
+      "Kirguistán",
+      "Quirguistão"
+    ],
+    "capital": {
+      "en": "Bishkek",
+      "es": "Biskek",
+      "pt": "Bisqueque",
+      "names": [
+        "Bishkek",
+        "Biskek",
+        "Bisqueque"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kyrgyzstan",
     "continent": "Asia",
@@ -1369,6 +2994,21 @@
     "name_pt": "Kiribati",
     "iso": "KI",
     "iso3": "KIR",
+    "aliases": [
+      "Kiribati",
+      "Republic of Kiribati"
+    ],
+    "capital": {
+      "en": "South Tarawa",
+      "es": "Tarawa Sur",
+      "pt": "Tarawa do Sul",
+      "names": [
+        "South Tarawa",
+        "Tarawa Sur",
+        "Tarawa do Sul",
+        "Tarawa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kiribati",
     "continent": "Oceania",
@@ -1380,6 +3020,18 @@
     "name_pt": "Kosovo",
     "iso": "XK",
     "iso3": "KOS",
+    "aliases": [
+      "Kosovo",
+      "Republic of Kosovo"
+    ],
+    "capital": {
+      "en": "Pristina",
+      "es": "Pristina",
+      "pt": "Pristina",
+      "names": [
+        "Pristina"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kosovo",
     "continent": "Europe",
@@ -1391,6 +3043,21 @@
     "name_pt": "Kuwait",
     "iso": "KW",
     "iso3": "KWT",
+    "aliases": [
+      "Kuwait",
+      "State of Kuwait"
+    ],
+    "capital": {
+      "en": "Kuwait City",
+      "es": "Ciudad de Kuwait",
+      "pt": "Kuwait",
+      "names": [
+        "Kuwait City",
+        "Ciudad de Kuwait",
+        "Kuwait",
+        "Al Kuwayt"
+      ]
+    },
     "type": "estado",
     "sovereign": "Kuwait",
     "continent": "Asia",
@@ -1402,6 +3069,21 @@
     "name_pt": "Laos",
     "iso": "LA",
     "iso3": "LAO",
+    "aliases": [
+      "Laos",
+      "Lao PDR",
+      "Lao People's Democratic Republic"
+    ],
+    "capital": {
+      "en": "Vientiane",
+      "es": "Vientián",
+      "pt": "Vienciana",
+      "names": [
+        "Vientiane",
+        "Vientián",
+        "Vienciana"
+      ]
+    },
     "type": "estado",
     "sovereign": "Laos",
     "continent": "Asia",
@@ -1413,6 +3095,18 @@
     "name_pt": "Lesoto",
     "iso": "LS",
     "iso3": "LSO",
+    "aliases": [
+      "Lesotho",
+      "Kingdom of Lesotho"
+    ],
+    "capital": {
+      "en": "Maseru",
+      "es": "Maseru",
+      "pt": "Maseru",
+      "names": [
+        "Maseru"
+      ]
+    },
     "type": "estado",
     "sovereign": "Lesotho",
     "continent": "Africa",
@@ -1424,6 +3118,18 @@
     "name_pt": "Letónia",
     "iso": "LV",
     "iso3": "LVA",
+    "aliases": [
+      "Latvia",
+      "Republic of Latvia"
+    ],
+    "capital": {
+      "en": "Riga",
+      "es": "Riga",
+      "pt": "Riga",
+      "names": [
+        "Riga"
+      ]
+    },
     "type": "estado",
     "sovereign": "Latvia",
     "continent": "Europe",
@@ -1435,6 +3141,20 @@
     "name_pt": "Líbano",
     "iso": "LB",
     "iso3": "LBN",
+    "aliases": [
+      "Lebanon",
+      "Lebanese Republic"
+    ],
+    "capital": {
+      "en": "Beirut",
+      "es": "Beirut",
+      "pt": "Beirute",
+      "names": [
+        "Beirut",
+        "Beirute",
+        "Bayrut"
+      ]
+    },
     "type": "estado",
     "sovereign": "Lebanon",
     "continent": "Asia",
@@ -1446,6 +3166,19 @@
     "name_pt": "Libéria",
     "iso": "LR",
     "iso3": "LBR",
+    "aliases": [
+      "Liberia",
+      "Republic of Liberia"
+    ],
+    "capital": {
+      "en": "Monrovia",
+      "es": "Monrovia",
+      "pt": "Monróvia",
+      "names": [
+        "Monrovia",
+        "Monróvia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Liberia",
     "continent": "Africa",
@@ -1457,6 +3190,18 @@
     "name_pt": "Líbia",
     "iso": "LY",
     "iso3": "LBY",
+    "aliases": [
+      "Libya"
+    ],
+    "capital": {
+      "en": "Tripoli",
+      "es": "Trípoli",
+      "pt": "Trípoli",
+      "names": [
+        "Tripoli",
+        "Trípoli"
+      ]
+    },
     "type": "estado",
     "sovereign": "Libya",
     "continent": "Africa",
@@ -1468,6 +3213,18 @@
     "name_pt": "Liechtenstein",
     "iso": "LI",
     "iso3": "LIE",
+    "aliases": [
+      "Liechtenstein",
+      "Principality of Liechtenstein"
+    ],
+    "capital": {
+      "en": "Vaduz",
+      "es": "Vaduz",
+      "pt": "Vaduz",
+      "names": [
+        "Vaduz"
+      ]
+    },
     "type": "estado",
     "sovereign": "Liechtenstein",
     "continent": "Europe",
@@ -1479,6 +3236,19 @@
     "name_pt": "Lituânia",
     "iso": "LT",
     "iso3": "LTU",
+    "aliases": [
+      "Lithuania",
+      "Republic of Lithuania"
+    ],
+    "capital": {
+      "en": "Vilnius",
+      "es": "Vilna",
+      "pt": "Vilnius",
+      "names": [
+        "Vilnius",
+        "Vilna"
+      ]
+    },
     "type": "estado",
     "sovereign": "Lithuania",
     "continent": "Europe",
@@ -1490,6 +3260,19 @@
     "name_pt": "Luxemburgo",
     "iso": "LU",
     "iso3": "LUX",
+    "aliases": [
+      "Luxembourg",
+      "Grand Duchy of Luxembourg"
+    ],
+    "capital": {
+      "en": "Luxembourg",
+      "es": "Luxemburgo",
+      "pt": "Luxemburgo",
+      "names": [
+        "Luxembourg",
+        "Luxemburgo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Luxembourg",
     "continent": "Europe",
@@ -1501,6 +3284,13 @@
     "name_pt": "Macau",
     "iso": "MO",
     "iso3": "MAC",
+    "aliases": [
+      "Macao",
+      "Macao Special Administrative Region, PRC",
+      "Macao SAR, China",
+      "Macao S.A.R"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "China",
     "continent": "Asia",
@@ -1512,6 +3302,23 @@
     "name_pt": "Macedónia do Norte",
     "iso": "MK",
     "iso3": "MKD",
+    "aliases": [
+      "North Macedonia",
+      "Republic of North Macedonia",
+      "Macedonia",
+      "Macedonia del Norte",
+      "Macedônia do Norte",
+      "FYROM"
+    ],
+    "capital": {
+      "en": "Skopje",
+      "es": "Skopie",
+      "pt": "Skopje",
+      "names": [
+        "Skopje",
+        "Skopie"
+      ]
+    },
     "type": "estado",
     "sovereign": "North Macedonia",
     "continent": "Europe",
@@ -1523,6 +3330,18 @@
     "name_pt": "Madagáscar",
     "iso": "MG",
     "iso3": "MDG",
+    "aliases": [
+      "Madagascar",
+      "Republic of Madagascar"
+    ],
+    "capital": {
+      "en": "Antananarivo",
+      "es": "Antananarivo",
+      "pt": "Antananarivo",
+      "names": [
+        "Antananarivo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Madagascar",
     "continent": "Africa",
@@ -1534,6 +3353,18 @@
     "name_pt": "Malásia",
     "iso": "MY",
     "iso3": "MYS",
+    "aliases": [
+      "Malaysia"
+    ],
+    "capital": {
+      "en": "Kuala Lumpur",
+      "es": "Kuala Lumpur",
+      "pt": "Kuala Lumpur",
+      "names": [
+        "Putrajaya",
+        "Kuala Lumpur"
+      ]
+    },
     "type": "estado",
     "sovereign": "Malaysia",
     "continent": "Asia",
@@ -1545,6 +3376,19 @@
     "name_pt": "Malawi",
     "iso": "MW",
     "iso3": "MWI",
+    "aliases": [
+      "Malawi",
+      "Republic of Malawi"
+    ],
+    "capital": {
+      "en": "Lilongwe",
+      "es": "Lilongüe",
+      "pt": "Lilongwe",
+      "names": [
+        "Lilongwe",
+        "Lilongüe"
+      ]
+    },
     "type": "estado",
     "sovereign": "Malawi",
     "continent": "Africa",
@@ -1556,6 +3400,19 @@
     "name_pt": "Maldivas",
     "iso": "MV",
     "iso3": "MDV",
+    "aliases": [
+      "Maldives",
+      "Republic of Maldives"
+    ],
+    "capital": {
+      "en": "Malé",
+      "es": "Malé",
+      "pt": "Malé",
+      "names": [
+        "Malé",
+        "Male"
+      ]
+    },
     "type": "estado",
     "sovereign": "Maldives",
     "continent": "Seven seas (open ocean)",
@@ -1567,6 +3424,18 @@
     "name_pt": "Mali",
     "iso": "ML",
     "iso3": "MLI",
+    "aliases": [
+      "Mali",
+      "Republic of Mali"
+    ],
+    "capital": {
+      "en": "Bamako",
+      "es": "Bamako",
+      "pt": "Bamako",
+      "names": [
+        "Bamako"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mali",
     "continent": "Africa",
@@ -1578,6 +3447,20 @@
     "name_pt": "Malta",
     "iso": "MT",
     "iso3": "MLT",
+    "aliases": [
+      "Malta",
+      "Republic of Malta"
+    ],
+    "capital": {
+      "en": "Valletta",
+      "es": "La Valeta",
+      "pt": "Valeta",
+      "names": [
+        "Valletta",
+        "La Valeta",
+        "Valeta"
+      ]
+    },
     "type": "estado",
     "sovereign": "Malta",
     "continent": "Europe",
@@ -1589,6 +3472,18 @@
     "name_pt": "Marrocos",
     "iso": "MA",
     "iso3": "MAR",
+    "aliases": [
+      "Morocco",
+      "Kingdom of Morocco"
+    ],
+    "capital": {
+      "en": "Rabat",
+      "es": "Rabat",
+      "pt": "Rabat",
+      "names": [
+        "Rabat"
+      ]
+    },
     "type": "estado",
     "sovereign": "Morocco",
     "continent": "Africa",
@@ -1600,6 +3495,18 @@
     "name_pt": "Maurícia",
     "iso": "MU",
     "iso3": "MUS",
+    "aliases": [
+      "Mauritius",
+      "Republic of Mauritius"
+    ],
+    "capital": {
+      "en": "Port Louis",
+      "es": "Port Louis",
+      "pt": "Port Louis",
+      "names": [
+        "Port Louis"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mauritius",
     "continent": "Seven seas (open ocean)",
@@ -1611,6 +3518,19 @@
     "name_pt": "Mauritânia",
     "iso": "MR",
     "iso3": "MRT",
+    "aliases": [
+      "Mauritania",
+      "Islamic Republic of Mauritania"
+    ],
+    "capital": {
+      "en": "Nouakchott",
+      "es": "Nuakchot",
+      "pt": "Nouakchott",
+      "names": [
+        "Nouakchott",
+        "Nuakchot"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mauritania",
     "continent": "Africa",
@@ -1622,6 +3542,21 @@
     "name_pt": "México",
     "iso": "MX",
     "iso3": "MEX",
+    "aliases": [
+      "Mexico",
+      "United Mexican States"
+    ],
+    "capital": {
+      "en": "Mexico City",
+      "es": "Ciudad de México",
+      "pt": "Cidade do México",
+      "names": [
+        "Mexico City",
+        "Ciudad de México",
+        "Cidade do México",
+        "Ciudad de M"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mexico",
     "continent": "North America",
@@ -1633,6 +3568,20 @@
     "name_pt": "Moldávia",
     "iso": "MD",
     "iso3": "MDA",
+    "aliases": [
+      "Moldova",
+      "Republic of Moldova"
+    ],
+    "capital": {
+      "en": "Chișinău",
+      "es": "Chisináu",
+      "pt": "Chișinău",
+      "names": [
+        "Chișinău",
+        "Chisináu",
+        "Chisinau"
+      ]
+    },
     "type": "estado",
     "sovereign": "Moldova",
     "continent": "Europe",
@@ -1644,6 +3593,19 @@
     "name_pt": "Mónaco",
     "iso": "MC",
     "iso3": "MCO",
+    "aliases": [
+      "Monaco",
+      "Principality of Monaco"
+    ],
+    "capital": {
+      "en": "Monaco",
+      "es": "Mónaco",
+      "pt": "Mónaco",
+      "names": [
+        "Monaco",
+        "Mónaco"
+      ]
+    },
     "type": "estado",
     "sovereign": "Monaco",
     "continent": "Europe",
@@ -1655,6 +3617,19 @@
     "name_pt": "Mongólia",
     "iso": "MN",
     "iso3": "MNG",
+    "aliases": [
+      "Mongolia"
+    ],
+    "capital": {
+      "en": "Ulaanbaatar",
+      "es": "Ulán Bator",
+      "pt": "Ulan Bator",
+      "names": [
+        "Ulaanbaatar",
+        "Ulán Bator",
+        "Ulan Bator"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mongolia",
     "continent": "Asia",
@@ -1666,6 +3641,17 @@
     "name_pt": "Montenegro",
     "iso": "ME",
     "iso3": "MNE",
+    "aliases": [
+      "Montenegro"
+    ],
+    "capital": {
+      "en": "Podgorica",
+      "es": "Podgorica",
+      "pt": "Podgorica",
+      "names": [
+        "Podgorica"
+      ]
+    },
     "type": "estado",
     "sovereign": "Montenegro",
     "continent": "Europe",
@@ -1677,6 +3663,18 @@
     "name_pt": "Montserrat",
     "iso": "MS",
     "iso3": "MSR",
+    "aliases": [
+      "Montserrat"
+    ],
+    "capital": {
+      "en": "Brades",
+      "es": "Brades",
+      "pt": "Brades",
+      "names": [
+        "Brades",
+        "Plymouth"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "North America",
@@ -1688,6 +3686,18 @@
     "name_pt": "Moçambique",
     "iso": "MZ",
     "iso3": "MOZ",
+    "aliases": [
+      "Mozambique",
+      "Republic of Mozambique"
+    ],
+    "capital": {
+      "en": "Maputo",
+      "es": "Maputo",
+      "pt": "Maputo",
+      "names": [
+        "Maputo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Mozambique",
     "continent": "Africa",
@@ -1699,6 +3709,18 @@
     "name_pt": "Namíbia",
     "iso": "NA",
     "iso3": "NAM",
+    "aliases": [
+      "Namibia",
+      "Republic of Namibia"
+    ],
+    "capital": {
+      "en": "Windhoek",
+      "es": "Windhoek",
+      "pt": "Windhoek",
+      "names": [
+        "Windhoek"
+      ]
+    },
     "type": "estado",
     "sovereign": "Namibia",
     "continent": "Africa",
@@ -1710,6 +3732,18 @@
     "name_pt": "Nauru",
     "iso": "NR",
     "iso3": "NRU",
+    "aliases": [
+      "Nauru",
+      "Republic of Nauru"
+    ],
+    "capital": {
+      "en": "Yaren",
+      "es": "Yaren",
+      "pt": "Yaren",
+      "names": [
+        "Yaren"
+      ]
+    },
     "type": "estado",
     "sovereign": "Nauru",
     "continent": "Oceania",
@@ -1721,6 +3755,19 @@
     "name_pt": "Nepal",
     "iso": "NP",
     "iso3": "NPL",
+    "aliases": [
+      "Nepal"
+    ],
+    "capital": {
+      "en": "Kathmandu",
+      "es": "Katmandú",
+      "pt": "Catmandu",
+      "names": [
+        "Kathmandu",
+        "Katmandú",
+        "Catmandu"
+      ]
+    },
     "type": "estado",
     "sovereign": "Nepal",
     "continent": "Asia",
@@ -1732,6 +3779,19 @@
     "name_pt": "Nicarágua",
     "iso": "NI",
     "iso3": "NIC",
+    "aliases": [
+      "Nicaragua",
+      "Republic of Nicaragua"
+    ],
+    "capital": {
+      "en": "Managua",
+      "es": "Managua",
+      "pt": "Manágua",
+      "names": [
+        "Managua",
+        "Manágua"
+      ]
+    },
     "type": "estado",
     "sovereign": "Nicaragua",
     "continent": "North America",
@@ -1743,6 +3803,18 @@
     "name_pt": "Níger",
     "iso": "NE",
     "iso3": "NER",
+    "aliases": [
+      "Niger",
+      "Republic of Niger"
+    ],
+    "capital": {
+      "en": "Niamey",
+      "es": "Niamey",
+      "pt": "Niamey",
+      "names": [
+        "Niamey"
+      ]
+    },
     "type": "estado",
     "sovereign": "Niger",
     "continent": "Africa",
@@ -1754,6 +3826,19 @@
     "name_pt": "Nigéria",
     "iso": "NG",
     "iso3": "NGA",
+    "aliases": [
+      "Nigeria",
+      "Federal Republic of Nigeria"
+    ],
+    "capital": {
+      "en": "Abuja",
+      "es": "Abuya",
+      "pt": "Abuja",
+      "names": [
+        "Abuja",
+        "Abuya"
+      ]
+    },
     "type": "estado",
     "sovereign": "Nigeria",
     "continent": "Africa",
@@ -1765,6 +3850,17 @@
     "name_pt": "Niue",
     "iso": "NU",
     "iso3": "NIU",
+    "aliases": [
+      "Niue"
+    ],
+    "capital": {
+      "en": "Alofi",
+      "es": "Alofi",
+      "pt": "Alofi",
+      "names": [
+        "Alofi"
+      ]
+    },
     "type": "territorio",
     "sovereign": "New Zealand",
     "continent": "Oceania",
@@ -1776,6 +3872,18 @@
     "name_pt": "Noruega",
     "iso": "NO",
     "iso3": "NOR",
+    "aliases": [
+      "Norway",
+      "Kingdom of Norway"
+    ],
+    "capital": {
+      "en": "Oslo",
+      "es": "Oslo",
+      "pt": "Oslo",
+      "names": [
+        "Oslo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Norway",
     "continent": "Europe",
@@ -1787,6 +3895,18 @@
     "name_pt": "Nova Caledónia",
     "iso": "NC",
     "iso3": "NCL",
+    "aliases": [
+      "New Caledonia"
+    ],
+    "capital": {
+      "en": "Nouméa",
+      "es": "Nouméa",
+      "pt": "Nouméa",
+      "names": [
+        "Nouméa",
+        "Noumea"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "Oceania",
@@ -1798,6 +3918,17 @@
     "name_pt": "Nova Zelândia",
     "iso": "NZ",
     "iso3": "NZL",
+    "aliases": [
+      "New Zealand"
+    ],
+    "capital": {
+      "en": "Wellington",
+      "es": "Wellington",
+      "pt": "Wellington",
+      "names": [
+        "Wellington"
+      ]
+    },
     "type": "estado",
     "sovereign": "New Zealand",
     "continent": "Oceania",
@@ -1809,6 +3940,19 @@
     "name_pt": "Omã",
     "iso": "OM",
     "iso3": "OMN",
+    "aliases": [
+      "Oman",
+      "Sultanate of Oman"
+    ],
+    "capital": {
+      "en": "Muscat",
+      "es": "Mascate",
+      "pt": "Mascate",
+      "names": [
+        "Muscat",
+        "Mascate"
+      ]
+    },
     "type": "estado",
     "sovereign": "Oman",
     "continent": "Asia",
@@ -1820,6 +3964,26 @@
     "name_pt": "Países Baixos",
     "iso": "NL",
     "iso3": "NLD",
+    "aliases": [
+      "Netherlands",
+      "Kingdom of the Netherlands",
+      "Holland",
+      "Holanda",
+      "The Netherlands"
+    ],
+    "capital": {
+      "en": "Amsterdam",
+      "es": "Ámsterdam",
+      "pt": "Amesterdão",
+      "names": [
+        "The Hague",
+        "La Haya",
+        "Haia",
+        "Amsterdam",
+        "Ámsterdam",
+        "Amesterdão"
+      ]
+    },
     "type": "estado",
     "sovereign": "Netherlands",
     "continent": "Europe",
@@ -1831,6 +3995,18 @@
     "name_pt": "Paquistão",
     "iso": "PK",
     "iso3": "PAK",
+    "aliases": [
+      "Pakistan",
+      "Islamic Republic of Pakistan"
+    ],
+    "capital": {
+      "en": "Islamabad",
+      "es": "Islamabad",
+      "pt": "Islamabad",
+      "names": [
+        "Islamabad"
+      ]
+    },
     "type": "estado",
     "sovereign": "Pakistan",
     "continent": "Asia",
@@ -1842,6 +4018,19 @@
     "name_pt": "Palau",
     "iso": "PW",
     "iso3": "PLW",
+    "aliases": [
+      "Palau",
+      "Republic of Palau"
+    ],
+    "capital": {
+      "en": "Melekeok",
+      "es": "Melekeok",
+      "pt": "Melequeoque",
+      "names": [
+        "Melekeok",
+        "Melequeoque"
+      ]
+    },
     "type": "estado",
     "sovereign": "Palau",
     "continent": "Oceania",
@@ -1853,6 +4042,14 @@
     "name_pt": "Palestina",
     "iso": "PS",
     "iso3": "PSE",
+    "aliases": [
+      "Palestine",
+      "West Bank and Gaza",
+      "Palestine (West Bank and Gaza)",
+      "Palestinian Territories",
+      "State of Palestine"
+    ],
+    "capital": null,
     "type": "indeterminado",
     "sovereign": "Israel",
     "continent": "Asia",
@@ -1864,6 +4061,22 @@
     "name_pt": "Panamá",
     "iso": "PA",
     "iso3": "PAN",
+    "aliases": [
+      "Panama",
+      "Republic of Panama"
+    ],
+    "capital": {
+      "en": "Panama City",
+      "es": "Ciudad de Panamá",
+      "pt": "Cidade do Panamá",
+      "names": [
+        "Panama City",
+        "Ciudad de Panamá",
+        "Cidade do Panamá",
+        "Ciudad de Panam",
+        "Panama"
+      ]
+    },
     "type": "estado",
     "sovereign": "Panama",
     "continent": "North America",
@@ -1875,6 +4088,19 @@
     "name_pt": "Papua-Nova Guiné",
     "iso": "PG",
     "iso3": "PNG",
+    "aliases": [
+      "Papua New Guinea",
+      "Independent State of Papua New Guinea"
+    ],
+    "capital": {
+      "en": "Port Moresby",
+      "es": "Puerto Moresby",
+      "pt": "Port Moresby",
+      "names": [
+        "Port Moresby",
+        "Puerto Moresby"
+      ]
+    },
     "type": "estado",
     "sovereign": "Papua New Guinea",
     "continent": "Oceania",
@@ -1886,6 +4112,20 @@
     "name_pt": "Paraguai",
     "iso": "PY",
     "iso3": "PRY",
+    "aliases": [
+      "Paraguay",
+      "Republic of Paraguay"
+    ],
+    "capital": {
+      "en": "Asunción",
+      "es": "Asunción",
+      "pt": "Assunção",
+      "names": [
+        "Asunción",
+        "Assunção",
+        "Asuncion"
+      ]
+    },
     "type": "estado",
     "sovereign": "Paraguay",
     "continent": "South America",
@@ -1897,6 +4137,18 @@
     "name_pt": "Peru",
     "iso": "PE",
     "iso3": "PER",
+    "aliases": [
+      "Peru",
+      "Republic of Peru"
+    ],
+    "capital": {
+      "en": "Lima",
+      "es": "Lima",
+      "pt": "Lima",
+      "names": [
+        "Lima"
+      ]
+    },
     "type": "estado",
     "sovereign": "Peru",
     "continent": "South America",
@@ -1908,6 +4160,18 @@
     "name_pt": "Polinésia Francesa",
     "iso": "PF",
     "iso3": "PYF",
+    "aliases": [
+      "Fr. Polynesia",
+      "French Polynesia"
+    ],
+    "capital": {
+      "en": "Papeete",
+      "es": "Papeete",
+      "pt": "Papeete",
+      "names": [
+        "Papeete"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "Oceania",
@@ -1919,6 +4183,20 @@
     "name_pt": "Polónia",
     "iso": "PL",
     "iso3": "POL",
+    "aliases": [
+      "Poland",
+      "Republic of Poland"
+    ],
+    "capital": {
+      "en": "Warsaw",
+      "es": "Varsovia",
+      "pt": "Varsóvia",
+      "names": [
+        "Warsaw",
+        "Varsovia",
+        "Varsóvia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Poland",
     "continent": "Europe",
@@ -1930,6 +4208,19 @@
     "name_pt": "Portugal",
     "iso": "PT",
     "iso3": "PRT",
+    "aliases": [
+      "Portugal",
+      "Portuguese Republic"
+    ],
+    "capital": {
+      "en": "Lisbon",
+      "es": "Lisboa",
+      "pt": "Lisboa",
+      "names": [
+        "Lisbon",
+        "Lisboa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Portugal",
     "continent": "Europe",
@@ -1941,6 +4232,18 @@
     "name_pt": "Porto Rico",
     "iso": "PR",
     "iso3": "PRI",
+    "aliases": [
+      "Puerto Rico",
+      "Commonwealth of Puerto Rico"
+    ],
+    "capital": {
+      "en": "San Juan",
+      "es": "San Juan",
+      "pt": "San Juan",
+      "names": [
+        "San Juan"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United States of America",
     "continent": "North America",
@@ -1952,6 +4255,25 @@
     "name_pt": "Reino Unido",
     "iso": "GB",
     "iso3": "GBR",
+    "aliases": [
+      "United Kingdom",
+      "United Kingdom of Great Britain and Northern Ireland",
+      "UK",
+      "Great Britain",
+      "Britain",
+      "Reino Unido",
+      "Gran Bretaña",
+      "Grã-Bretanha"
+    ],
+    "capital": {
+      "en": "London",
+      "es": "Londres",
+      "pt": "Londres",
+      "names": [
+        "London",
+        "Londres"
+      ]
+    },
     "type": "estado",
     "sovereign": "United Kingdom",
     "continent": "Europe",
@@ -1963,6 +4285,20 @@
     "name_pt": "República Centro-Africana",
     "iso": "CF",
     "iso3": "CAF",
+    "aliases": [
+      "Central African Rep.",
+      "Central African Republic",
+      "CAR",
+      "Central African Rep"
+    ],
+    "capital": {
+      "en": "Bangui",
+      "es": "Bangui",
+      "pt": "Bangui",
+      "names": [
+        "Bangui"
+      ]
+    },
     "type": "estado",
     "sovereign": "Central African Republic",
     "continent": "Africa",
@@ -1974,6 +4310,25 @@
     "name_pt": "Chéquia",
     "iso": "CZ",
     "iso3": "CZE",
+    "aliases": [
+      "Czechia",
+      "Czech Republic",
+      "Česko",
+      "Republica Checa",
+      "República Checa",
+      "Chequia",
+      "Tchequia",
+      "Tchéquia"
+    ],
+    "capital": {
+      "en": "Prague",
+      "es": "Praga",
+      "pt": "Praga",
+      "names": [
+        "Prague",
+        "Praga"
+      ]
+    },
     "type": "estado",
     "sovereign": "Czechia",
     "continent": "Europe",
@@ -1985,6 +4340,21 @@
     "name_pt": "Taiwan",
     "iso": "TW",
     "iso3": "TWN",
+    "aliases": [
+      "Taiwan",
+      "Republic of China",
+      "Formosa"
+    ],
+    "capital": {
+      "en": "Taipei",
+      "es": "Taipéi",
+      "pt": "Taipé",
+      "names": [
+        "Taipei",
+        "Taipéi",
+        "Taipé"
+      ]
+    },
     "type": "estado",
     "sovereign": "Taiwan",
     "continent": "Asia",
@@ -1996,6 +4366,23 @@
     "name_pt": "República do Congo",
     "iso": "CG",
     "iso3": "COG",
+    "aliases": [
+      "Congo",
+      "Republic of the Congo",
+      "Congo, Rep.",
+      "Congo-Brazzaville",
+      "Republic of Congo",
+      "Republica del Congo"
+    ],
+    "capital": {
+      "en": "Brazzaville",
+      "es": "Brazzaville",
+      "pt": "Brazavile",
+      "names": [
+        "Brazzaville",
+        "Brazavile"
+      ]
+    },
     "type": "estado",
     "sovereign": "Republic of the Congo",
     "continent": "Africa",
@@ -2007,6 +4394,27 @@
     "name_pt": "República Democrática do Congo",
     "iso": "CD",
     "iso3": "COD",
+    "aliases": [
+      "Dem. Rep. Congo",
+      "Democratic Republic of the Congo",
+      "Congo, Dem. Rep.",
+      "DR Congo",
+      "DRC",
+      "Congo-Kinshasa",
+      "Democratic Republic of Congo",
+      "RD Congo",
+      "RDC",
+      "Zaire"
+    ],
+    "capital": {
+      "en": "Kinshasa",
+      "es": "Kinsasa",
+      "pt": "Kinshasa",
+      "names": [
+        "Kinshasa",
+        "Kinsasa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Democratic Republic of the Congo",
     "continent": "Africa",
@@ -2018,6 +4426,20 @@
     "name_pt": "República Dominicana",
     "iso": "DO",
     "iso3": "DOM",
+    "aliases": [
+      "Dominican Rep.",
+      "Dominican Republic",
+      "Dominican Rep",
+      "Rep Dominicana"
+    ],
+    "capital": {
+      "en": "Santo Domingo",
+      "es": "Santo Domingo",
+      "pt": "Santo Domingo",
+      "names": [
+        "Santo Domingo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Dominican Republic",
     "continent": "North America",
@@ -2029,6 +4451,23 @@
     "name_pt": "República Turca do Chipre do Norte",
     "iso": null,
     "iso3": "CYN",
+    "aliases": [
+      "N. Cyprus",
+      "Northern Cyprus",
+      "Turkish Republic of Northern Cyprus",
+      "Cyprus, Northern"
+    ],
+    "capital": {
+      "en": "North Nicosia",
+      "es": "North Nicosia",
+      "pt": "North Nicosia",
+      "names": [
+        "North Nicosia",
+        "Nicosia del Norte",
+        "Lefkoşa",
+        "Lefkosa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Northern Cyprus",
     "continent": "Asia",
@@ -2040,6 +4479,18 @@
     "name_pt": "Ruanda",
     "iso": "RW",
     "iso3": "RWA",
+    "aliases": [
+      "Rwanda",
+      "Republic of Rwanda"
+    ],
+    "capital": {
+      "en": "Kigali",
+      "es": "Kigali",
+      "pt": "Kigali",
+      "names": [
+        "Kigali"
+      ]
+    },
     "type": "estado",
     "sovereign": "Rwanda",
     "continent": "Africa",
@@ -2051,6 +4502,19 @@
     "name_pt": "Roménia",
     "iso": "RO",
     "iso3": "ROU",
+    "aliases": [
+      "Romania"
+    ],
+    "capital": {
+      "en": "Bucharest",
+      "es": "Bucarest",
+      "pt": "Bucareste",
+      "names": [
+        "Bucharest",
+        "Bucarest",
+        "Bucareste"
+      ]
+    },
     "type": "estado",
     "sovereign": "Romania",
     "continent": "Europe",
@@ -2062,6 +4526,21 @@
     "name_pt": "Rússia",
     "iso": "RU",
     "iso3": "RUS",
+    "aliases": [
+      "Russia",
+      "Russian Federation",
+      "Federacion Rusa"
+    ],
+    "capital": {
+      "en": "Moscow",
+      "es": "Moscú",
+      "pt": "Moscovo",
+      "names": [
+        "Moscow",
+        "Moscú",
+        "Moscovo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Russia",
     "continent": "Europe",
@@ -2073,6 +4552,12 @@
     "name_pt": "Sara Ocidental",
     "iso": "EH",
     "iso3": "ESH",
+    "aliases": [
+      "W. Sahara",
+      "Western Sahara",
+      "Sahrawi Arab Democratic Republic"
+    ],
+    "capital": null,
     "type": "indeterminado",
     "sovereign": "Western Sahara",
     "continent": "Africa",
@@ -2084,6 +4569,18 @@
     "name_pt": "Samoa",
     "iso": "WS",
     "iso3": "WSM",
+    "aliases": [
+      "Samoa",
+      "Independent State of Samoa"
+    ],
+    "capital": {
+      "en": "Apia",
+      "es": "Apia",
+      "pt": "Apia",
+      "names": [
+        "Apia"
+      ]
+    },
     "type": "estado",
     "sovereign": "Samoa",
     "continent": "Oceania",
@@ -2095,6 +4592,17 @@
     "name_pt": "Samoa Americana",
     "iso": "AS",
     "iso3": "ASM",
+    "aliases": [
+      "American Samoa"
+    ],
+    "capital": {
+      "en": "Pago Pago",
+      "es": "Pago Pago",
+      "pt": "Pago Pago",
+      "names": [
+        "Pago Pago"
+      ]
+    },
     "type": "territorio",
     "sovereign": "United States of America",
     "continent": "Oceania",
@@ -2106,6 +4614,19 @@
     "name_pt": "Coletividade de São Bartolomeu",
     "iso": "BL",
     "iso3": "BLM",
+    "aliases": [
+      "St-Barthélemy",
+      "Saint-Barthélemy",
+      "Saint Barthelemy"
+    ],
+    "capital": {
+      "en": "Gustavia",
+      "es": "Gustavia",
+      "pt": "Gustavia",
+      "names": [
+        "Gustavia"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "North America",
@@ -2117,6 +4638,22 @@
     "name_pt": "São Cristóvão e Nevis",
     "iso": "KN",
     "iso3": "KNA",
+    "aliases": [
+      "St. Kitts and Nevis",
+      "Saint Kitts and Nevis",
+      "Federation of Saint Kitts and Nevis",
+      "St Kitts",
+      "Saint Kitts",
+      "St Kitts and Nevis"
+    ],
+    "capital": {
+      "en": "Basseterre",
+      "es": "Basseterre",
+      "pt": "Basseterre",
+      "names": [
+        "Basseterre"
+      ]
+    },
     "type": "estado",
     "sovereign": "Saint Kitts and Nevis",
     "continent": "North America",
@@ -2128,6 +4665,18 @@
     "name_pt": "San Marino",
     "iso": "SM",
     "iso3": "SMR",
+    "aliases": [
+      "San Marino",
+      "Republic of San Marino"
+    ],
+    "capital": {
+      "en": "San Marino",
+      "es": "San Marino",
+      "pt": "San Marino",
+      "names": [
+        "San Marino"
+      ]
+    },
     "type": "estado",
     "sovereign": "San Marino",
     "continent": "Europe",
@@ -2139,6 +4688,21 @@
     "name_pt": "São Martinho",
     "iso": "MF",
     "iso3": "MAF",
+    "aliases": [
+      "St-Martin",
+      "Saint-Martin",
+      "Saint-Martin (French part)",
+      "St. Martin (French part)",
+      "Saint Martin"
+    ],
+    "capital": {
+      "en": "Marigot",
+      "es": "Marigot",
+      "pt": "Marigot",
+      "names": [
+        "Marigot"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "North America",
@@ -2150,6 +4714,19 @@
     "name_pt": "São Martinho",
     "iso": "SX",
     "iso3": "SXM",
+    "aliases": [
+      "Sint Maarten",
+      "Sint Maarten (Dutch part)",
+      "St. Maarten (Dutch part)"
+    ],
+    "capital": {
+      "en": "Philipsburg",
+      "es": "Philipsburg",
+      "pt": "Philipsburg",
+      "names": [
+        "Philipsburg"
+      ]
+    },
     "type": "territorio",
     "sovereign": "Netherlands",
     "continent": "North America",
@@ -2161,6 +4738,19 @@
     "name_pt": "Saint-Pierre e Miquelon",
     "iso": "PM",
     "iso3": "SPM",
+    "aliases": [
+      "St. Pierre and Miquelon",
+      "Saint Pierre and Miquelon"
+    ],
+    "capital": {
+      "en": "Saint-Pierre",
+      "es": "Saint-Pierre",
+      "pt": "Saint-Pierre",
+      "names": [
+        "Saint-Pierre",
+        "San Pedro"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "North America",
@@ -2172,6 +4762,21 @@
     "name_pt": "São Vicente e Granadinas",
     "iso": "VC",
     "iso3": "VCT",
+    "aliases": [
+      "St. Vin. and Gren.",
+      "Saint Vincent and the Grenadines",
+      "St. Vincent and the Grenadines",
+      "St Vincent",
+      "Saint Vincent"
+    ],
+    "capital": {
+      "en": "Kingstown",
+      "es": "Kingstown",
+      "pt": "Kingstown",
+      "names": [
+        "Kingstown"
+      ]
+    },
     "type": "estado",
     "sovereign": "Saint Vincent and the Grenadines",
     "continent": "North America",
@@ -2183,6 +4788,19 @@
     "name_pt": "Santa Lúcia",
     "iso": "LC",
     "iso3": "LCA",
+    "aliases": [
+      "Saint Lucia",
+      "St. Lucia",
+      "St Lucia"
+    ],
+    "capital": {
+      "en": "Castries",
+      "es": "Castries",
+      "pt": "Castries",
+      "names": [
+        "Castries"
+      ]
+    },
     "type": "estado",
     "sovereign": "Saint Lucia",
     "continent": "North America",
@@ -2194,6 +4812,23 @@
     "name_pt": "São Tomé e Príncipe",
     "iso": "ST",
     "iso3": "STP",
+    "aliases": [
+      "São Tomé and Principe",
+      "Democratic Republic of São Tomé and Principe",
+      "Sao Tome and Principe",
+      "Sao Tome",
+      "Santo Tome"
+    ],
+    "capital": {
+      "en": "São Tomé",
+      "es": "Santo Tomé",
+      "pt": "São Tomé",
+      "names": [
+        "São Tomé",
+        "Santo Tomé",
+        "Sao Tome"
+      ]
+    },
     "type": "estado",
     "sovereign": "São Tomé and Principe",
     "continent": "Africa",
@@ -2205,6 +4840,18 @@
     "name_pt": "Senegal",
     "iso": "SN",
     "iso3": "SEN",
+    "aliases": [
+      "Senegal",
+      "Republic of Senegal"
+    ],
+    "capital": {
+      "en": "Dakar",
+      "es": "Dakar",
+      "pt": "Dakar",
+      "names": [
+        "Dakar"
+      ]
+    },
     "type": "estado",
     "sovereign": "Senegal",
     "continent": "Africa",
@@ -2216,6 +4863,19 @@
     "name_pt": "Sérvia",
     "iso": "RS",
     "iso3": "SRB",
+    "aliases": [
+      "Serbia",
+      "Republic of Serbia"
+    ],
+    "capital": {
+      "en": "Belgrade",
+      "es": "Belgrado",
+      "pt": "Belgrado",
+      "names": [
+        "Belgrade",
+        "Belgrado"
+      ]
+    },
     "type": "estado",
     "sovereign": "Republic of Serbia",
     "continent": "Europe",
@@ -2227,6 +4887,18 @@
     "name_pt": "Seychelles",
     "iso": "SC",
     "iso3": "SYC",
+    "aliases": [
+      "Seychelles",
+      "Republic of Seychelles"
+    ],
+    "capital": {
+      "en": "Victoria",
+      "es": "Victoria",
+      "pt": "Victoria",
+      "names": [
+        "Victoria"
+      ]
+    },
     "type": "estado",
     "sovereign": "Seychelles",
     "continent": "Seven seas (open ocean)",
@@ -2238,6 +4910,18 @@
     "name_pt": "Serra Leoa",
     "iso": "SL",
     "iso3": "SLE",
+    "aliases": [
+      "Sierra Leone",
+      "Republic of Sierra Leone"
+    ],
+    "capital": {
+      "en": "Freetown",
+      "es": "Freetown",
+      "pt": "Freetown",
+      "names": [
+        "Freetown"
+      ]
+    },
     "type": "estado",
     "sovereign": "Sierra Leone",
     "continent": "Africa",
@@ -2249,6 +4933,20 @@
     "name_pt": "Singapura",
     "iso": "SG",
     "iso3": "SGP",
+    "aliases": [
+      "Singapore",
+      "Republic of Singapore"
+    ],
+    "capital": {
+      "en": "Singapore",
+      "es": "Singapur",
+      "pt": "Singapura",
+      "names": [
+        "Singapore",
+        "Singapur",
+        "Singapura"
+      ]
+    },
     "type": "estado",
     "sovereign": "Singapore",
     "continent": "Asia",
@@ -2260,6 +4958,20 @@
     "name_pt": "Síria",
     "iso": "SY",
     "iso3": "SYR",
+    "aliases": [
+      "Syria",
+      "Syrian Arab Republic"
+    ],
+    "capital": {
+      "en": "Damascus",
+      "es": "Damasco",
+      "pt": "Damasco",
+      "names": [
+        "Damascus",
+        "Damasco",
+        "Dimashq"
+      ]
+    },
     "type": "estado",
     "sovereign": "Syria",
     "continent": "Asia",
@@ -2271,6 +4983,21 @@
     "name_pt": "Somália",
     "iso": "SO",
     "iso3": "SOM",
+    "aliases": [
+      "Somalia",
+      "Federal Republic of Somalia"
+    ],
+    "capital": {
+      "en": "Mogadishu",
+      "es": "Mogadiscio",
+      "pt": "Mogadíscio",
+      "names": [
+        "Mogadishu",
+        "Mogadiscio",
+        "Mogadíscio",
+        "Muqdisho"
+      ]
+    },
     "type": "estado",
     "sovereign": "Somalia",
     "continent": "Africa",
@@ -2282,6 +5009,19 @@
     "name_pt": "Somalilândia",
     "iso": null,
     "iso3": "SOL",
+    "aliases": [
+      "Somaliland",
+      "Republic of Somaliland"
+    ],
+    "capital": {
+      "en": "Hargeisa",
+      "es": "Hargeisa",
+      "pt": "Hargeisa",
+      "names": [
+        "Hargeisa",
+        "Hargeysa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Somaliland",
     "continent": "Africa",
@@ -2293,6 +5033,22 @@
     "name_pt": "Sri Lanka",
     "iso": "LK",
     "iso3": "LKA",
+    "aliases": [
+      "Sri Lanka",
+      "Democratic Socialist Republic of Sri Lanka"
+    ],
+    "capital": {
+      "en": "Sri Jayawardenepura Kotte",
+      "es": "Sri Jayawardenepura Kotte",
+      "pt": "Sri Jayawardenepura Kotte",
+      "names": [
+        "Sri Jayawardenepura Kotte",
+        "Sri Jayawardenapura Kotte",
+        "Kotte",
+        "Sri Jawewardenepura Kotte",
+        "Colombo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Sri Lanka",
     "continent": "Asia",
@@ -2304,6 +5060,23 @@
     "name_pt": "Essuatíni",
     "iso": "SZ",
     "iso3": "SWZ",
+    "aliases": [
+      "eSwatini",
+      "Kingdom of eSwatini",
+      "Swaziland",
+      "Suazilandia",
+      "Essuatíni"
+    ],
+    "capital": {
+      "en": "Mbabane",
+      "es": "Mbabane",
+      "pt": "Mebabane",
+      "names": [
+        "Lobamba",
+        "Mbabane",
+        "Mebabane"
+      ]
+    },
     "type": "estado",
     "sovereign": "eSwatini",
     "continent": "Africa",
@@ -2315,6 +5088,23 @@
     "name_pt": "África do Sul",
     "iso": "ZA",
     "iso3": "ZAF",
+    "aliases": [
+      "South Africa",
+      "Republic of South Africa"
+    ],
+    "capital": {
+      "en": "Pretoria",
+      "es": "Pretoria",
+      "pt": "Pretória",
+      "names": [
+        "Bloemfontein",
+        "Pretoria",
+        "Pretória",
+        "Cape Town",
+        "Ciudad del Cabo",
+        "Cidade do Cabo"
+      ]
+    },
     "type": "estado",
     "sovereign": "South Africa",
     "continent": "Africa",
@@ -2326,6 +5116,21 @@
     "name_pt": "Sudão",
     "iso": "SD",
     "iso3": "SDN",
+    "aliases": [
+      "Sudan",
+      "Republic of the Sudan"
+    ],
+    "capital": {
+      "en": "Khartoum",
+      "es": "Jartum",
+      "pt": "Cartum",
+      "names": [
+        "Khartoum",
+        "Jartum",
+        "Cartum",
+        "Al-Khartum"
+      ]
+    },
     "type": "estado",
     "sovereign": "Sudan",
     "continent": "Africa",
@@ -2337,6 +5142,20 @@
     "name_pt": "Sudão do Sul",
     "iso": "SS",
     "iso3": "SSD",
+    "aliases": [
+      "S. Sudan",
+      "South Sudan",
+      "Republic of South Sudan"
+    ],
+    "capital": {
+      "en": "Juba",
+      "es": "Yuba",
+      "pt": "Juba",
+      "names": [
+        "Juba",
+        "Yuba"
+      ]
+    },
     "type": "estado",
     "sovereign": "South Sudan",
     "continent": "Africa",
@@ -2348,6 +5167,19 @@
     "name_pt": "Suécia",
     "iso": "SE",
     "iso3": "SWE",
+    "aliases": [
+      "Sweden",
+      "Kingdom of Sweden"
+    ],
+    "capital": {
+      "en": "Stockholm",
+      "es": "Estocolmo",
+      "pt": "Estocolmo",
+      "names": [
+        "Stockholm",
+        "Estocolmo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Sweden",
     "continent": "Europe",
@@ -2359,6 +5191,19 @@
     "name_pt": "Suíça",
     "iso": "CH",
     "iso3": "CHE",
+    "aliases": [
+      "Switzerland",
+      "Swiss Confederation"
+    ],
+    "capital": {
+      "en": "Bern",
+      "es": "Berna",
+      "pt": "Berna",
+      "names": [
+        "Bern",
+        "Berna"
+      ]
+    },
     "type": "estado",
     "sovereign": "Switzerland",
     "continent": "Europe",
@@ -2370,6 +5215,18 @@
     "name_pt": "Suriname",
     "iso": "SR",
     "iso3": "SUR",
+    "aliases": [
+      "Suriname",
+      "Republic of Suriname"
+    ],
+    "capital": {
+      "en": "Paramaribo",
+      "es": "Paramaribo",
+      "pt": "Paramaribo",
+      "names": [
+        "Paramaribo"
+      ]
+    },
     "type": "estado",
     "sovereign": "Suriname",
     "continent": "South America",
@@ -2381,6 +5238,20 @@
     "name_pt": "Tailândia",
     "iso": "TH",
     "iso3": "THA",
+    "aliases": [
+      "Thailand",
+      "Kingdom of Thailand"
+    ],
+    "capital": {
+      "en": "Bangkok",
+      "es": "Bangkok",
+      "pt": "Banguecoque",
+      "names": [
+        "Bangkok",
+        "Banguecoque",
+        "Krung Thep"
+      ]
+    },
     "type": "estado",
     "sovereign": "Thailand",
     "continent": "Asia",
@@ -2392,6 +5263,20 @@
     "name_pt": "Tanzânia",
     "iso": "TZ",
     "iso3": "TZA",
+    "aliases": [
+      "Tanzania",
+      "United Republic of Tanzania"
+    ],
+    "capital": {
+      "en": "Dodoma",
+      "es": "Dodoma",
+      "pt": "Dodoma",
+      "names": [
+        "Dodoma",
+        "Dar es Salaam",
+        "Dar es-Salaam"
+      ]
+    },
     "type": "estado",
     "sovereign": "United Republic of Tanzania",
     "continent": "Africa",
@@ -2403,6 +5288,20 @@
     "name_pt": "Tajiquistão",
     "iso": "TJ",
     "iso3": "TJK",
+    "aliases": [
+      "Tajikistan",
+      "Republic of Tajikistan"
+    ],
+    "capital": {
+      "en": "Dushanbe",
+      "es": "Dusambé",
+      "pt": "Duchambe",
+      "names": [
+        "Dushanbe",
+        "Dusambé",
+        "Duchambe"
+      ]
+    },
     "type": "estado",
     "sovereign": "Tajikistan",
     "continent": "Asia",
@@ -2414,6 +5313,11 @@
     "name_pt": "Território Britânico do Oceano Índico",
     "iso": "IO",
     "iso3": "IOT",
+    "aliases": [
+      "Br. Indian Ocean Ter.",
+      "British Indian Ocean Territory"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "United Kingdom",
     "continent": "Seven seas (open ocean)",
@@ -2425,6 +5329,11 @@
     "name_pt": "Territórios australianos do Oceano Índico",
     "iso": "AU",
     "iso3": "IOA",
+    "aliases": [
+      "Indian Ocean Ter.",
+      "Indian Ocean Territories"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "Australia",
     "continent": "Asia",
@@ -2436,6 +5345,13 @@
     "name_pt": "Terras Austrais e Antárticas Francesas",
     "iso": "TF",
     "iso3": "ATF",
+    "aliases": [
+      "Fr. S. Antarctic Lands",
+      "French Southern and Antarctic Lands",
+      "Territory of the French Southern and Antarctic Lands",
+      "Fr. S. and Antarctic Lands"
+    ],
+    "capital": null,
     "type": "territorio",
     "sovereign": "France",
     "continent": "Seven seas (open ocean)",
@@ -2447,6 +5363,22 @@
     "name_pt": "Timor-Leste",
     "iso": "TL",
     "iso3": "TLS",
+    "aliases": [
+      "Timor-Leste",
+      "Democratic Republic of Timor-Leste",
+      "East Timor",
+      "Timor Oriental",
+      "Timor Leste"
+    ],
+    "capital": {
+      "en": "Dili",
+      "es": "Dili",
+      "pt": "Díli",
+      "names": [
+        "Dili",
+        "Díli"
+      ]
+    },
     "type": "estado",
     "sovereign": "East Timor",
     "continent": "Asia",
@@ -2458,6 +5390,19 @@
     "name_pt": "Togo",
     "iso": "TG",
     "iso3": "TGO",
+    "aliases": [
+      "Togo",
+      "Togolese Republic"
+    ],
+    "capital": {
+      "en": "Lomé",
+      "es": "Lomé",
+      "pt": "Lomé",
+      "names": [
+        "Lomé",
+        "Lome"
+      ]
+    },
     "type": "estado",
     "sovereign": "Togo",
     "continent": "Africa",
@@ -2469,6 +5414,19 @@
     "name_pt": "Tonga",
     "iso": "TO",
     "iso3": "TON",
+    "aliases": [
+      "Tonga",
+      "Kingdom of Tonga"
+    ],
+    "capital": {
+      "en": "Nuku'alofa",
+      "es": "Nukualofa",
+      "pt": "Nuku'alofa",
+      "names": [
+        "Nuku'alofa",
+        "Nukualofa"
+      ]
+    },
     "type": "estado",
     "sovereign": "Tonga",
     "continent": "Oceania",
@@ -2480,6 +5438,20 @@
     "name_pt": "Trinidad e Tobago",
     "iso": "TT",
     "iso3": "TTO",
+    "aliases": [
+      "Trinidad and Tobago",
+      "Republic of Trinidad and Tobago"
+    ],
+    "capital": {
+      "en": "Port of Spain",
+      "es": "Puerto España",
+      "pt": "Port of Spain",
+      "names": [
+        "Port of Spain",
+        "Puerto España",
+        "Port-of-Spain"
+      ]
+    },
     "type": "estado",
     "sovereign": "Trinidad and Tobago",
     "continent": "North America",
@@ -2491,6 +5463,20 @@
     "name_pt": "Tunísia",
     "iso": "TN",
     "iso3": "TUN",
+    "aliases": [
+      "Tunisia",
+      "Republic of Tunisia"
+    ],
+    "capital": {
+      "en": "Tunis",
+      "es": "Túnez",
+      "pt": "Tunes",
+      "names": [
+        "Tunis",
+        "Túnez",
+        "Tunes"
+      ]
+    },
     "type": "estado",
     "sovereign": "Tunisia",
     "continent": "Africa",
@@ -2502,6 +5488,19 @@
     "name_pt": "Turquemenistão",
     "iso": "TM",
     "iso3": "TKM",
+    "aliases": [
+      "Turkmenistan"
+    ],
+    "capital": {
+      "en": "Ashgabat",
+      "es": "Asjabad",
+      "pt": "Asgabate",
+      "names": [
+        "Ashgabat",
+        "Asjabad",
+        "Asgabate"
+      ]
+    },
     "type": "estado",
     "sovereign": "Turkmenistan",
     "continent": "Asia",
@@ -2513,6 +5512,23 @@
     "name_pt": "Turquia",
     "iso": "TR",
     "iso3": "TUR",
+    "aliases": [
+      "Turkey",
+      "Republic of Turkey",
+      "Türkiye",
+      "Turkiye",
+      "Turquía",
+      "Turquia"
+    ],
+    "capital": {
+      "en": "Ankara",
+      "es": "Ankara",
+      "pt": "Ancara",
+      "names": [
+        "Ankara",
+        "Ancara"
+      ]
+    },
     "type": "estado",
     "sovereign": "Turkey",
     "continent": "Asia",
@@ -2524,6 +5540,17 @@
     "name_pt": "Tuvalu",
     "iso": "TV",
     "iso3": "TUV",
+    "aliases": [
+      "Tuvalu"
+    ],
+    "capital": {
+      "en": "Funafuti",
+      "es": "Funafuti",
+      "pt": "Funafuti",
+      "names": [
+        "Funafuti"
+      ]
+    },
     "type": "estado",
     "sovereign": "Tuvalu",
     "continent": "Oceania",
@@ -2535,6 +5562,18 @@
     "name_pt": "Ucrânia",
     "iso": "UA",
     "iso3": "UKR",
+    "aliases": [
+      "Ukraine"
+    ],
+    "capital": {
+      "en": "Kyiv",
+      "es": "Kiev",
+      "pt": "Kiev",
+      "names": [
+        "Kyiv",
+        "Kiev"
+      ]
+    },
     "type": "estado",
     "sovereign": "Ukraine",
     "continent": "Europe",
@@ -2546,6 +5585,18 @@
     "name_pt": "Uganda",
     "iso": "UG",
     "iso3": "UGA",
+    "aliases": [
+      "Uganda",
+      "Republic of Uganda"
+    ],
+    "capital": {
+      "en": "Kampala",
+      "es": "Kampala",
+      "pt": "Kampala",
+      "names": [
+        "Kampala"
+      ]
+    },
     "type": "estado",
     "sovereign": "Uganda",
     "continent": "Africa",
@@ -2557,6 +5608,19 @@
     "name_pt": "Uruguai",
     "iso": "UY",
     "iso3": "URY",
+    "aliases": [
+      "Uruguay",
+      "Oriental Republic of Uruguay"
+    ],
+    "capital": {
+      "en": "Montevideo",
+      "es": "Montevideo",
+      "pt": "Montevidéu",
+      "names": [
+        "Montevideo",
+        "Montevidéu"
+      ]
+    },
     "type": "estado",
     "sovereign": "Uruguay",
     "continent": "South America",
@@ -2568,6 +5632,20 @@
     "name_pt": "Uzbequistão",
     "iso": "UZ",
     "iso3": "UZB",
+    "aliases": [
+      "Uzbekistan",
+      "Republic of Uzbekistan"
+    ],
+    "capital": {
+      "en": "Tashkent",
+      "es": "Taskent",
+      "pt": "Tasquente",
+      "names": [
+        "Tashkent",
+        "Taskent",
+        "Tasquente"
+      ]
+    },
     "type": "estado",
     "sovereign": "Uzbekistan",
     "continent": "Asia",
@@ -2579,6 +5657,18 @@
     "name_pt": "Vanuatu",
     "iso": "VU",
     "iso3": "VUT",
+    "aliases": [
+      "Vanuatu",
+      "Republic of Vanuatu"
+    ],
+    "capital": {
+      "en": "Port Vila",
+      "es": "Port Vila",
+      "pt": "Port Vila",
+      "names": [
+        "Port Vila"
+      ]
+    },
     "type": "estado",
     "sovereign": "Vanuatu",
     "continent": "Oceania",
@@ -2590,6 +5680,19 @@
     "name_pt": "Venezuela",
     "iso": "VE",
     "iso3": "VEN",
+    "aliases": [
+      "Venezuela",
+      "Bolivarian Republic of Venezuela",
+      "Venezuela, RB"
+    ],
+    "capital": {
+      "en": "Caracas",
+      "es": "Caracas",
+      "pt": "Caracas",
+      "names": [
+        "Caracas"
+      ]
+    },
     "type": "estado",
     "sovereign": "Venezuela",
     "continent": "South America",
@@ -2601,6 +5704,20 @@
     "name_pt": "Vietname",
     "iso": "VN",
     "iso3": "VNM",
+    "aliases": [
+      "Vietnam",
+      "Socialist Republic of Vietnam"
+    ],
+    "capital": {
+      "en": "Hanoi",
+      "es": "Hanói",
+      "pt": "Hanói",
+      "names": [
+        "Hanoi",
+        "Hanói",
+        "H"
+      ]
+    },
     "type": "estado",
     "sovereign": "Vietnam",
     "continent": "Asia",
@@ -2612,6 +5729,20 @@
     "name_pt": "Wallis e Futuna",
     "iso": "WF",
     "iso3": "WLF",
+    "aliases": [
+      "Wallis and Futuna Is.",
+      "Wallis and Futuna Islands",
+      "Wallis and Futuna"
+    ],
+    "capital": {
+      "en": "Mata-Utu",
+      "es": "Mata-Utu",
+      "pt": "Mata-Utu",
+      "names": [
+        "Mata-Utu",
+        "Mata Utu"
+      ]
+    },
     "type": "territorio",
     "sovereign": "France",
     "continent": "Oceania",
@@ -2623,6 +5754,22 @@
     "name_pt": "Iémen",
     "iso": "YE",
     "iso3": "YEM",
+    "aliases": [
+      "Yemen",
+      "Republic of Yemen",
+      "Yemen, Rep."
+    ],
+    "capital": {
+      "en": "Sanaa",
+      "es": "Saná",
+      "pt": "Sana",
+      "names": [
+        "Sanaa",
+        "Saná",
+        "Sana",
+        "Sana'a'"
+      ]
+    },
     "type": "estado",
     "sovereign": "Yemen",
     "continent": "Asia",
@@ -2634,6 +5781,19 @@
     "name_pt": "Djibouti",
     "iso": "DJ",
     "iso3": "DJI",
+    "aliases": [
+      "Djibouti",
+      "Republic of Djibouti"
+    ],
+    "capital": {
+      "en": "Djibouti",
+      "es": "Yibuti",
+      "pt": "Djibouti",
+      "names": [
+        "Djibouti",
+        "Yibuti"
+      ]
+    },
     "type": "estado",
     "sovereign": "Djibouti",
     "continent": "Africa",
@@ -2645,6 +5805,19 @@
     "name_pt": "Zâmbia",
     "iso": "ZM",
     "iso3": "ZMB",
+    "aliases": [
+      "Zambia",
+      "Republic of Zambia"
+    ],
+    "capital": {
+      "en": "Lusaka",
+      "es": "Lusaka",
+      "pt": "Lusaca",
+      "names": [
+        "Lusaka",
+        "Lusaca"
+      ]
+    },
     "type": "estado",
     "sovereign": "Zambia",
     "continent": "Africa",
@@ -2656,6 +5829,18 @@
     "name_pt": "Zimbábue",
     "iso": "ZW",
     "iso3": "ZWE",
+    "aliases": [
+      "Zimbabwe",
+      "Republic of Zimbabwe"
+    ],
+    "capital": {
+      "en": "Harare",
+      "es": "Harare",
+      "pt": "Harare",
+      "names": [
+        "Harare"
+      ]
+    },
     "type": "estado",
     "sovereign": "Zimbabwe",
     "continent": "Africa",

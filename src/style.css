@@ -1254,7 +1254,8 @@ button:disabled {
 }
 
 /* --- Pausa ---------------------------------------------------------------------- */
-#pause {
+#pause,
+.pause-overlay {
   position: fixed;
   inset: 0;
   z-index: 30;
@@ -1417,7 +1418,7 @@ button:disabled {
 
 /* --- Información -------------------------------------------------------------------- */
 /* Engranaje de Configuración, abajo a la derecha (se oculta durante la partida) */
-#settings-button {
+.corner-button {
   position: fixed;
   right: var(--gutter);
   bottom: 16px;
@@ -1440,7 +1441,7 @@ button:disabled {
   transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-#settings-button:hover {
+.corner-button:hover {
   border-color: rgba(236, 230, 217, 0.35);
   color: var(--paper);
 }
@@ -1449,8 +1450,21 @@ button:disabled {
   transform: rotate(60deg);
 }
 
-/* Resaltado mientras se está en Configuración */
-#settings-button.is-active {
+/* El trofeo, a la izquierda del engranaje */
+#board-button {
+  right: calc(var(--gutter) + 46px);
+}
+
+#board-button:hover svg {
+  transform: translateY(-1px);
+}
+
+#board-button svg {
+  transition: transform 0.2s;
+}
+
+/* Resaltado mientras se está en Configuración o en la Clasificación */
+.corner-button.is-active {
   border-color: var(--sun);
   color: var(--sun);
 }
@@ -1567,4 +1581,150 @@ button:disabled {
     font-size: 13px;
   }
 
+}
+
+/* --- Minijuegos -------------------------------------------------------------------- */
+/* En partida, toda la pantalla recoge los clics (no se gira el globo sin querer) */
+#screen-minigame-play {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  pointer-events: auto;
+}
+
+#screen-minigame-play::before {
+  display: none;
+}
+
+#screen-minigame-play[hidden] {
+  display: none;
+}
+
+.mg-card {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: min(560px, 100%);
+  padding: 24px clamp(16px, 4vw, 36px) 28px;
+  border: 1px solid var(--faint);
+  border-radius: 14px;
+  background: rgba(7, 9, 15, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: sheet-in 0.3s ease-out;
+}
+
+.mg-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
+.mg-pause-button {
+  position: static;
+  justify-self: start;
+}
+
+.pause-overlay[hidden] {
+  display: none;
+}
+
+/* En pausa no se ve la bandera ni el país (no se puede mirar con el reloj parado) */
+.mg-card.is-paused .mg-flag,
+.mg-card.is-paused .mg-country {
+  visibility: hidden;
+}
+
+.mg-progress {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.mg-clock {
+  justify-self: end;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mg-flag {
+  width: min(360px, 80%);
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.5));
+}
+
+.mg-country {
+  margin: -6px 0 0;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mg-country:empty {
+  display: none;
+}
+
+.mg-input {
+  text-align: center;
+  font-size: clamp(24px, 6vw, 34px);
+}
+
+.mg-input.is-correct {
+  border-bottom-color: var(--correct);
+}
+
+.mg-input.is-wrong {
+  border-bottom-color: var(--wrong, #e5484d);
+  animation: mg-shake 0.3s;
+}
+
+.mg-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+}
+
+.mg-last {
+  margin: 0;
+  color: var(--correct);
+  font-size: 14px;
+}
+
+.mg-skip {
+  margin-left: auto;
+}
+
+@keyframes mg-shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+/* Adivina el país: la tarjeta es una barra abajo y el globo queda libre para girarlo y acercarse */
+#screen-minigame-play.is-map {
+  place-items: end center;
+  padding-bottom: 24px;
+  pointer-events: none;
+}
+
+.is-map .mg-card {
+  gap: 12px;
+  padding: 14px clamp(16px, 4vw, 28px) 16px;
+}
+
+.is-map .mg-flag,
+.is-map .mg-country {
+  display: none;
 }
