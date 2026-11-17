@@ -260,6 +260,7 @@ export function createGame(globe) {
     dailyInfo: $('screen-daily-info'),
     dailyBoard: $('screen-daily-board'),
     results: $('screen-results'),
+    arcade: $('screen-arcade'),
     minigames: $('screen-minigames'),
     minigameSetup: $('screen-minigame-setup'),
     minigamePlay: $('screen-minigame-play'),
@@ -792,6 +793,12 @@ export function createGame(globe) {
   const refreshName = () => (nameContinue.disabled = !validName());
 
   function askName() {
+    // Maratón y Supervivencia están dentro de Arcade: "volver" lleva allí
+    const back = $('name-back');
+    const fromArcade = difficultyMode !== 'daily';
+    back.dataset.action = fromArcade ? 'arcade' : 'menu';
+    back.dataset.i18n = fromArcade ? 'arcade.back' : 'menu.back';
+    back.textContent = t(back.dataset.i18n);
     nameInput.value = getPlayerName();
     refreshName();
     showScreen('name');
@@ -1077,6 +1084,7 @@ export function createGame(globe) {
     else if (action === 'settings') showScreen('settings');
     else if (action === 'leaderboard') openBoard();
     else if (action === 'minigames') showScreen('minigames');
+    else if (action === 'arcade') showScreen('arcade');
     else if (action === 'practice') showScreen('practice');
     else if (action === 'start-practice') startGame(rulesFromPractice(settings.practice));
     else if (action === 'menu') goToMenu();
@@ -1097,6 +1105,11 @@ export function createGame(globe) {
         sound.play('click');
         if (paused) resume();
         else pause();
+      } else if (state === 'menu' && ['name', 'difficulty'].includes(screen) && difficultyMode !== 'daily') {
+        // Maratón y Supervivencia cuelgan de Arcade
+        e.preventDefault();
+        sound.play('click');
+        showScreen('arcade');
       } else if (state === 'menu' && isMinigameScreen(screen)) {
         // En un minijuego en marcha, Esc pausa / reanuda; en el resto, vuelve a la lista
         e.preventDefault();

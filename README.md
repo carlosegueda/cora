@@ -32,7 +32,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 1. **Menú principal**: *Jugar* (reto diario), *Maratón*, *Supervivencia*, *Entrenamiento* y *Clasificación*, y a la derecha el **top 5 de hoy**. *Configuración* es el engranaje de abajo a la derecha. Detrás, el globo gira solo.
 2. Al elegir un modo se pide **el nombre del jugador** y, salvo en *Jugar*, la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “Ya”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
-4. Para cada país se **mantiene pulsado** sobre el globo **1.05 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*).
+4. Para cada país se **mantiene pulsado** sobre el globo **1.05 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*). **En pantallas táctiles** (móvil, tablet) no hace falta mantener: basta un toque, sin anillo; si el dedo se mueve (girar) o hay dos dedos (pellizco), no cuenta.
    - **Acierto**: el país se pinta de verde y aparece su nombre sobre el pin.
    - **Fallo**: el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
    - Un clic en el **mar** lejos del país no cuenta como respuesta (aviso “Mar”).
@@ -135,7 +135,7 @@ Sin conexión o sin Convex configurado, el juego funciona igual y la clasificaci
 
 ### Minijuegos
 
-En el menú, *Minigames/Minijuegos* (la clasificación pasa a ser el **trofeo** que hay a la izquierda del engranaje, abajo a la derecha). Código en **`src/minigames.js`**.
+El menú principal tiene 4 opciones: **Daily Game** (el reto del día), **Arcade** (Maratón y Supervivencia: en el globo, con dificultad y clasificación; “volver” y Esc desde nombre o dificultad llevan a Arcade), **Training** y **Minigames** (los juegos de escribir). En el menú, *Minigames/Minijuegos* (la clasificación pasa a ser el **trofeo** que hay a la izquierda del engranaje, abajo a la derecha). Código en **`src/minigames.js`**.
 
 - **Adivina la bandera**: sale una bandera en grande y se escribe el país.
 - **Adivina el país**: se ilumina un país en verde en el globo (la cámara viaja hasta él, más cerca cuanto más pequeño es) y se escribe su nombre. Los países de menos de 250 km llevan además un pin con “?” para que se vean. La tarjeta pasa a ser una barra abajo y el globo se puede girar y acercar mientras tanto; se ven las fronteras. En pausa se quita el resaltado.

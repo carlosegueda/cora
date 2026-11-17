@@ -23,13 +23,10 @@
         <h1 class="wordmark">CORA</h1>
         <nav class="menu">
           <button data-action="daily" class="menu-item">
-            <span class="menu-label" data-i18n="menu.play">Play</span>
+            <span class="menu-label" data-i18n="menu.play">Daily Game</span>
           </button>
-          <button data-action="play" class="menu-item">
-            <span class="menu-label" data-i18n="menu.marathon">Marathon</span>
-          </button>
-          <button data-action="survival" class="menu-item">
-            <span class="menu-label" data-i18n="menu.survival">Survival</span>
+          <button data-action="arcade" class="menu-item">
+            <span class="menu-label" data-i18n="menu.arcade">Arcade</span>
           </button>
           <button data-action="practice" class="menu-item">
             <span class="menu-label" data-i18n="menu.training">Training</span>
@@ -76,7 +73,7 @@
     <!-- Nombre del jugador: se pide al pulsar Jugar o Supervivencia y se usa en la clasificación -->
     <section id="screen-name" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <button data-action="menu" class="back" id="name-back" data-i18n="menu.back">← Menu</button>
         <h2 class="title" data-i18n="name.title">Your name</h2>
         <form id="name-form" class="name-form" autocomplete="off">
           <input type="text" id="player-name" class="text-input text-input-big" maxlength="20" minlength="2" required
@@ -89,7 +86,7 @@
     <!-- Elegir dificultad (las filas las crea game.js a partir de DIFFICULTIES) -->
     <section id="screen-difficulty" class="screen" hidden>
       <div class="sheet">
-        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <button data-action="arcade" class="back" data-i18n="arcade.back">← Arcade</button>
         <h2 class="title" id="difficulty-title"></h2>
         <div id="difficulty-list" class="rows"></div>
       </div>
@@ -117,6 +114,24 @@
         <div id="board-difficulty" class="tabs"></div>
         <ol id="board-list"></ol>
         <p id="board-status"></p>
+      </div>
+    </section>
+
+    <!-- Arcade: Maratón y Supervivencia (en el globo, con clasificación) -->
+    <section id="screen-arcade" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
+        <h2 class="title" data-i18n="menu.arcade">Arcade</h2>
+        <div class="rows">
+          <button class="row" data-action="play">
+            <span class="row-title" data-i18n="menu.marathon">Marathon</span>
+            <span class="row-desc" data-i18n="mini.marathonDesc">Find every country on the globe in the least time</span>
+          </button>
+          <button class="row" data-action="survival">
+            <span class="row-title" data-i18n="menu.survival">Survival</span>
+            <span class="row-desc" data-i18n="mini.survivalDesc">Beat the clock: every hit adds time</span>
+          </button>
+        </div>
       </div>
     </section>
 

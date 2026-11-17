@@ -12,7 +12,9 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 const STRINGS = {
   en: {
-    'menu.play': 'Play',
+    'menu.play': 'Daily Game',
+    'menu.arcade': 'Arcade',
+    'arcade.back': '← Arcade',
     'menu.marathon': 'Marathon',
     'menu.survival': 'Survival',
     'menu.training': 'Training',
@@ -23,6 +25,8 @@ const STRINGS = {
     'menu.minigames': 'Minigames',
     'mini.flags': 'Guess the flag',
     'mini.flagsDesc': 'See a flag, type the country',
+    'mini.marathonDesc': 'Find every country on the globe in the least time',
+    'mini.survivalDesc': 'Beat the clock: every hit adds time',
     'mini.map': 'Guess the country',
     'mini.mapDesc': 'A country lights up on the globe, type its name',
     'mini.capitals': 'Guess the capital',
@@ -177,7 +181,9 @@ const STRINGS = {
   },
 
   es: {
-    'menu.play': 'Jugar',
+    'menu.play': 'Juego diario',
+    'menu.arcade': 'Arcade',
+    'arcade.back': '← Arcade',
     'menu.marathon': 'Maratón',
     'menu.survival': 'Supervivencia',
     'menu.training': 'Entrenamiento',
@@ -188,6 +194,8 @@ const STRINGS = {
     'menu.minigames': 'Minijuegos',
     'mini.flags': 'Adivina la bandera',
     'mini.flagsDesc': 'Ves una bandera, escribes el país',
+    'mini.marathonDesc': 'Encuentra todos los países en el globo en el menor tiempo',
+    'mini.survivalDesc': 'Gánale al reloj: cada acierto suma tiempo',
     'mini.map': 'Adivina el país',
     'mini.mapDesc': 'Se ilumina un país en el globo, escribe su nombre',
     'mini.capitals': 'Adivina la capital',
@@ -342,7 +350,9 @@ const STRINGS = {
   },
 
   pt: {
-    'menu.play': 'Jogar',
+    'menu.play': 'Jogo diário',
+    'menu.arcade': 'Arcade',
+    'arcade.back': '← Arcade',
     'menu.marathon': 'Maratona',
     'menu.survival': 'Sobrevivência',
     'menu.training': 'Treino',
@@ -353,6 +363,8 @@ const STRINGS = {
     'menu.minigames': 'Minijogos',
     'mini.flags': 'Adivinhe a bandeira',
     'mini.flagsDesc': 'Veja uma bandeira, escreva o país',
+    'mini.marathonDesc': 'Encontre todos os países no globo no menor tempo',
+    'mini.survivalDesc': 'Vença o relógio: cada acerto soma tempo',
     'mini.map': 'Adivinhe o país',
     'mini.mapDesc': 'Um país acende no globo, escreva o nome',
     'mini.capitals': 'Adivinhe a capital',

@@ -548,10 +548,12 @@ function updatePin() {
 }
 
 // --- Selección de país: mantener pulsado ----------------------------------------
-// Un clic normal no hace nada. Para elegir un país hay que mantener pulsado sobre el globo
+// Con ratón, un clic normal no hace nada: para elegir un país hay que mantener pulsado sobre el globo
 // HOLD_TO_SELECT_MS (1.5 s): mientras tanto se llena un anillo de carga junto al puntero.
 // Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo
 // (pellizco), se cancela. Al completarse se elige el punto que hay bajo el puntero en ese momento.
+// En pantallas táctiles (móvil, tablet) basta con un toque: sin anillo ni espera. Si el dedo se
+// mueve (se gira el globo) o entra un segundo dedo (pellizco), no cuenta como toque.
 const raycaster = new THREE.Raycaster();
 const earthBounds = new THREE.Sphere(new THREE.Vector3(0, 0, 0), SPHERE_RADIUS);
 const pointer = new THREE.Vector2();
@@ -559,6 +561,7 @@ const holdRing = document.getElementById('hold-ring');
 holdRing.style.setProperty('--hold-ms', `${HOLD_TO_SELECT_MS}ms`);
 const activePointers = new Set();
 let hold = null; // { id, x, y, timer }
+let tap = null; // toque en pantalla táctil: { id, startX, startY }
 
 // Punto de la Tierra bajo unas coordenadas de pantalla (o null si no hay Tierra debajo)
 function earthInfoAt(clientX, clientY) {
@@ -604,27 +607,41 @@ function cancelHold() {
   hideHoldRing();
 }
 
-function completeHold() {
-  const { x, y } = hold;
-  hold = null;
-  hideHoldRing(true);
+function selectAt(x, y) {
   if (!globe.canSelect?.() || !globe.onEarthClick) return;
   const info = earthInfoAt(x, y);
   if (info) globe.onEarthClick(info);
 }
 
+function completeHold() {
+  const { x, y } = hold;
+  hold = null;
+  hideHoldRing(true);
+  selectAt(x, y);
+}
+
 const canvas = renderer.domElement;
 canvas.addEventListener('pointerdown', (e) => {
   activePointers.add(e.pointerId);
-  if (activePointers.size > 1) return cancelHold(); // pellizco con dos dedos
+  if (activePointers.size > 1) {
+    tap = null;
+    return cancelHold(); // pellizco con dos dedos
+  }
   if (e.button !== 0 || !globe.canSelect?.() || !earthInfoAt(e.clientX, e.clientY)) return;
   cancelHold();
+  if (e.pointerType === 'touch') {
+    tap = { id: e.pointerId, startX: e.clientX, startY: e.clientY }; // se elige al levantar el dedo
+    return;
+  }
   hold = { id: e.pointerId, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY };
   hold.timer = setTimeout(completeHold, HOLD_TO_SELECT_MS);
   showHoldRing(e.clientX, e.clientY);
 });
 
 canvas.addEventListener('pointermove', (e) => {
+  if (tap && e.pointerId === tap.id && Math.hypot(e.clientX - tap.startX, e.clientY - tap.startY) > CLICK_MOVE_TOLERANCE) {
+    tap = null; // es un arrastre para girar el globo
+  }
   if (!hold || e.pointerId !== hold.id) return;
   // Moverse más de unos píxeles es girar el globo, no seleccionar
   if (Math.hypot(e.clientX - hold.startX, e.clientY - hold.startY) > CLICK_MOVE_TOLERANCE) cancelHold();
@@ -633,6 +650,11 @@ canvas.addEventListener('pointermove', (e) => {
 for (const type of ['pointerup', 'pointercancel', 'pointerleave']) {
   canvas.addEventListener(type, (e) => {
     activePointers.delete(e.pointerId);
+    if (tap && e.pointerId === tap.id) {
+      const done = tap;
+      tap = null;
+      if (type === 'pointerup') selectAt(done.startX, done.startY); // toque: se elige ya
+    }
     if (hold && e.pointerId === hold.id) cancelHold(); // se soltó antes de tiempo
   });
 }
@@ -696,7 +718,10 @@ const globe = {
   setViewShift,
   // Bloquea o desbloquea girar y hacer zoom (p. ej. con la partida en pausa)
   setControlsEnabled(enabled) {
-    if (!enabled) cancelHold();
+    if (!enabled) {
+      cancelHold();
+      tap = null;
+    }
     controlsLocked = !enabled;
     controls.enabled = enabled && !flight;
     if (!enabled) zooming = false;
