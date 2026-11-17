@@ -1,6 +1,6 @@
-# Cora · ¿Dónde está?
+# CORA
 
-Un juego de geografía sobre una Tierra en 3D: aparece una pista (el nombre y/o la bandera de un país) y hay que hacer clic en ese país del globo. Diez países por partida, cuatro dificultades, cronómetro y puntuación. El globo se puede girar y acercar, con imágenes de satélite que ganan detalle al hacer zoom; de fondo hay un sol, una luna y un cielo de estrellas. Incluye una página con la lista de todos los países.
+Un juego de geografía sobre una Tierra en 3D: aparece una pista (el nombre y/o la bandera de un país) y hay que hacer clic en ese país del globo. Diez países por partida, cuatro dificultades, cronómetro y puntuación. El globo se puede girar y acercar, con imágenes de satélite que ganan detalle al hacer zoom; de fondo hay un sol, una luna y una fotografía real del cielo con la Vía Láctea. Incluye una página con la lista de todos los países.
 
 ## Cómo ejecutarlo
 
@@ -28,7 +28,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 
 ### Cómo se juega
 
-1. **Menú principal**: *Jugar*, *Modo prueba* o *Configuración*. Detrás, el globo gira solo.
+1. **Menú principal**: *Jugar*, *Supervivencia*, *Modo prueba* o *Configuración*. Detrás, el globo gira solo.
 2. **Jugar** → se elige la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “¡Ya!”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
 4. **10 países al azar** (sin repetir). Para cada uno se hace clic en el globo:
@@ -37,7 +37,9 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
    - Un clic en el **mar** lejos del país no cuenta como respuesta: avisa “Eso es mar, prueba otra vez”.
 5. **Resultado**: puntos, tiempo total y la lista de los 10 países con ✓/✗. *Jugar otra vez* empieza otra partida con la misma dificultad (países nuevos); *Volver al menú* vuelve al menú principal.
 
-Durante la partida se puede girar y hacer zoom con normalidad (un arrastre no cuenta como clic), y el botón **Salir** vuelve al menú.
+Durante la partida se puede girar y hacer zoom con normalidad (un arrastre no cuenta como clic).
+
+**Pausa**: con el botón *Pausa* (arriba a la derecha) o la tecla `Esc`. La pantalla de pausa tiene *Reanudar* (o `Esc` otra vez) y *Salir* (vuelve al menú). Mientras está en pausa se detienen el cronómetro, el tiempo por país de hardcore, la cuenta atrás y la espera entre países, y el globo queda tapado y bloqueado para que no se pueda buscar el país sin que corra el tiempo. Si se cambia de pestaña o se minimiza la ventana en mitad de una partida, se pausa sola.
 
 El **tiempo** cuenta solo mientras se está buscando el país: se para durante las pausas que muestran si se acertó (1.2 s al acertar, 2.6 s al fallar), para no penalizar la animación.
 
@@ -53,6 +55,19 @@ El **tiempo** cuenta solo mientras se está buscando el país: se para durante l
 - En difícil y hardcore entran también territorios dependientes e indeterminados. Quedan fuera los 3 que no tienen bandera (Somalilandia, Chipre del Norte, Glaciar de Siachen), porque su pista sería imposible.
 - Con pista **solo de bandera**, vale cualquier país que tenga **esa misma bandera** (p. ej. los territorios australianos usan la de Australia).
 - **Países diminutos** (Vaticano, Mónaco, islas del Pacífico…): si el país ocupa en pantalla menos de 25 px, vale un clic a menos de 15 px de él, porque si no serían casi imposibles de acertar sin mucho zoom.
+
+### Supervivencia
+
+Desde el menú principal, *Supervivencia* lleva a la misma pantalla de dificultad (las 4 dificultades deciden qué países entran, qué pista se da y si se ven las fronteras).
+
+- Un **reloj** empieza en **15 s** y va bajando. Cada **acierto suma 5 s**.
+- Un país **acertado** se descarta: no vuelve a salir. Un país **fallado** vuelve a salir más adelante en la misma partida (nunca justo a continuación).
+- La partida termina cuando el reloj llega a 0 (se enseña el país que estaba saliendo) o cuando se aciertan **todos** los países de la dificultad.
+- El reloj solo baja mientras se busca el país (no durante la cuenta atrás, la pausa ni mientras se ve la respuesta).
+- En hardcore no se aplica el límite de 10 s por país: manda el reloj de supervivencia.
+- **HUD**: *Quedan* (países por acertar), *Aciertos* y *Reloj*, que se pone en rojo por debajo de 5 s; al acertar aparece “+5 s” junto a él.
+- **Resultado**: aciertos sobre el total, tiempo jugado, número de fallos y las banderas de los países acertados.
+- Tiene su propio **récord** por dificultad (más aciertos; a igualdad, menos tiempo), que se ve en la pantalla de dificultad al entrar desde *Supervivencia*.
 
 ### Modo prueba
 
@@ -96,7 +111,10 @@ cora/
 │   │   └── countries-list.json   Lo mismo sin polígonos (lo carga paises.html; legible a mano)
 │   ├── flags/                    Banderas en SVG, una por código ISO (es.svg, fr.svg…)
 │   └── textures/
-│       └── earth_day_4k.jpg      Textura global de la Tierra (base bajo las teselas)
+│       ├── earth_day_4k.jpg      Textura global de la Tierra (base bajo las teselas)
+│       ├── milky_way_2k.jpg      Fondo: panorámica real del cielo (ESO), 2048 × 1024
+│       ├── sun_256.jpg           Textura del sol, 256 × 128 (Solar System Scope)
+│       └── moon_256.jpg          Textura de la luna, 256 × 128 (Solar System Scope)
 ├── scripts/
 │   └── prepare-countries.mjs     Genera data/ y flags/ a partir de Natural Earth y flag-icons
 └── src/
@@ -104,6 +122,8 @@ cora/
     ├── game.js        El juego: menús, dificultades, partida, cronómetro, resultado
     ├── settings.js    Configuración (sonido, idioma) guardada en el navegador
     ├── sound.js       Efectos de sonido generados con Web Audio
+    ├── credits.js     Botón (i) y popup de créditos
+    ├── fonts.css      Tipografías de toda la web (se cambian aquí)
     ├── tiles.js       Capa de teselas de alta resolución con nivel de detalle
     ├── countries.js   Carga de países, detección, fronteras y relleno del país
     ├── geo.js         Utilidades geográficas: lon/lat ↔ 3D, Mercator, parches de esfera
@@ -162,14 +182,56 @@ Limitación: a esta escala los contornos están simplificados (precisión de ~1 
 
 ## Código
 
-### `index.html` y `src/style.css`
+### `index.html` y `src/style.css`: la interfaz
 
-- **Pantallas** (`.screen`): `#screen-menu`, `#screen-difficulty`, `#screen-practice`, `#screen-settings` y `#screen-results`. El formulario del modo prueba (`#practice-form`) lo crea `game.js`. Cada una es un panel centrado; la capa que lo contiene deja pasar el ratón, así que el globo se puede seguir girando detrás. Los botones de dificultad y de idioma los crea `game.js`.
-- **HUD** (`#hud`): marcador arriba a la izquierda (país X/10, puntos, cronómetro), botón *Salir* arriba a la derecha, y en el centro la pista (`#hint`: bandera y/o nombre), la barra de tiempo de hardcore (`#round-timer`) y el aviso de acierto/fallo (`#feedback`).
-- `#countdown`: números grandes de la cuenta atrás, con una animación de “pop”.
-- `.pin-label`: etiqueta sobre el pin con bandera y nombre; borde verde (`.is-correct`) o rojo (`.is-wrong`).
-- `#credits`: créditos de las imágenes y los datos, abajo a la derecha. Las licencias de las imágenes (CC BY 4.0 y CC BY-NC-SA 4.0) obligan a citar la fuente, así que no conviene quitarlo.
-- Los colores están en variables CSS al principio (`--correct`, `--wrong`, `--accent`…).
+Dirección visual de **atlas editorial**, con una sola tipografía (Bricolage Grotesque) en toda la web y cifras de ancho fijo en los datos (cronómetro, puntos, recuentos), paneles a la izquierda sobre una sombra en lugar de tarjetas flotantes, líneas finas y el ámbar del sol como único color de acento. Solo se muestran los textos imprescindibles.
+
+- **Pantalla de carga** (`#loading`): el logo CORA y una barra fina. Se quita cuando están la textura global, los países y las primeras teselas (o a los 8 s), así nunca se ve el planeta a medio cargar.
+- **Pantallas** (`.screen` > `.sheet`): `#screen-menu`, `#screen-difficulty`, `#screen-practice`, `#screen-settings` y `#screen-results`. Panel en la columna izquierda; en los menús el planeta se desplaza a la derecha para quedar a la vista (`setViewShift` en `main.js`). En pantallas de menos de 720 px el panel pasa a la parte de abajo.
+- **Menú principal**: el logo y la lista de opciones (Jugar, Modo prueba, Configuración) más el enlace a la lista de países.
+- **Dificultad**: una fila por dificultad con su descripción, un indicador de nivel de 4 barras y, si existe, el récord (puntos y tiempo).
+- **Modo prueba**: solo el formulario hace scroll; el recuento y el botón *Empezar* quedan fijos abajo.
+- **Resultado**: la dificultad como título, los puntos en grande, el tiempo, “Nuevo récord” si lo es, y la lista de los países con un punto verde o rojo.
+- **HUD** (`#hud`): país, puntos y tiempo arriba a la izquierda; la pista (bandera y/o nombre) arriba en el centro; *Pausa* arriba a la derecha; la barra de tiempo y el aviso (`#feedback`: “Correcto”, “Era …”, “Mar”) bajo la pista.
+- `#pause`: pantalla de pausa con *Reanudar* y *Salir*, sobre un fondo oscuro y desenfocado que tapa el globo.
+- `#countdown`: 3, 2, 1 y “Ya” en grande.
+- `.pin-label`: etiqueta sobre el pin con bandera y nombre; borde verde o rojo.
+- `#info-button` y `#info-dialog`: botón (i) abajo a la derecha que abre los créditos (`src/credits.js`). Las licencias de las imágenes obligan a citar la fuente, así que no conviene quitarlo.
+- Colores en variables CSS al principio de `style.css`: `--ink` (fondo), `--paper` (texto), `--muted`, `--faint` (líneas), `--sun` (acento), `--correct`, `--wrong`.
+
+**Teclado** (funciona aunque no se indique en pantalla): `Esc` pausa y reanuda la partida, y en los menús vuelve al menú principal; `1`–`4` eligen dificultad; `Enter` juega otra vez en el resultado y empieza en el modo prueba.
+
+**Récords**: se guarda la mejor partida de cada dificultad (más puntos; a igualdad, menos tiempo) en el navegador, junto con la configuración. El modo prueba no tiene récords.
+
+### Tipografías: `src/fonts.css`
+
+Todas las fuentes de la web (juego y lista de países) se definen en **un solo archivo**, `src/fonts.css`, con tres variables:
+
+| Variable | Fuente actual | Dónde se usa |
+| --- | --- | --- |
+| `--serif` | Bricolage Grotesque | Logo, títulos, opciones del menú, nombre del país en la pista, cuenta atrás |
+| `--sans` | Bricolage Grotesque | Texto general y botones |
+| `--mono` | Bricolage Grotesque | Datos: cronómetro, puntos, recuentos, etiquetas pequeñas |
+
+Ahora las tres usan la misma fuente; están separadas por si algún día se quiere otra distinta para títulos o datos.
+
+Las fuentes vienen de paquetes npm de [Fontsource](https://fontsource.org) y se sirven desde el propio proyecto (no dependen de Google Fonts). **Para cambiar una**, por ejemplo la serif por Playfair Display:
+
+```bash
+npm install @fontsource-variable/playfair-display
+```
+
+y en `src/fonts.css` se cambia el `@import` y la variable (o las tres variables, para toda la web):
+
+```css
+@import '@fontsource-variable/playfair-display/wght.css';
+
+:root {
+  --serif: 'Playfair Display Variable', Georgia, serif;
+}
+```
+
+El nombre exacto de la fuente (`'Playfair Display Variable'`) y los archivos que se pueden importar aparecen en la página de cada fuente en fontsource.org. Las fuentes no variables se importan por grosor (`@fontsource/nombre/400.css`, `/700.css`…).
 
 ### `src/main.js`
 
@@ -193,21 +255,32 @@ Limitación: a esta escala los contornos están simplificados (precisión de ~1 
 - `camera`: perspectiva de 45°, empieza en `(0, 0, 4)` (≈ 19 000 km de altura). Su plano cercano se ajusta cada frame a la altura (`updateCameraNear`) para que el suelo no se recorte de cerca.
 - `renderer`: WebGL a pantalla completa con antialiasing, densidad de píxeles limitada a 2 y **buffer de profundidad logarítmico**, que permite tener en la misma escena el suelo a pocos km y el sol muy lejos sin que las capas (teselas, fronteras) parpadeen entre sí.
 
-#### Astros de fondo (sol y luna)
+#### Sol y luna
 
-| Función | Qué hace |
-| --- | --- |
-| `createGlowingSphereMaterial(edgeColor)` | Shader propio: blanco en el centro que se funde hacia `edgeColor` en el borde. Ignora las luces, así que el astro “brilla por sí mismo”. El `3.0` de `pow(vFacing, 3.0)` controla el tamaño de la zona blanca. Incluye los fragmentos de profundidad logarítmica de three. |
-| `createGlowTexture()` | Degradado radial en un canvas que sirve de textura para el aura (compartida por sol y luna). |
-| `createLuminousBody(opciones)` | Esfera + aura (`Sprite` aditivo) + `DirectionalLight` desde su posición hacia el centro. Opciones: `position`, `radius`, `edgeColor`, `auraColor`, `auraOpacity`, `lightColor`, `lightIntensity`. |
+Con **tamaños y distancias reales**, en radios terrestres (la Tierra de la escena tiene radio 1):
 
-- **Sol**: en `(-30, 12, -40)`, radio `SUN_RADIUS = 3`, borde ocre `0x8a7550`, luz `0xfff6ea` de intensidad `SUN_LIGHT_INTENSITY = 1.4`.
-- **Luna**: en `(26, 9, -30)`, radio `SUN_RADIUS * 0.27`, borde gris azulado, aura azul pálido al 50 %, luz fría al 10 % de la del sol (`MOON_LIGHT_RATIO`).
-- **Luz ambiental**: azulada, intensidad `0.55`, para que la cara de noche no quede negra.
+| Astro | Datos reales | Radio | Distancia al centro |
+| --- | --- | --- | --- |
+| Luna | radio 1737 km, a 384 400 km | `MOON_RADIUS` = 0.273 × 1.3 = 0.355 | `MOON_DISTANCE` = 60.3 × 0.7 = 42.2 |
+| Sol | radio 696 000 km, a 149.6 millones de km | `SUN_RADIUS` = 109 × 1.3 = 142 | `SUN_DISTANCE` = 23 481 × 0.7 = 16 437 |
 
-#### Fondo de estrellas
+Parten de los datos reales, con dos ajustes para que se vean mejor: los tamaños llevan `CELESTIAL_SCALE` = 1.3 (un 30 % más grandes) y las distancias `CELESTIAL_DISTANCE_SCALE` = 0.7 (un 30 % más cerca). Con las dos a 1 quedan exactamente a escala real.
 
-`createStarfield({ count = 4000, minRadius = 60, maxRadius = 85 })`: puntos en direcciones aleatorias, detrás del sol y la luna, con brillo variado (la mayoría tenues), un tinte sutil frío o cálido, forma circular y tamaño fijo en pantalla (`size: 2.5`).
+Por eso, como en la vida real, los dos se ven del **mismo tamaño aparente** (~1°, unos 19 px, con los ajustes de tamaño y distancia): el sol como un pequeño disco naranja con su aura y la luna como un punto gris. No crecen al hacer zoom, porque el zoom acerca la cámara a la Tierra, no a ellos. Al verse siempre tan pequeños, usan texturas de 256 × 128 (`sun_256.jpg`, `moon_256.jpg`, ~15 KB cada una) y mallas de pocos polígonos (24 × 16), para optimizar.
+
+- **Sol** (`createSunMaterial`): textura de Solar System Scope (CC BY 4.0) que el shader aclara hacia blanco en el centro y tiñe de naranja (`0xff9e22`) en el borde; no le afecta la luz de la escena. Lleva un aura de luz (`Sprite` aditivo, color `0xffc24a`) de `SUN_AURA_SIZE` = 24 radios de ancho, intensa en el borde del sol y que se apaga poco a poco (`createGlowTexture`) y de él sale la luz principal (`DirectionalLight` `0xfff6ea`, `SUN_LIGHT_INTENSITY` = 1.8). Está detrás a la izquierda (`SUN_DIRECTION`).
+- **Luna**: textura de Solar System Scope con `MeshStandardMaterial`, así que la ilumina el sol y muestra fases reales; un poco de luz propia (0.15) evita que su cara oscura desaparezca. Ilumina la Tierra con el 10 % de la luz del sol (`MOON_LIGHT_RATIO`). Está detrás a la derecha (`MOON_DIRECTION`).
+- **Luz ambiental**: azul muy suave (`0xc8d4ff`), intensidad `AMBIENT_LIGHT_INTENSITY = 0.9`. Ilumina todo el planeta por igual: cuanto más alta, más claro se ve todo y menos se nota la dirección del sol.
+- El plano lejano de la cámara se ajusta a la distancia del sol (`camera.far`); el buffer de profundidad logarítmico mantiene la precisión aunque en la escena convivan el suelo a pocos km y el sol a 150 millones.
+
+#### Fondo: el cielo real
+
+El fondo es una **fotografía real de todo el cielo**: la panorámica de 360° de la Vía Láctea de [ESO/S. Brunier](https://www.eso.org/public/images/eso0932a/) (licencia CC BY 4.0, uso comercial permitido citando la fuente), con el núcleo de la galaxia, las nubes de polvo oscuro y nebulosas.
+
+- Se usa a 2048 × 1024 (`milky_way_2k.jpg`, 0.7 MB): a esa resolución las estrellas débiles se funden en un brillo suave y quedan la Vía Láctea, el polvo y las nebulosas, sin tanto detalle. El original de ESO tiene 6000 × 3000 si algún día se quiere más.
+- `SKY_BRIGHTNESS` = 0.35 lo deja oscuro para que destaque la Tierra (1 = como la foto).
+- Se pone como `scene.background` (fondo infinito): gira con la cámara pero no se acerca al hacer zoom.
+- La foto está en coordenadas galácticas. `scene.backgroundRotation` primero gira la galaxia sobre su eje (`SKY_TURN_DEG` = 125°: el núcleo y el polvo quedan abajo a la izquierda en la vista inicial, sin taparse con el planeta) y luego la inclina `SKY_TILT_DEG` = 62.87°, el ángulo real entre el plano de la galaxia y el ecuador terrestre.
 
 #### Navegación
 
@@ -225,9 +298,9 @@ Se dibuja en dos capas:
 
 > **Licencia de las imágenes**: la versión 2024 es **CC BY-NC-SA 4.0, solo para uso no comercial**. Para un uso comercial hay que comprar una licencia a EOX o volver a la versión 2016 (CC BY 4.0, uso comercial permitido; su URL está en un comentario junto a `TILE_URL`). La de 2016 tiene dos defectos visibles: franjas verticales (las pasadas del satélite en fechas distintas, muy visibles en África) y desiertos muy claros.
 
-- `createEarthMaterial(texture)`: material de la Tierra para una textura (la global y cada tesela). `MeshStandardMaterial` con la textura como color base y como **emisiva**, para que el planeta tenga luz propia (`EARTH_GLOW` = 0.45).
+- `createEarthMaterial(texture)`: material de la Tierra para una textura (la global y cada tesela). `MeshStandardMaterial` con la textura como color base y como **emisiva**, para que el planeta tenga luz propia (`EARTH_GLOW` = 0.75).
 - `earthShader`: se engancha en `onBeforeCompile` y modifica el shader estándar de three para:
-  - subir la **saturación** de la textura (`EARTH_SATURATION` = 1.1; 1 = colores originales);
+  - subir la **saturación** de la textura (`EARTH_SATURATION` = 1.15; 1 = colores originales);
   - suavizar las **zonas muy claras** (desiertos, hielo) sin tocar las oscuras: por encima de `EARTH_HIGHLIGHT_KNEE` (0.2) de luminosidad el brillo crece cada vez menos, según `EARTH_HIGHLIGHT_COMPRESSION` (2.5; 0 = sin efecto). Una zona de arena pierde ~20 % de brillo y el hielo ~50 %; bosques y sabanas no cambian;
   - pintar el **relleno verde del país** con pin: calcula la longitud y latitud de cada píxel a partir de su posición y mira si cae dentro del país en la máscara de `createCountryMask`. Así el relleno va pegado al suelo a cualquier zoom, sin geometría extra.
 
@@ -273,6 +346,8 @@ Al final, `main.js` crea el objeto `globe` y llama a `createGame(globe)`:
 | `menuBordersVisible` | Si se ven las fronteras en el menú (`SHOW_BORDERS`). |
 | `setBordersVisible`, `setHighlights`, `placePin`, `removePin`, `setPinLabel`, `flyTo` | Las funciones descritas arriba. |
 | `setAutoRotate(enabled)` | Giro automático lento del globo (en los menús). |
+| `setControlsEnabled(enabled)` | Bloquea o desbloquea girar y hacer zoom (la pausa lo usa). |
+| `setViewShift(fraction)` / `getViewCenter()` | Desplaza el planeta a un lado (menús) / punto de la Tierra bajo la cámara. |
 
 #### Bucle
 
@@ -329,7 +404,9 @@ Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, po
 
 | Constante / función | Qué hace |
 | --- | --- |
-| `ROUNDS` | Países por partida (10). |
+| `ROUNDS` | Países por partida en *Jugar* (10). |
+| `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` / `SURVIVAL_LOW_S` | Supervivencia: tiempo inicial (15 s), segundos por acierto (5 s) y umbral del reloj en rojo (5 s). |
+| `survivalRules(d)` | Reglas de supervivencia a partir de una dificultad (mismos países y pista, sin límite por país, todos los países). |
 | `COUNTDOWN_FROM` | Desde dónde cuenta la cuenta atrás (3). |
 | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` | Pausa tras acertar (1200 ms) y tras fallar (2600 ms) antes del siguiente país. |
 | `SMALL_COUNTRY_PX` / `CLICK_TOLERANCE_PX` | Ayuda para países diminutos (25 px / 15 px). |
@@ -338,14 +415,19 @@ Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, po
 | `TIME_OPTIONS` / `ROUND_OPTIONS` | Opciones de tiempo por país y de países por partida del modo prueba. |
 | `rulesFromPractice(practice)` | Convierte la configuración del modo prueba en reglas de partida. |
 | `setupPractice()` | Construye el formulario del modo prueba, guarda cada cambio y actualiza los recuentos y el botón *Empezar*. |
-| `startGame(rules)` | Elige al azar `rules.rounds` países del `pool` (o todos, si hay menos), reinicia marcador y cronómetro, configura el globo (fronteras, sin giro automático) y lanza la cuenta atrás. |
+| `startGame(rules)` | Prepara la cola de países (`queue`): `rules.rounds` países al azar del `pool` (o todos, si hay menos; en supervivencia, todos), reinicia marcador y cronómetro, configura el globo (fronteras, sin giro automático) y lanza la cuenta atrás. |
 | `startRound()` | Muestra la pista del país actual y limpia el resaltado. |
 | `isCorrect(info)` | Acierto si se hizo clic en el país; con pista solo de bandera, también en uno con la misma bandera; y en países diminutos, también cerca de ellos. |
 | `answer(correct, clicked)` | Suma el punto, pinta verde/rojo, pone la etiqueta, suena y, si falló, lleva la cámara al país correcto. |
-| `finish()` | Pantalla de resultado con puntos, tiempo y lista. |
+| `nextRound()` | Saca el país actual de la cola. En supervivencia, si se falló, lo vuelve a meter más adelante (posición aleatoria a partir de la 3.ª) y, si se acabó el reloj, termina. |
+| `finish()` | Pantalla de resultado: puntos, tiempo y lista (en supervivencia, banderas acertadas y fallos). |
 | `frame()` | Bucle propio (`requestAnimationFrame`): avanza el cronómetro solo en estado `playing` y, en hardcore, da el país por fallado al agotarse el tiempo. |
 
-Todos los temporizadores (`later`) se cancelan al salir al menú, así que salir en mitad de la cuenta atrás o de una pausa no deja nada colgando.
+Los temporizadores (`later`) son propios en lugar de `setTimeout`: los descuenta el bucle `frame()` solo cuando la partida no está en pausa, así la pausa congela la cuenta atrás y la espera entre países. Se cancelan todos al salir al menú, así que salir en mitad de la cuenta atrás no deja nada colgando.
+
+| Función | Qué hace |
+| --- | --- |
+| `pause()` / `resume()` | Pausa o reanuda (solo durante la partida): muestra u oculta `#pause` y bloquea o desbloquea el globo con `globe.setControlsEnabled`. |
 
 ### `src/settings.js` y `src/sound.js`
 
@@ -365,10 +447,10 @@ Página independiente que carga `countries-list.json`, muestra el recuento por t
 | Fronteras | radio 1.00004 (~250 m sobre el suelo) |
 | Contorno del país | radio 1.00005 |
 | Cámara | entre 1.10 (650 km) y 9.95 (57 000 km) |
-| Luna | ~41 |
-| Sol | ~51 |
-| Estrellas | entre 60 y 85 |
-| Límite de dibujo | 100 desde la cámara |
+| Luna | 42.2 (real × 0.7), radio 0.355 (real × 1.3) |
+| Sol | 16 437 (real × 0.7), radio 142 (real × 1.3) |
+| Cielo (fondo) | infinito |
+| Límite de dibujo | más allá del sol (`camera.far`) |
 
 ## Ajustes rápidos
 
@@ -380,6 +462,7 @@ Página independiente que carga `countries-list.json`, muestra el recuento por t
 | Arrastre más rápido o más lento | `ROTATE_SPEED` |
 | Más o menos inercia al soltar | `controls.dampingFactor` |
 | Países por partida | `ROUNDS` en `game.js` |
+| Tiempo inicial y bonus de supervivencia | `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` en `game.js` |
 | Tiempo por país en hardcore | `timeLimit` de `hardcore` en `DIFFICULTIES` |
 | Qué países entran en cada dificultad | `pool` en `DIFFICULTIES` |
 | Opciones del modo prueba | `TIME_OPTIONS`, `ROUND_OPTIONS`, `CONTINENTS` en `game.js`; valores iniciales en `DEFAULT_PRACTICE` (`settings.js`) |
@@ -393,9 +476,12 @@ Página independiente que carga `countries-list.json`, muestra el recuento por t
 | Relleno más o menos opaco | `MASK_OPACITY` (0.45) |
 | Colores más o menos vivos | `EARTH_SATURATION` |
 | Desiertos y hielo más o menos brillantes | `EARTH_HIGHLIGHT_COMPRESSION` (más = más apagados) y `EARTH_HIGHLIGHT_KNEE` |
-| Más o menos luz propia del planeta | `EARTH_GLOW` |
+| Planeta más o menos iluminado | `EARTH_GLOW` (luz propia), `AMBIENT_LIGHT_INTENSITY` (luz general) y `SUN_LIGHT_INTENSITY` (luz del sol) |
 | Otras imágenes de satélite | `TILE_URL`, `TILE_MAX_ZOOM` y `ZOOM_MIN_ALTITUDE_KM` |
-| Mover el sol o la luna | `position` en su llamada a `createLuminousBody` |
+| Mover el sol o la luna | `SUN_DIRECTION` / `MOON_DIRECTION` (y `SUN_DISTANCE` / `MOON_DISTANCE`) |
+| Aura del sol más grande o más pequeña | `SUN_AURA_SIZE` (en radios del sol); su intensidad, en los alfas de `createGlowTexture` |
+| Sol y luna más grandes o más pequeños en pantalla | `CELESTIAL_SCALE` (tamaño; 1 = real) y `CELESTIAL_DISTANCE_SCALE` (distancia; 1 = real, no bajar de ~0.2 para que la luna quede más allá del zoom máximo) |
 | Más o menos luz del sol / de la luna | `SUN_LIGHT_INTENSITY` / `MOON_LIGHT_RATIO` |
-| Más o menos estrellas | `count` en `createStarfield` |
+| Fondo más oscuro o más claro | `SKY_BRIGHTNESS` |
+| Qué parte de la Vía Láctea se ve al empezar | `SKY_TURN_DEG` |
 | Sensibilidad clic/arrastre | `CLICK_MOVE_TOLERANCE` |

@@ -3,101 +3,176 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cora · ¿Dónde está?</title>
+    <title>CORA</title>
+    <meta name="theme-color" content="#07090f" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- Pantalla de carga: se desvanece cuando el planeta y los países están listos -->
+    <div id="loading" role="status" aria-live="polite">
+      <span class="wordmark">CORA</span>
+      <span class="loading-bar"></span>
+    </div>
+
     <!-- Menú principal -->
     <section id="screen-menu" class="screen" hidden>
-      <div class="panel">
-        <h1>¿Dónde está?</h1>
-        <p class="subtitle">Encuentra el país en el globo</p>
-        <button data-action="play" class="primary">Jugar</button>
-        <button data-action="practice">Modo prueba</button>
-        <button data-action="settings">Configuración</button>
-        <a class="small-link" href="/paises.html" target="_blank">Lista de países</a>
+      <div class="sheet">
+        <h1 class="wordmark">CORA</h1>
+        <nav class="menu" aria-label="Menú principal">
+          <button data-action="play" class="menu-item">
+            <span class="menu-label">Jugar</span>
+          </button>
+          <button data-action="survival" class="menu-item">
+            <span class="menu-label">Supervivencia</span>
+          </button>
+          <button data-action="practice" class="menu-item">
+            <span class="menu-label">Modo prueba</span>
+          </button>
+          <button data-action="leaderboard" class="menu-item">
+            <span class="menu-label">Clasificación</span>
+          </button>
+          <button data-action="settings" class="menu-item">
+            <span class="menu-label">Configuración</span>
+          </button>
+        </nav>
+        <a class="foot-link" href="/paises.html" target="_blank">Lista de países ↗</a>
       </div>
     </section>
 
-    <!-- Elegir dificultad (los botones los crea game.js a partir de DIFFICULTIES) -->
+    <!-- Elegir dificultad (las filas las crea game.js a partir de DIFFICULTIES) -->
     <section id="screen-difficulty" class="screen" hidden>
-      <div class="panel">
-        <h2>Elige la dificultad</h2>
-        <div id="difficulty-list"></div>
-        <button data-action="menu" class="secondary">Volver</button>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title" id="difficulty-title">Dificultad</h2>
+        <div id="difficulty-list" class="rows"></div>
       </div>
     </section>
 
     <!-- Modo prueba: reglas a medida (el formulario lo crea game.js) -->
     <section id="screen-practice" class="screen" hidden>
-      <div class="panel panel-wide">
-        <h2>Modo prueba</h2>
-        <p class="subtitle">Elige qué practicar y con qué reglas</p>
+      <div class="sheet sheet-wide">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Modo prueba</h2>
         <form id="practice-form" onsubmit="return false"></form>
-        <p id="practice-summary"></p>
-        <button id="practice-start" data-action="start-practice" class="primary">Empezar</button>
-        <button data-action="menu" class="secondary">Volver</button>
+        <div class="sheet-footer">
+          <p id="practice-summary"></p>
+          <button id="practice-start" data-action="start-practice" class="primary">Empezar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clasificación online (Convex) -->
+    <section id="screen-leaderboard" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Clasificación</h2>
+        <div id="board-mode" class="tabs"></div>
+        <div id="board-difficulty" class="tabs"></div>
+        <ol id="board-list"></ol>
+        <p id="board-status"></p>
       </div>
     </section>
 
     <!-- Configuración -->
     <section id="screen-settings" class="screen" hidden>
-      <div class="panel">
-        <h2>Configuración</h2>
-        <label class="setting">
-          <span>Sonido</span>
-          <input type="checkbox" id="setting-sound" class="switch" />
-        </label>
-        <div class="setting setting-column">
-          <span>Idioma de las pistas</span>
-          <div id="setting-language" class="segmented"></div>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Configuración</h2>
+        <div class="field">
+          <label class="field-row" for="setting-sound">
+            <span>Sonido</span>
+            <input type="checkbox" id="setting-sound" class="switch" />
+          </label>
         </div>
-        <button data-action="menu" class="secondary">Volver</button>
+        <div class="field">
+          <label class="field-label" for="setting-name">Nombre en la clasificación</label>
+          <input type="text" id="setting-name" class="text-input" maxlength="20" autocomplete="nickname" spellcheck="false" />
+        </div>
+        <div class="field">
+          <span class="field-label">Idioma de las pistas</span>
+          <div id="setting-language" class="tabs"></div>
+        </div>
       </div>
     </section>
 
     <!-- Resultado de la partida -->
     <section id="screen-results" class="screen" hidden>
-      <div class="panel">
-        <h2>¡Partida terminada!</h2>
-        <p class="subtitle" id="results-difficulty"></p>
-        <div class="results-stats">
-          <div><span>Puntos</span><strong id="results-score"></strong></div>
-          <div><span>Tiempo</span><strong id="results-time"></strong></div>
+      <div class="sheet">
+        <h2 class="title" id="results-difficulty"></h2>
+        <div class="score">
+          <span class="score-value"><strong id="results-score"></strong><span id="results-total"></span></span>
+          <span class="score-time"><span class="k">Tiempo</span><span id="results-time"></span></span>
         </div>
+        <p id="results-record" hidden></p>
+        <p id="results-rank" hidden></p>
         <ol id="results-list"></ol>
-        <button data-action="replay" class="primary">Jugar otra vez</button>
-        <button data-action="menu" class="secondary">Volver al menú</button>
+        <div id="results-flags" hidden></div>
+        <div class="actions">
+          <button data-action="replay" class="primary">Jugar otra vez</button>
+          <button data-action="menu" class="ghost">Menú</button>
+        </div>
       </div>
     </section>
 
     <!-- Durante la partida -->
     <div id="hud" hidden>
       <div class="hud-stats">
-        <span id="hud-round"></span>
-        <span id="hud-score"></span>
-        <span id="hud-time"></span>
+        <div><span class="k" id="hud-k-round">País</span><span class="v" id="hud-round"></span></div>
+        <div><span class="k" id="hud-k-score">Puntos</span><span class="v" id="hud-score"></span></div>
+        <div id="hud-time-block">
+          <span class="k" id="hud-k-time">Tiempo</span><span class="v" id="hud-time"></span>
+          <span id="hud-bonus" aria-hidden="true"></span>
+        </div>
       </div>
-      <button data-action="menu" class="hud-quit">Salir</button>
+      <button data-action="pause" class="hud-pause" aria-label="Pausa"><span class="pause-icon" aria-hidden="true"></span>Pausa</button>
       <div class="hud-center">
         <div id="hint" hidden>
-          <img id="hint-flag" alt="Bandera del país que hay que encontrar" />
-          <span id="hint-name"></span>
+          <div class="hint-body">
+            <img id="hint-flag" alt="Bandera del país que hay que encontrar" />
+            <span id="hint-name"></span>
+          </div>
         </div>
         <div id="round-timer" hidden><div id="round-timer-bar"></div></div>
-        <div id="feedback"></div>
+        <div id="feedback" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <!-- Pausa: tapa el globo; Esc o Reanudar para seguir -->
+    <div id="pause" hidden>
+      <div class="pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+        <h2 id="pause-title" class="title">Pausa</h2>
+        <button data-action="resume" class="primary">Reanudar</button>
+        <button data-action="menu" class="ghost">Salir</button>
       </div>
     </div>
 
     <!-- Cuenta atrás 3, 2, 1 -->
     <div id="countdown" hidden></div>
 
-    <div id="credits">
-      Imágenes: <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
-      (contiene datos modificados de Copernicus Sentinel 2024, CC BY-NC-SA 4.0) ·
-      <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">Solar System Scope</a>
-      (CC BY 4.0) · Fronteras: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>
-    </div>
+    <!-- Botón de información y popup con los créditos (ver src/credits.js) -->
+    <button id="info-button" type="button" aria-label="Información y créditos" title="Información y créditos">i</button>
+    <dialog id="info-dialog" aria-labelledby="info-title">
+      <button type="button" class="dialog-close" aria-label="Cerrar">✕</button>
+      <h2 id="info-title" class="title">Créditos</h2>
+      <dl class="credits-list">
+        <dt>Imágenes de satélite</dt>
+        <dd>
+          <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
+          (contiene datos modificados de Copernicus Sentinel 2024) · CC BY-NC-SA 4.0
+        </dd>
+        <dt>Tierra base, sol y luna</dt>
+        <dd><a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">Solar System Scope</a> · CC BY 4.0</dd>
+        <dt>Cielo</dt>
+        <dd><a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener">ESO/S. Brunier</a> · CC BY 4.0</dd>
+        <dt>Fronteras y nombres de países</dt>
+        <dd><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> · dominio público</dd>
+        <dt>Banderas</dt>
+        <dd><a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> · MIT</dd>
+        <dt>Tipografías</dt>
+        <dd>Bricolage Grotesque · SIL Open Font License</dd>
+      </dl>
+    </dialog>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -228,5 +228,9 @@ export function createTileLayer({
     }
   }
 
-  return { group, update };
+  // true cuando no hay descargas pendientes (tras al menos un par de frames): sirve para
+  // quitar la pantalla de carga cuando las primeras teselas ya están puestas
+  const isIdle = () => frame > 2 && inFlight === 0;
+
+  return { group, update, isIdle };
 }

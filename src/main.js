@@ -6,6 +6,7 @@ import { loadCountries, findCountry, createBorders, createCountryOutline, create
 import { vector3ToLonLat, lonLatToVector3 } from './geo.js';
 import { createTileLayer } from './tiles.js';
 import { createGame } from './game.js';
+import { setupCredits } from './credits.js';
 
 const SPHERE_RADIUS = 1;
 const CLICK_MOVE_TOLERANCE = 5; // px: más movimiento que esto cuenta como arrastre, no clic
@@ -33,7 +34,8 @@ const ROTATE_SPEED = 0.25; // giro respecto a la altura (más = arrastre más r�
 // --- Escena básica ---------------------------------------------------------
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
+// El plano lejano se ajusta más abajo, cuando se conoce la distancia del sol
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 200);
 camera.position.set(0, 0, 4);
 
 // Buffer de profundidad logarítmico: permite ver a la vez el suelo a pocos km y el sol a
@@ -43,20 +45,36 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// --- Astros de fondo: esferas que brillan por sí mismas y emiten luz -------
-// Esfera blanca en el centro que se apaga hacia `edgeColor` en el borde.
-// No le afecta la luz de la escena.
-function createGlowingSphereMaterial(edgeColor) {
+// --- Sol y luna ----------------------------------------------------------------
+// Tamaños y distancias REALES, en radios terrestres (la Tierra de la escena tiene radio 1):
+//   Luna: radio 1737 km, a 384 400 km   →  radio 0.273, distancia 60.3
+//   Sol:  radio 696 000 km, a 149.6 M km →  radio 109,  distancia 23 481
+// Por eso, como en la vida real, los dos se ven del mismo tamaño aparente (~0.5°), como
+// discos pequeños, y no crecen al hacer zoom (el zoom acerca la cámara a la Tierra, no a ellos).
+// Al verse siempre tan pequeños, bastan texturas de 256 × 128 y mallas de pocos polígonos.
+// Texturas de Solar System Scope (CC BY 4.0).
+const textureLoader = new THREE.TextureLoader();
+function loadColorTexture(url) {
+  const texture = textureLoader.load(url);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// Sol: superficie con textura que se aclara hacia blanco en el centro y se tiñe de `edgeColor`
+// en el borde. No le afecta la luz de la escena: brilla por sí mismo.
+function createSunMaterial(texture, edgeColor) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      centerColor: { value: new THREE.Color(0xffffff) },
+      map: { value: texture },
       edgeColor: { value: new THREE.Color(edgeColor) },
     },
     vertexShader: /* glsl */ `
       #include <common>
       #include <logdepthbuf_pars_vertex>
       varying float vFacing;
+      varying vec2 vUv;
       void main() {
+        vUv = uv;
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         vec3 viewNormal = normalize(normalMatrix * normal);
         vFacing = max(dot(viewNormal, normalize(-mvPosition.xyz)), 0.0);
@@ -66,135 +84,141 @@ function createGlowingSphereMaterial(edgeColor) {
     `,
     fragmentShader: /* glsl */ `
       #include <logdepthbuf_pars_fragment>
-      uniform vec3 centerColor;
+      uniform sampler2D map;
       uniform vec3 edgeColor;
       varying float vFacing;
+      varying vec2 vUv;
       void main() {
         #include <logdepthbuf_fragment>
-        gl_FragColor = vec4(mix(edgeColor, centerColor, pow(vFacing, 3.0)), 1.0);
+        vec3 surface = texture2D(map, vUv).rgb * 1.4;
+        // Borde teñido de edgeColor, superficie con textura y centro casi blanco
+        vec3 color = mix(edgeColor * 0.8, surface, smoothstep(0.0, 0.5, vFacing));
+        color = mix(color, vec3(1.0), pow(vFacing, 4.0) * 0.6);
+        gl_FragColor = vec4(color, 1.0);
         #include <colorspace_fragment>
       }
     `,
   });
 }
 
-// Textura del aura. El sprite mide 4 radios, así que el borde del astro cae en 0.5 del gradiente
-function createGlowTexture() {
-  const size = 256;
+// Textura del aura del sol para un sprite de `sizeInRadii` radios de ancho. La luz es intensa
+// justo en el borde del sol y se apaga poco a poco (decae aproximadamente con la distancia),
+// así parece un halo de luz y no un disco.
+function createGlowTexture(sizeInRadii) {
+  const size = 512;
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d');
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, 'rgba(255, 245, 225, 0.5)');
-  g.addColorStop(0.5, 'rgba(255, 230, 190, 0.3)');
-  g.addColorStop(0.7, 'rgba(220, 180, 130, 0.1)');
-  g.addColorStop(1, 'rgba(200, 160, 110, 0)');
+  const c = size / 2;
+  const edge = 2 / sizeInRadii; // borde del sol en unidades del gradiente (0 = centro, 1 = borde del sprite)
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c);
+  g.addColorStop(0, 'rgba(255, 250, 235, 1)');
+  g.addColorStop(edge, 'rgba(255, 238, 205, 0.95)');
+  // Caída suave: alfa a 1.5, 2, 3, 5 y 8 radios del centro, y nada al borde del sprite
+  for (const [radii, alpha] of [
+    [1.5, 0.6],
+    [2, 0.42],
+    [3, 0.24],
+    [5, 0.1],
+    [8, 0.035],
+  ]) {
+    const stop = radii * edge;
+    if (stop < 1) g.addColorStop(stop, `rgba(255, 210, 150, ${alpha})`);
+  }
+  g.addColorStop(1, 'rgba(255, 190, 120, 0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
   return new THREE.CanvasTexture(canvas);
 }
-const glowTexture = createGlowTexture();
 
-// Crea un astro: esfera + aura + luz direccional que sale de él hacia el origen
-function createLuminousBody({ position, radius, edgeColor, auraColor, auraOpacity, lightColor, lightIntensity }) {
-  const body = new THREE.Mesh(new THREE.SphereGeometry(radius, 48, 48), createGlowingSphereMaterial(edgeColor));
-  body.position.copy(position);
+// Sol: esfera con textura + aura + la luz direccional principal, que sale de él hacia la Tierra
+// Escala visual de sol y luna sobre su tamaño real (1 = real; 1.3 = un 30 % más grandes)
+const CELESTIAL_SCALE = 1.3;
+// Escala de sus distancias sobre la real (1 = real; 0.7 = un 30 % más cerca). La luna debe
+// quedar siempre más allá del zoom máximo (~10 radios), así que no conviene bajar de ~0.2.
+const CELESTIAL_DISTANCE_SCALE = 0.7;
+const SUN_RADIUS = (696000 / EARTH_RADIUS_KM) * CELESTIAL_SCALE;
+const SUN_DISTANCE = (149.6e6 / EARTH_RADIUS_KM) * CELESTIAL_DISTANCE_SCALE;
+const SUN_DIRECTION = new THREE.Vector3(-22, 8, -40).normalize(); // detrás a la izquierda
+const SUN_LIGHT_INTENSITY = 1.8;
+const SUN_AURA_SIZE = 24; // ancho del aura de luz, en radios del sol (más = aura más grande)
+const sun = new THREE.Mesh(
+  new THREE.SphereGeometry(SUN_RADIUS, 24, 16),
+  createSunMaterial(loadColorTexture('/textures/sun_256.jpg'), 0xff9e22)
+);
+sun.position.copy(SUN_DIRECTION).multiplyScalar(SUN_DISTANCE);
+const sunAura = new THREE.Sprite(
+  new THREE.SpriteMaterial({
+    map: createGlowTexture(SUN_AURA_SIZE),
+    color: 0xffc24a,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    transparent: true,
+  })
+);
+sunAura.scale.setScalar(SUN_RADIUS * SUN_AURA_SIZE);
+sun.add(sunAura);
+const sunLight = new THREE.DirectionalLight(0xfff6ea, SUN_LIGHT_INTENSITY);
+sunLight.position.copy(sun.position);
+scene.add(sun, sunLight);
 
-  const aura = new THREE.Sprite(
-    new THREE.SpriteMaterial({
-      map: glowTexture,
-      color: auraColor,
-      opacity: auraOpacity,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      transparent: true,
-    })
-  );
-  aura.scale.setScalar(radius * 4);
-  body.add(aura);
+// El sol está a ~23 500 radios terrestres: el plano lejano de la cámara tiene que llegar más allá
+// (el buffer de profundidad logarítmico mantiene la precisión con distancias tan distintas)
+camera.far = SUN_DISTANCE + SUN_RADIUS * SUN_AURA_SIZE;
+camera.updateProjectionMatrix();
 
-  const light = new THREE.DirectionalLight(lightColor, lightIntensity);
-  light.position.copy(position);
-
-  scene.add(body, light);
-  return { body, light };
-}
-
-// Sun
-const SUN_RADIUS = 3;
-const SUN_LIGHT_INTENSITY = 1.4;
-const sun = createLuminousBody({
-  position: new THREE.Vector3(-30, 12, -40),
-  radius: SUN_RADIUS,
-  edgeColor: 0xff9e22,
-  auraColor: 0xffc24a,
-  auraOpacity: 1,
-  lightColor: 0xfff6ea,
-  lightIntensity: SUN_LIGHT_INTENSITY,
-});
-
-// Luna: proporción real luna/tierra (~0.27) aplicada al tamaño del sol en pantalla,
-// en el lado opuesto del cielo. Emite el 10% de la luz del sol.
+// Luna: esfera con textura iluminada por el sol (así muestra fases reales, sin brillo propio),
+// con un poco de luz propia para que no desaparezca la cara oscura. Además ilumina la Tierra
+// con el 10 % de la luz del sol.
+const MOON_RADIUS = (1737.4 / EARTH_RADIUS_KM) * CELESTIAL_SCALE;
+const MOON_DISTANCE = (384400 / EARTH_RADIUS_KM) * CELESTIAL_DISTANCE_SCALE;
+const MOON_DIRECTION = new THREE.Vector3(26, 9, -30).normalize(); // detrás a la derecha
 const MOON_LIGHT_RATIO = 0.1;
-const moon = createLuminousBody({
-  position: new THREE.Vector3(26, 9, -30),
-  radius: SUN_RADIUS * 0.27,
-  edgeColor: 0x5a6070,
-  auraColor: 0xc8d4ff,
-  auraOpacity: 0.5,
-  lightColor: 0xcfdcff,
-  lightIntensity: SUN_LIGHT_INTENSITY * MOON_LIGHT_RATIO,
-});
+const moonTexture = loadColorTexture('/textures/moon_256.jpg');
+const moon = new THREE.Mesh(
+  new THREE.SphereGeometry(MOON_RADIUS, 24, 16),
+  new THREE.MeshStandardMaterial({
+    map: moonTexture,
+    emissiveMap: moonTexture,
+    emissive: 0xffffff,
+    emissiveIntensity: 0.15,
+    roughness: 1,
+    metalness: 0,
+  })
+);
+moon.position.copy(MOON_DIRECTION).multiplyScalar(MOON_DISTANCE);
+const moonLight = new THREE.DirectionalLight(0xcfdcff, SUN_LIGHT_INTENSITY * MOON_LIGHT_RATIO);
+moonLight.position.copy(moon.position);
+scene.add(moon, moonLight);
 
 // Luz ambiental baja para que el lado nocturno no quede negro del todo
-scene.add(new THREE.AmbientLight(0xb0c0ff, 0.55));
+const AMBIENT_LIGHT_INTENSITY = 0.9; // luz que llega a todo el planeta por igual (más = más claro en todas partes)
+scene.add(new THREE.AmbientLight(0xc8d4ff, AMBIENT_LIGHT_INTENSITY));
 
-// --- Fondo de estrellas -----------------------------------------------------
-// Puntos repartidos en una cáscara esférica lejana (dentro del `far` de la cámara)
-function createStarfield({ count = 4000, minRadius = 60, maxRadius = 85 } = {}) {
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const color = new THREE.Color();
-  const dir = new THREE.Vector3();
-
-  for (let i = 0; i < count; i++) {
-    dir.randomDirection().multiplyScalar(THREE.MathUtils.randFloat(minRadius, maxRadius));
-    dir.toArray(positions, i * 3);
-
-    // Brillo variado: la mayoría tenues, unas pocas brillantes; tinte frío o cálido sutil
-    const brightness = 0.25 + Math.pow(Math.random(), 3) * 0.75;
-    color.setHSL(Math.random() < 0.5 ? 0.6 : 0.1, 0.25, brightness);
-    color.toArray(colors, i * 3);
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-  // Textura circular suave para que las estrellas no sean cuadradas
-  const size = 32;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.4, 'rgba(255,255,255,0.6)');
-  g.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-
-  const material = new THREE.PointsMaterial({
-    size: 2.5,
-    sizeAttenuation: false, // tamaño fijo en píxeles: no cambian con el zoom
-    map: new THREE.CanvasTexture(canvas),
-    vertexColors: true,
-    transparent: true,
-    depthWrite: false,
-  });
-
-  return new THREE.Points(geometry, material);
-}
-scene.add(createStarfield());
+// --- Fondo: el cielo real --------------------------------------------------------
+// Panorámica de 360° de todo el cielo (la Vía Láctea con sus nubes de polvo, nebulosas como
+// la de Carina, las Nubes de Magallanes y miles de estrellas): fotografía de ESO/S. Brunier,
+// licencia CC BY 4.0 (https://www.eso.org/public/images/eso0932a/).
+// Está en coordenadas galácticas (la Vía Láctea en el ecuador de la imagen). Se inclina
+// SKY_TILT_DEG, el ángulo real entre el plano de la galaxia y el ecuador terrestre, para que
+// la Vía Láctea cruce el cielo con la inclinación que tiene vista desde la Tierra.
+// Es un fondo infinito: gira con la cámara pero no se acerca al hacer zoom.
+const SKY_BRIGHTNESS = 0.35; // 1 = como la foto; menos = más oscuro (para que destaque la Tierra)
+// Versión de 2048 × 1024: a esta resolución las estrellas débiles se funden en un brillo suave y
+// quedan la Vía Láctea, el polvo y las nebulosas (hay 6000 × 3000 en el original de ESO, si se quiere más detalle)
+const SKY_TEXTURE = '/textures/milky_way_2k.jpg';
+const SKY_TILT_DEG = 62.87;
+const skyTexture = new THREE.TextureLoader().load(SKY_TEXTURE);
+skyTexture.mapping = THREE.EquirectangularReflectionMapping;
+skyTexture.colorSpace = THREE.SRGBColorSpace;
+scene.background = skyTexture;
+scene.backgroundIntensity = SKY_BRIGHTNESS;
+// Qué tramo de la Vía Láctea queda detrás de la Tierra en la vista inicial (giro a lo largo de la
+// propia galaxia; 0 = su núcleo, que quedaría tapado por la Tierra)
+const SKY_TURN_DEG = 125;
+// Orden ZYX: primero se gira la galaxia sobre su eje (Y) y luego se inclina (Z), así la Vía
+// Láctea cruza en diagonal por detrás de la Tierra
+scene.backgroundRotation.set(0, THREE.MathUtils.degToRad(SKY_TURN_DEG), THREE.MathUtils.degToRad(SKY_TILT_DEG), 'ZYX');
 
 // --- Controles: rotar y zoom ------------------------------------------------
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -222,7 +246,7 @@ let zooming = false;
 window.addEventListener(
   'wheel',
   (e) => {
-    if (e.target !== renderer.domElement) return;
+    if (e.target !== renderer.domElement || controlsLocked) return;
     // Se intercepta en captura para que OrbitControls no aplique también su propio zoom
     e.preventDefault();
     e.stopPropagation();
@@ -257,8 +281,8 @@ function updateCameraNear(altitude) {
 }
 
 // --- Esfera (Tierra) --------------------------------------------------------
-const EARTH_SATURATION = 1.1; // 1 = colores originales; más alto = más vivos (las imágenes 2024 ya son vivas)
-const EARTH_GLOW = 0.45; // luz propia del planeta (0 = solo la del sol/luna/ambiente)
+const EARTH_SATURATION = 1.15; // 1 = colores originales; más alto = más vivos (las imágenes 2024 ya son vivas)
+const EARTH_GLOW = 0.75; // luz propia del planeta (0 = solo la del sol/luna/ambiente)
 // Suaviza las zonas muy claras (desiertos, hielo) sin tocar las oscuras: por encima de
 // EARTH_HIGHLIGHT_KNEE de luminosidad, el brillo crece cada vez menos. 0 = sin efecto.
 const EARTH_HIGHLIGHT_KNEE = 0.2;
@@ -373,7 +397,9 @@ function createEarthMaterial(texture) {
 // Textura global 4K (equirectangular, longitud -180° en el borde izquierdo), servida desde public/.
 // Se ve al instante, en los polos (las teselas no llegan más allá de ±85°) y si no hay conexión.
 // Va un pelo por debajo del radio real para quedar siempre bajo las teselas.
-const earthTexture = new THREE.TextureLoader().load('/textures/earth_day_4k.jpg');
+let resolveEarthTexture;
+const earthTextureReady = new Promise((resolve) => (resolveEarthTexture = resolve));
+const earthTexture = new THREE.TextureLoader().load('/textures/earth_day_4k.jpg', resolveEarthTexture, undefined, resolveEarthTexture);
 earthTexture.colorSpace = THREE.SRGBColorSpace;
 earthTexture.anisotropy = MAX_ANISOTROPY;
 
@@ -567,6 +593,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
 // Gira la cámara alrededor del planeta hasta quedar sobre (lon, lat), manteniendo la altura
 // (o alejándose un poco si está muy cerca, para que se vea el país entero).
 let flight = null;
+let controlsLocked = false; // true con la partida en pausa
 function flyTo(lon, lat, duration = 1.2) {
   const altitude = camera.position.length() - SPHERE_RADIUS;
   flight = {
@@ -593,7 +620,7 @@ function updateFlight(dt) {
   camera.position.copy(dir.multiplyScalar(SPHERE_RADIUS + altitude));
   if (flight.t >= 1) {
     flight = null;
-    controls.enabled = true;
+    controls.enabled = !controlsLocked;
   }
 }
 
@@ -608,13 +635,58 @@ const globe = {
   removePin,
   setPinLabel,
   flyTo,
+  setViewShift,
+  // Bloquea o desbloquea girar y hacer zoom (p. ej. con la partida en pausa)
+  setControlsEnabled(enabled) {
+    controlsLocked = !enabled;
+    controls.enabled = enabled && !flight;
+    if (!enabled) zooming = false;
+  },
+  // Punto de la Tierra que queda bajo la cámara: { lon, lat }
+  getViewCenter: () => vector3ToLonLat(camera.position),
   setAutoRotate(enabled) {
     controls.autoRotate = enabled;
     controls.autoRotateSpeed = 0.4;
   },
 };
 
+// --- Desplazamiento lateral de la vista ----------------------------------------
+// En los menús el planeta se aparta a la derecha para dejar sitio al panel. Se hace con
+// setViewOffset (como si se recortara una imagen más ancha), así la cámara y los controles
+// siguen girando alrededor del centro de la Tierra. La transición es suave.
+let viewShift = 0;
+let targetViewShift = 0;
+function setViewShift(fraction) {
+  targetViewShift = fraction;
+}
+function updateViewShift(dt) {
+  const diff = targetViewShift - viewShift;
+  viewShift = Math.abs(diff) < 1e-4 ? targetViewShift : viewShift + diff * (1 - Math.exp(-dt * 5));
+  const w = renderer.domElement.clientWidth;
+  const h = renderer.domElement.clientHeight;
+  if (viewShift === 0) {
+    if (camera.view?.enabled) camera.clearViewOffset();
+  } else {
+    camera.setViewOffset(w, h, -viewShift * w, 0, w, h);
+  }
+}
+
+// --- Pantalla de carga --------------------------------------------------------------
+// Se quita cuando están la textura global, los países y las primeras teselas (así no se ve
+// el planeta a medio cargar). Si algo tarda demasiado, se quita igual a los 8 segundos.
+const loadingScreen = document.getElementById('loading');
+let baseReady = false;
+Promise.all([countriesReady, earthTextureReady]).finally(() => (baseReady = true));
+const loadingStart = performance.now();
+function updateLoading() {
+  if (!loadingScreen || loadingScreen.classList.contains('is-done')) return;
+  if ((baseReady && tileLayer.isIdle()) || performance.now() - loadingStart > 8000) {
+    loadingScreen.classList.add('is-done');
+  }
+}
+
 createGame(globe);
+setupCredits();
 
 // --- Loop y resize ----------------------------------------------------------
 window.addEventListener('resize', () => {
@@ -631,12 +703,14 @@ renderer.setAnimationLoop((time) => {
 
   updateZoom(dt);
   updateFlight(dt);
+  updateViewShift(dt);
   if (!zooming) targetAltitude = camera.position.length() - SPHERE_RADIUS; // p. ej. tras un pellizco
   const altitude = camera.position.length() - SPHERE_RADIUS;
   updateRotateSpeed(altitude);
   updateCameraNear(altitude);
   controls.update();
   tileLayer.update(camera, renderer.domElement.clientHeight);
+  updateLoading();
   updatePin();
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);

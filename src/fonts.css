@@ -1,0 +1,12 @@
+/* Tipografías de toda la web (juego y lista de países). Cambiar aquí cambia todo el sitio.
+   Cada fuente se instala con npm (paquetes @fontsource, se sirven desde el propio proyecto)
+   y se importa abajo; luego se asigna a una de las tres variables. Ahora las tres usan
+   Bricolage Grotesque; se pueden separar si algún día se quiere otra fuente para títulos o datos. */
+
+@import '@fontsource-variable/bricolage-grotesque/standard.css';
+
+:root {
+  --serif: 'Bricolage Grotesque Variable', system-ui, sans-serif; /* títulos, logo, nombres de países */
+  --sans: 'Bricolage Grotesque Variable', system-ui, sans-serif; /* texto y botones */
+  --mono: 'Bricolage Grotesque Variable', system-ui, sans-serif; /* datos: cronómetro, puntos, recuentos */
+}
