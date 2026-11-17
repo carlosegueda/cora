@@ -171,6 +171,7 @@ export function createGame(globe) {
 
   const screens = {
     menu: $('screen-menu'),
+    name: $('screen-name'),
     difficulty: $('screen-difficulty'),
     settings: $('screen-settings'),
     practice: $('screen-practice'),
@@ -260,7 +261,7 @@ export function createGame(globe) {
     // En los menús el planeta se aparta a la derecha para dejar sitio al panel
     globe.setViewShift(name && wideScreen() ? MENU_VIEW_SHIFT : 0);
     // Lleva el foco al primer botón de la pantalla (navegación con teclado)
-    if (name) screens[name].querySelector('.menu-item, .row, .primary, .back')?.focus({ preventScroll: true });
+    if (name) screens[name].querySelector('.text-input, .menu-item, .row, .primary, .back')?.focus({ preventScroll: true });
   }
 
   function resetGlobe() {
@@ -591,6 +592,32 @@ export function createGame(globe) {
   }
   renderDifficulties();
 
+  // --- Nombre del jugador ---
+  // Se pide tras pulsar Jugar o Supervivencia (relleno con el último usado) y se guarda para
+  // la clasificación. Continuar solo se activa con 2–20 caracteres; Enter también continúa.
+  const nameForm = $('name-form');
+  const nameInput = $('player-name');
+  const nameContinue = $('name-continue');
+  const validName = () => nameInput.value.trim().length >= 2;
+  const refreshName = () => (nameContinue.disabled = !validName());
+
+  function askName() {
+    nameInput.value = getPlayerName();
+    refreshName();
+    showScreen('name');
+    nameInput.select();
+  }
+
+  nameInput.addEventListener('input', refreshName);
+  nameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!validName()) return;
+    setPlayerName(nameInput.value);
+    sound.play('click');
+    renderDifficulties();
+    showScreen('difficulty');
+  });
+
   // --- Clasificación online (Convex) ---
   const BOARD_MODES = { clasico: 'Jugar', supervivencia: 'Supervivencia' };
   const board = { mode: 'clasico', difficulty: 'facil', stop: null };
@@ -684,11 +711,6 @@ export function createGame(globe) {
       Object.fromEntries(Object.values(DIFFICULTIES).map((d) => [d.key, d.label])),
       'difficulty'
     );
-
-    // Nombre del jugador (en Configuración)
-    const nameInput = $('setting-name');
-    nameInput.value = getPlayerName();
-    nameInput.addEventListener('input', () => setPlayerName(nameInput.value));
   }
 
   // --- Configuración ---
@@ -731,8 +753,7 @@ export function createGame(globe) {
     sound.play('click');
     if (action === 'play' || action === 'survival') {
       difficultyMode = action === 'survival' ? 'survival' : 'classic';
-      renderDifficulties();
-      showScreen('difficulty');
+      askName();
     }
     else if (action === 'settings') showScreen('settings');
     else if (action === 'leaderboard') openBoard();

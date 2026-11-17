@@ -603,6 +603,18 @@ button:disabled {
   border-bottom-color: var(--sun);
 }
 
+.text-input-big {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.name-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 /* --- Clasificación ---------------------------------------------------------------- */
 #board-mode {
   margin-bottom: 6px;

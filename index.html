@@ -39,6 +39,19 @@
       </div>
     </section>
 
+    <!-- Nombre del jugador: se pide al pulsar Jugar o Supervivencia y se usa en la clasificación -->
+    <section id="screen-name" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Tu nombre</h2>
+        <form id="name-form" class="name-form" autocomplete="off">
+          <input type="text" id="player-name" class="text-input text-input-big" maxlength="20" minlength="2" required
+            autocomplete="nickname" spellcheck="false" aria-label="Tu nombre" />
+          <button type="submit" id="name-continue" class="primary">Continuar</button>
+        </form>
+      </div>
+    </section>
+
     <!-- Elegir dificultad (las filas las crea game.js a partir de DIFFICULTIES) -->
     <section id="screen-difficulty" class="screen" hidden>
       <div class="sheet">
@@ -83,10 +96,6 @@
             <span>Sonido</span>
             <input type="checkbox" id="setting-sound" class="switch" />
           </label>
-        </div>
-        <div class="field">
-          <label class="field-label" for="setting-name">Nombre en la clasificación</label>
-          <input type="text" id="setting-name" class="text-input" maxlength="20" autocomplete="nickname" spellcheck="false" />
         </div>
         <div class="field">
           <span class="field-label">Idioma de las pistas</span>

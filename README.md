@@ -16,6 +16,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 | `npm run dev`     | Servidor de desarrollo con recarga automática al guardar.     |
 | `npm run build`   | Genera la versión de producción en `dist/` (las dos páginas). |
 | `npm run preview` | Sirve la carpeta `dist/` para probar el build de producción.  |
+| `npm run convex`  | Conecta con Convex (clasificación online) y vigila `convex/`. Déjalo abierto junto a `npm run dev` mientras cambies funciones del servidor. |
 
 > Al hacer `build`, Vite avisa de que un archivo supera 500 kB. Es normal con Three.js y no es un error.
 
@@ -89,6 +90,16 @@ Para practicar con reglas a medida. Desde el menú principal, *Modo prueba* abre
 - La partida funciona igual que las normales (cuenta atrás, cronómetro, resultado); *Jugar otra vez* repite las mismas reglas con países nuevos.
 - La última configuración se recuerda entre visitas.
 
+### Nombre y clasificación online
+
+Al pulsar *Jugar* o *Supervivencia* se pide **el nombre del jugador** (relleno con el último usado; *Continuar* se activa con 2–20 caracteres; `Enter` también continúa). Ese nombre aparece en la clasificación.
+
+Al terminar una partida de *Jugar* o *Supervivencia* con al menos 1 acierto, la puntuación se envía a la **clasificación online** y el resultado muestra el puesto (“Puesto 3 en la clasificación”). El modo prueba no cuenta.
+
+La pantalla **Clasificación** (menú principal) tiene una tabla por **modo** (Jugar, Supervivencia) y **dificultad** (Fácil, Normal, Difícil, Hardcore): los 20 mejores, ordenados por aciertos y, a igualdad, por menos tiempo. Cada jugador aparece una sola vez por tabla, con su mejor marca; la fila propia sale en ámbar. Se actualiza sola en tiempo real.
+
+Sin conexión o sin Convex configurado, el juego funciona igual y la clasificación dice “Clasificación no disponible”.
+
 ### Configuración
 
 Se guarda en el navegador (`localStorage`), así que se recuerda entre visitas:
@@ -115,6 +126,10 @@ cora/
 │       ├── milky_way_2k.jpg      Fondo: panorámica real del cielo (ESO), 2048 × 1024
 │       ├── sun_256.jpg           Textura del sol, 256 × 128 (Solar System Scope)
 │       └── moon_256.jpg          Textura de la luna, 256 × 128 (Solar System Scope)
+├── convex/                       Backend (Convex): base de datos y funciones de servidor
+│   ├── schema.ts                 Tablas: players (nombre + token) y scores (mejor marca por tabla)
+│   ├── scores.ts                 Funciones: top (ranking en tiempo real) y submit (enviar partida)
+│   └── _generated/               Generado por Convex (se sube a git)
 ├── scripts/
 │   └── prepare-countries.mjs     Genera data/ y flags/ a partir de Natural Earth y flag-icons
 └── src/
@@ -123,6 +138,7 @@ cora/
     ├── settings.js    Configuración (sonido, idioma) guardada en el navegador
     ├── sound.js       Efectos de sonido generados con Web Audio
     ├── credits.js     Botón (i) y popup de créditos
+    ├── leaderboard.js Cliente de Convex: enviar puntuaciones y escuchar la clasificación
     ├── fonts.css      Tipografías de toda la web (se cambian aquí)
     ├── tiles.js       Capa de teselas de alta resolución con nivel de detalle
     ├── countries.js   Carga de países, detección, fronteras y relleno del país
@@ -437,6 +453,54 @@ Los temporizadores (`later`) son propios en lugar de `setTimeout`: los descuenta
 ### `paises.html`, `src/paises.js` y `src/paises.css`
 
 Página independiente que carga `countries-list.json`, muestra el recuento por tipo y una tabla con todos los países. El buscador filtra al escribir. En pantallas estrechas se ocultan las columnas de inglés, portugués y continente.
+
+## Clasificación online (Convex)
+
+El backend de la clasificación es [Convex](https://convex.dev): base de datos y funciones de servidor en la nube, sin servidor propio. Las consultas son reactivas, así que la tabla se actualiza sola cuando alguien entra o mejora.
+
+### Cómo está hecho
+
+- **`convex/schema.ts`**: tabla `players` (nombre y un token secreto que genera el navegador; no hay cuentas ni contraseñas) y tabla `scores` (la mejor marca de cada jugador en cada combinación de modo y dificultad). El campo `rank = aciertos × 10⁹ − tiempo` permite ordenar el ranking con un solo índice: más aciertos primero y, a igualdad, menos tiempo.
+- **`convex/scores.ts`**:
+  - `top({ mode, difficulty, limit })`: los mejores de una tabla (20 por defecto, máximo 100).
+  - `submit({ token, name, mode, difficulty, score, total, timeMs })`: valida y guarda la partida solo si mejora la marca del jugador; devuelve `{ improved, position }`. Si el jugador cambia de nombre, se actualiza en todas sus marcas.
+- **`src/leaderboard.js`**: crea el cliente (`ConvexClient`) con `VITE_CONVEX_URL`, guarda el token y el nombre en `localStorage`, y expone `submitScore` y `watchLeaderboard`. Si no hay URL, todo devuelve “no disponible” sin romper el juego.
+
+**Validaciones del servidor**: nombre de 2–20 caracteres; aciertos enteros entre 1 y el total; total ≤ 10 en *Jugar* y ≤ 242 en *Supervivencia*; y al menos 0.7 s por acierto. Frenan los envíos inventados evidentes, pero como el juego corre en el navegador **no hacen la clasificación a prueba de trampas**: para eso el servidor tendría que dirigir la partida (elegir los países y medir el tiempo él mismo).
+
+### Desarrollo
+
+```bash
+npm run convex   # la primera vez pide iniciar sesión y crear el proyecto; escribe .env.local
+npm run dev      # en otra terminal
+```
+
+`.env.local` (no se sube a git) guarda `CONVEX_DEPLOYMENT` y `VITE_CONVEX_URL` del despliegue de **desarrollo**. Si se crea o cambia `.env.local` con `npm run dev` abierto, hay que reiniciarlo para que lo lea. Los datos se ven y se editan en el panel de Convex (dashboard.convex.dev → proyecto → *Data*).
+
+### Producción
+
+Convex tiene un despliegue de **producción** separado del de desarrollo (otra URL y otra base de datos, que empieza vacía). El juego necesita, al compilarse, la URL del de producción en **`VITE_CONVEX_URL`**: Vite la escribe dentro del JavaScript al hacer `npm run build`. No es secreta (es la dirección pública del backend).
+
+**Con Vercel o Netlify** (recomendado):
+
+1. En el panel de Convex: proyecto → *Settings* → *Generate Production Deploy Key*.
+2. En Vercel/Netlify, variable de entorno **`CONVEX_DEPLOY_KEY`** con esa clave (solo para producción).
+3. Comando de build:
+   ```bash
+   npx convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd 'npm run build'
+   ```
+   Publica las funciones en producción y compila el juego con `VITE_CONVEX_URL` ya apuntando a producción. No hace falta añadir `VITE_CONVEX_URL` a mano.
+
+**A mano** (otro hosting estático):
+
+```bash
+npx convex deploy                                            # publica las funciones en producción
+VITE_CONVEX_URL=https://<tu-produccion>.convex.cloud npm run build   # compila con la URL de producción
+```
+
+y se sube la carpeta `dist/`. La URL de producción está en el panel de Convex (*Settings* → *URL & Deploy Key*).
+
+`CONVEX_DEPLOY_KEY` sí es secreta: nunca en el código ni en git.
 
 ## Capas de la escena
 
