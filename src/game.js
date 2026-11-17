@@ -307,6 +307,7 @@ export function createGame(globe) {
   const settingsButton = $('settings-button');
   function showScreen(name) {
     settingsButton.hidden = !name; // durante la partida (sin pantalla de menú) no se ve
+    settingsButton.classList.toggle('is-active', name === 'settings');
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
     if (screen === 'dailyBoard' && name !== 'dailyBoard') stopDailyBoard();
     if (name === 'menu') watchDailyTop();

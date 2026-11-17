@@ -1324,24 +1324,39 @@ button:disabled {
 #settings-button {
   position: fixed;
   right: var(--gutter);
-  bottom: 18px;
+  bottom: 16px;
   z-index: 15;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   border: 1px solid var(--faint);
   border-radius: 50%;
-  background: rgba(7, 9, 15, 0.5);
+  background: rgba(7, 9, 15, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--muted);
-  transition: color 0.15s, border-color 0.15s, transform 0.3s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+#settings-button svg {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 #settings-button:hover {
-  border-color: var(--muted);
+  border-color: rgba(236, 230, 217, 0.35);
   color: var(--paper);
-  transform: rotate(45deg);
+}
+
+#settings-button:hover svg {
+  transform: rotate(60deg);
+}
+
+/* Resaltado mientras se está en Configuración */
+#settings-button.is-active {
+  border-color: var(--sun);
+  color: var(--sun);
 }
 
 .credits-list {
