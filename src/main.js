@@ -6,7 +6,6 @@ import { loadCountries, findCountry, createBorders, createCountryOutline, create
 import { vector3ToLonLat, lonLatToVector3 } from './geo.js';
 import { createTileLayer } from './tiles.js';
 import { createGame } from './game.js';
-import { setupCredits } from './credits.js';
 
 const SPHERE_RADIUS = 1;
 const CLICK_MOVE_TOLERANCE = 5; // px: más movimiento que esto cuenta como arrastre, no clic
@@ -24,7 +23,7 @@ const TILE_MAX_ZOOM = 14;
 // Límites de zoom, en km de altura sobre el suelo
 const EARTH_RADIUS_KM = 6371; // SPHERE_RADIUS = 1 equivale al radio real de la Tierra
 const ZOOM_MIN_ALTITUDE_KM = 650; // lo más cerca que se puede llegar (≥ 10 para no ver teselas borrosas)
-const ZOOM_MAX_ALTITUDE_KM = 57000; // lo más lejos (la vista inicial está a ~19 000 km)
+const ZOOM_MAX_ALTITUDE_KM = 20000; // lo más lejos (la vista inicial está a ~19 000 km)
 
 // Navegación
 const ZOOM_SENSITIVITY = 0.003; // cuánto cambia la altura por cada píxel de rueda (más = zoom más rápido)
@@ -686,7 +685,6 @@ function updateLoading() {
 }
 
 createGame(globe);
-setupCredits();
 
 // --- Loop y resize ----------------------------------------------------------
 window.addEventListener('resize', () => {

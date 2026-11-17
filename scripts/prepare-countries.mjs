@@ -81,6 +81,17 @@ writeFileSync(
   JSON.stringify(countries.map(({ polygons, ...rest }) => rest), null, 2)
 );
 
+// Países del modo Diario (solo estados), para el servidor de Convex: el servidor elige los
+// 10 países de cada día de esta lista, así son los mismos para todos los jugadores
+const dailyCodes = countries.filter((c) => c.type === 'estado').map((c) => c.iso3);
+if (new Set(dailyCodes).size !== dailyCodes.length) throw new Error('Hay códigos ISO3 repetidos entre los estados');
+writeFileSync(
+  join(root, 'convex/dailyCountries.ts'),
+  `// Generado por scripts/prepare-countries.mjs: códigos ISO 3166-1 alfa-3 de los ${dailyCodes.length} estados.\n` +
+    `// El modo Diario elige de aquí los 10 países de cada día.\n` +
+    `export const DAILY_COUNTRIES: readonly string[] = ${JSON.stringify(dailyCodes)};\n`
+);
+
 const count = (fn) => countries.filter(fn).length;
 console.log(`${countries.length} países y territorios`);
 console.log(`  estados: ${count((c) => c.type === 'estado')}`);

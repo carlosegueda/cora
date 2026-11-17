@@ -1,4 +1,4 @@
-// Base de datos de CORA en Convex: jugadores y mejores puntuaciones por tabla (modo + dificultad)
+// Base de datos de CORA en Convex
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
@@ -17,7 +17,7 @@ export default defineSchema({
     token: v.string(),
   }).index('by_token', ['token']),
 
-  // Mejor puntuación de cada jugador en cada tabla
+  // Jugar y Supervivencia: mejor marca de cada jugador en cada tabla (modo + dificultad)
   scores: defineTable({
     playerId: v.id('players'),
     name: v.string(),
@@ -26,9 +26,26 @@ export default defineSchema({
     score: v.number(),
     total: v.number(),
     timeMs: v.number(),
+    fails: v.optional(v.number()),
     // Orden del ranking en un solo número: más aciertos primero; a igualdad, menos tiempo
     rank: v.number(),
   })
-    .index('by_board', ['mode', 'difficulty', 'rank'])
-    .index('by_player_board', ['playerId', 'mode', 'difficulty']),
+    .index('by_mode_and_difficulty_and_rank', ['mode', 'difficulty', 'rank'])
+    .index('by_player_and_mode_and_difficulty', ['playerId', 'mode', 'difficulty']),
+
+  // Diario: un intento por jugador y día (UTC). Se crea al empezar, así abandonar también
+  // gasta el intento; al terminar se guardan aciertos, tiempo y orden.
+  dailyAttempts: defineTable({
+    day: v.string(), // 'AAAA-MM-DD' en UTC
+    playerId: v.id('players'),
+    name: v.string(),
+    country: v.union(v.string(), v.null()), // país del jugador (ISO alfa-2), según su IP
+    startedAt: v.number(),
+    finished: v.boolean(),
+    score: v.optional(v.number()),
+    timeMs: v.optional(v.number()),
+    rank: v.optional(v.number()),
+  })
+    .index('by_day_and_player', ['day', 'playerId'])
+    .index('by_day_and_finished_and_rank', ['day', 'finished', 'rank']),
 });

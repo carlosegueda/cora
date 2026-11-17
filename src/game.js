@@ -1,9 +1,9 @@
 // CORA — juego "¿Dónde está?": se muestra una pista (nombre y/o bandera) y hay que hacer clic en el
-// país correcto del globo. Menú principal → dificultad (o modo prueba) → cuenta atrás →
+// país correcto del globo. Menú principal → dificultad (o entrenamiento) → cuenta atrás →
 // rondas → resultado.
 //
 // Una partida se juega siempre con un objeto de reglas (`rules`): las dificultades fijas
-// (DIFFICULTIES) y el modo prueba (rulesFromPractice) producen el mismo tipo de objeto:
+// (DIFFICULTIES) y el entrenamiento (rulesFromPractice) producen el mismo tipo de objeto:
 //   { label, pool(country) → bool, showName, showFlag, borders, timeLimit, rounds, language }
 //
 // Este módulo maneja los menús, el estado de la partida y el HUD. Del globo solo usa la API
@@ -11,9 +11,18 @@
 import { loadSettings, saveSettings, LANGUAGES, DEFAULT_PRACTICE } from './settings.js';
 import { createSound } from './sound.js';
 import { countryCenter, countrySizeKm, distanceToCountryKm } from './countries.js';
-import { leaderboardAvailable, submitScore, watchLeaderboard, getPlayerName, setPlayerName } from './leaderboard.js';
+import {
+  leaderboardAvailable,
+  submitScore,
+  watchLeaderboard,
+  getPlayerName,
+  setPlayerName,
+  startDaily,
+  finishDaily,
+  watchDaily,
+  utcDay,
+} from './leaderboard.js';
 
-const ROUNDS = 10; // países por partida en las dificultades fijas
 const COUNTDOWN_FROM = 3;
 // Modo supervivencia: reloj que baja desde SURVIVAL_START_S; cada acierto suma SURVIVAL_BONUS_S
 const SURVIVAL_START_S = 15;
@@ -42,7 +51,9 @@ export const DIFFICULTIES = {
     showFlag: true,
     borders: true,
     timeLimit: null,
-    rounds: ROUNDS,
+    rounds: Infinity, // Jugar: todos los países del grupo, en el menor tiempo posible
+    requeue: true, // un país fallado vuelve a salir más adelante
+    recordKey: 'completo-facil', // récord local
   },
   normal: {
     label: 'Normal',
@@ -55,7 +66,9 @@ export const DIFFICULTIES = {
     showFlag: false,
     borders: false,
     timeLimit: null,
-    rounds: ROUNDS,
+    rounds: Infinity, // Jugar: todos los países del grupo, en el menor tiempo posible
+    requeue: true, // un país fallado vuelve a salir más adelante
+    recordKey: 'completo-normal', // récord local
   },
   dificil: {
     label: 'Difícil',
@@ -68,7 +81,9 @@ export const DIFFICULTIES = {
     showFlag: true,
     borders: false,
     timeLimit: null,
-    rounds: ROUNDS,
+    rounds: Infinity, // Jugar: todos los países del grupo, en el menor tiempo posible
+    requeue: true, // un país fallado vuelve a salir más adelante
+    recordKey: 'completo-dificil', // récord local
   },
   hardcore: {
     label: 'Hardcore',
@@ -81,11 +96,13 @@ export const DIFFICULTIES = {
     showFlag: true,
     borders: false,
     timeLimit: 10, // segundos por país; si se acaban, cuenta como fallo
-    rounds: ROUNDS,
+    rounds: Infinity, // Jugar: todos los países del grupo, en el menor tiempo posible
+    requeue: true, // un país fallado vuelve a salir más adelante
+    recordKey: 'completo-hardcore', // récord local
   },
 };
 
-// --- Modo prueba ---------------------------------------------------------------
+// --- Entrenamiento ---------------------------------------------------------------
 // Continentes tal como vienen en los datos de Natural Earth, con su nombre en pantalla
 export const CONTINENTS = {
   Africa: 'África',
@@ -107,13 +124,13 @@ export const TYPES = {
 const TIME_OPTIONS = [null, 5, 10, 20, 30]; // segundos por país (null = sin límite)
 const ROUND_OPTIONS = [5, 10, 20, 'all']; // países por partida ('all' = todos los de la selección)
 
-// Convierte la configuración del modo prueba en reglas de partida
+// Convierte la configuración del entrenamiento en reglas de partida
 function rulesFromPractice(p) {
   const continents = new Set(p.continents);
   const types = new Set(p.types);
   const flagOnly = p.showFlag && !p.showName;
   return {
-    label: 'Modo prueba',
+    label: 'Entrenamiento',
     // Con pista solo de bandera, los países sin bandera no pueden salir
     pool: (c) => continents.has(c.continent) && types.has(c.type) && (!flagOnly || Boolean(c.flag)),
     showName: p.showName,
@@ -130,12 +147,31 @@ function rulesFromPractice(p) {
 function survivalRules(d) {
   return {
     ...d,
-    key: `supervivencia-${d.key}`,
+    recordKey: `supervivencia-${d.key}`,
     difficulty: d.key, // dificultad base (para la clasificación online)
     label: `Supervivencia · ${d.label}`,
     mode: 'survival',
     timeLimit: null,
     rounds: Infinity,
+  };
+}
+
+// Reglas del Diario: los 10 estados del día en el orden que da el servidor (los mismos para
+// todos), un intento por país, nombre y bandera en el idioma del jugador, sin fronteras
+function dailyRules(order, attemptId, language) {
+  return {
+    label: 'Jugar',
+    mode: 'daily',
+    fixedOrder: order, // códigos ISO3
+    attemptId,
+    pool: (c) => order.includes(c.iso3),
+    showName: true,
+    showFlag: true,
+    borders: false,
+    timeLimit: null,
+    rounds: order.length,
+    requeue: false,
+    language,
   };
 }
 
@@ -176,6 +212,8 @@ export function createGame(globe) {
     settings: $('screen-settings'),
     practice: $('screen-practice'),
     leaderboard: $('screen-leaderboard'),
+    dailyInfo: $('screen-daily-info'),
+    dailyBoard: $('screen-daily-board'),
     results: $('screen-results'),
   };
   const hud = $('hud');
@@ -209,6 +247,7 @@ export function createGame(globe) {
 
   let paused = false;
   const pauseScreen = $('pause');
+  const pauseNote = $('pause-note');
 
   // Temporizadores propios (en vez de setTimeout) para que se detengan con la pausa:
   // los descuenta el bucle frame() solo mientras la partida no está en pausa
@@ -250,16 +289,31 @@ export function createGame(globe) {
   const nameOf = (country) => country[`name_${language()}`] ?? country.name_es;
   const current = () => queue[0];
   const isSurvival = () => rules?.mode === 'survival';
+  const isDaily = () => rules?.mode === 'daily';
+  // Cómo se lleva la partida: reloj de supervivencia, completar todos (Jugar) o rondas fijas
+  const hudMode = () => (isSurvival() ? 'survival' : rules?.requeue ? 'complete' : 'rounds');
+  const failsCount = () => answers.filter((a) => !a.correct).length;
   const pad2 = (n) => String(n).padStart(2, '0');
   const wideScreen = () => window.innerWidth > 720;
+  // En el menú principal de pantallas anchas, el top 5 del Diario ocupa la derecha: el planeta
+  // va casi al centro, entre el menú y esa columna. En el resto de menús, a la derecha.
+  const viewShiftFor = (name) => {
+    if (!name || !wideScreen()) return 0;
+    if (name === 'menu' && leaderboardAvailable && window.innerWidth >= 1100) return 0.02;
+    return MENU_VIEW_SHIFT;
+  };
 
   // --- Pantallas ---
+  const settingsButton = $('settings-button');
   function showScreen(name) {
+    settingsButton.hidden = !name; // durante la partida (sin pantalla de menú) no se ve
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
+    if (screen === 'dailyBoard' && name !== 'dailyBoard') stopDailyBoard();
+    if (name === 'menu') watchDailyTop();
     screen = name;
     for (const [key, node] of Object.entries(screens)) node.hidden = key !== name;
     // En los menús el planeta se aparta a la derecha para dejar sitio al panel
-    globe.setViewShift(name && wideScreen() ? MENU_VIEW_SHIFT : 0);
+    globe.setViewShift(viewShiftFor(name));
     // Lleva el foco al primer botón de la pantalla (navegación con teclado)
     if (name) screens[name].querySelector('.text-input, .menu-item, .row, .primary, .back')?.focus({ preventScroll: true });
   }
@@ -286,7 +340,9 @@ export function createGame(globe) {
     rules = newRules;
     const countries = await globe.countriesReady;
     const pool = countries.filter(rules.pool);
-    queue = pickRandom(pool, Math.min(rules.rounds, pool.length));
+    queue = rules.fixedOrder
+      ? rules.fixedOrder.map((iso3) => pool.find((c) => c.iso3 === iso3)).filter(Boolean)
+      : pickRandom(pool, Math.min(rules.rounds, pool.length));
     total = queue.length;
     score = 0;
     answers = [];
@@ -302,9 +358,13 @@ export function createGame(globe) {
     globe.setBordersVisible(rules.borders);
     hud.hidden = false;
     hud.classList.toggle('is-survival', isSurvival());
-    hudKeys.round.textContent = isSurvival() ? 'Quedan' : 'País';
-    hudKeys.score.textContent = isSurvival() ? 'Aciertos' : 'Puntos';
-    hudKeys.time.textContent = isSurvival() ? 'Reloj' : 'Tiempo';
+    const labels = {
+      survival: ['Quedan', 'Aciertos', 'Reloj'],
+      complete: ['Quedan', 'Fallos', 'Tiempo'],
+      rounds: ['País', 'Puntos', 'Tiempo'],
+    }[hudMode()];
+    [hudKeys.round.textContent, hudKeys.score.textContent, hudKeys.time.textContent] = labels;
+    pauseNote.hidden = !isDaily();
     hint.hidden = true;
     roundTimer.hidden = true;
     feedback.replaceChildren();
@@ -432,15 +492,13 @@ export function createGame(globe) {
   function nextRound() {
     const last = answers.at(-1);
     const country = queue.shift();
-    if (isSurvival()) {
-      // Sin tiempo: fin de la partida
-      if (timeLeftMs <= 0) return finish();
-      // Fallado: vuelve a salir más adelante en esta misma partida (no justo a continuación)
-      if (!last.correct) {
-        const min = Math.min(3, queue.length);
-        const at = min + Math.floor(Math.random() * (queue.length - min + 1));
-        queue.splice(at, 0, country);
-      }
+    // Supervivencia sin tiempo: fin de la partida
+    if (isSurvival() && timeLeftMs <= 0) return finish();
+    // Jugar y Supervivencia: un país fallado vuelve a salir más adelante (no justo a continuación)
+    if (rules.requeue && !last.correct) {
+      const min = Math.min(3, queue.length);
+      const at = min + Math.floor(Math.random() * (queue.length - min + 1));
+      queue.splice(at, 0, country);
     }
     if (queue.length === 0) finish();
     else startRound();
@@ -448,11 +506,11 @@ export function createGame(globe) {
 
   // Guarda la partida si es la mejor de su modo y dificultad (más aciertos; a igualdad, menos tiempo)
   function saveRecord() {
-    if (!rules.key || score === 0) return false; // el modo prueba no tiene récords; 0 puntos no cuenta
-    const best = settings.records[rules.key];
+    if (!rules.recordKey || score === 0) return false; // entrenamiento y diario no tienen récord local
+    const best = settings.records[rules.recordKey];
     const better = !best || score > best.score || (score === best.score && elapsedMs < best.timeMs);
     if (better) {
-      settings.records[rules.key] = { score, total, timeMs: Math.round(elapsedMs) };
+      settings.records[rules.recordKey] = { score, total, timeMs: Math.round(elapsedMs), fails: failsCount() };
       saveSettings(settings);
       renderDifficulties();
     }
@@ -477,18 +535,33 @@ export function createGame(globe) {
 
     const record = saveRecord();
     $('results-difficulty').textContent = rules.label;
-    $('results-score').textContent = score;
-    $('results-total').textContent = `/${total}`;
-    $('results-time').textContent = formatTime(elapsedMs);
+    if (hudMode() === 'complete') {
+      // Jugar: lo que importa es el tiempo en completarlos todos; al lado, los fallos
+      $('results-score').textContent = formatTime(elapsedMs);
+      $('results-total').textContent = '';
+      $('results-time-k').textContent = 'Fallos';
+      $('results-time').textContent = failsCount();
+    } else {
+      $('results-score').textContent = score;
+      $('results-total').textContent = `/${total}`;
+      $('results-time-k').textContent = 'Tiempo';
+      $('results-time').textContent = formatTime(elapsedMs);
+    }
     $('results-record').hidden = !record;
     $('results-record').textContent = 'Nuevo récord';
-    sendToLeaderboard();
+    // El Diario no se repite: en lugar de "Jugar otra vez", ver la tabla del día
+    $('results-replay').hidden = isDaily();
+    $('results-daily-board').hidden = !isDaily();
+    if (isDaily()) sendDaily();
+    else sendToLeaderboard();
 
     const list = $('results-list');
     const flags = $('results-flags');
-    list.hidden = isSurvival();
+    list.hidden = hudMode() !== 'rounds';
     flags.hidden = !isSurvival();
-    if (isSurvival()) {
+    if (hudMode() === 'complete') {
+      // Jugar: no se listan los ~200 países
+    } else if (isSurvival()) {
       // Supervivencia: banderas de los países acertados y número de fallos
       const fails = answers.filter((a) => !a.correct).length;
       flags.replaceChildren(
@@ -511,8 +584,12 @@ export function createGame(globe) {
 
   // --- HUD y cronómetro ---
   function updateHud() {
-    hudScore.textContent = score;
-    if (isSurvival()) {
+    hudScore.textContent = hudMode() === 'complete' ? failsCount() : score;
+    if (hudMode() === 'complete') {
+      hudRound.textContent = queue.length - (state === 'feedback' && answers.at(-1)?.correct ? 1 : 0);
+      hudTime.textContent = formatTime(elapsedMs);
+      hudTimeBlock.classList.remove('is-low');
+    } else if (isSurvival()) {
       hudRound.textContent = queue.length; // países que quedan por acertar
       hudTime.textContent = formatTime(Math.max(0, timeLeftMs));
       hudTimeBlock.classList.toggle('is-low', timeLeftMs < SURVIVAL_LOW_S * 1000);
@@ -563,9 +640,9 @@ export function createGame(globe) {
   // --- Dificultades: filas con nivel y récord ---
   // La misma pantalla sirve para Jugar y para Supervivencia (difficultyMode)
   const difficultyList = $('difficulty-list');
-  const rulesFor = (d) => (difficultyMode === 'survival' ? survivalRules(d) : d);
+  const rulesFor = (d) => (difficultyMode === 'survival' ? survivalRules(d) : { ...d, label: `Maratón · ${d.label}` });
   function renderDifficulties() {
-    $('difficulty-title').textContent = difficultyMode === 'survival' ? 'Supervivencia' : 'Dificultad';
+    $('difficulty-title').textContent = difficultyMode === 'survival' ? 'Supervivencia' : 'Maratón';
     difficultyList.replaceChildren(
       ...Object.values(DIFFICULTIES).map((d) => {
         const r = rulesFor(d);
@@ -577,9 +654,14 @@ export function createGame(globe) {
         const title = el('span', 'row-title', d.label);
         title.append(level);
         const side = el('span', 'row-side');
-        const best = settings.records[r.key];
+        const best = settings.records[r.recordKey];
         if (best) {
-          side.append('Récord', el('b', null, `${best.score}/${best.total} · ${formatTime(best.timeMs)}`));
+          // Jugar: el récord es el tiempo en completarlos todos
+          const text =
+            difficultyMode === 'survival'
+              ? `${best.score}/${best.total} · ${formatTime(best.timeMs)}`
+              : formatTime(best.timeMs);
+          side.append('Récord', el('b', null, text));
         } else {
           side.append(d.meta);
         }
@@ -614,21 +696,25 @@ export function createGame(globe) {
     if (!validName()) return;
     setPlayerName(nameInput.value);
     sound.play('click');
+    if (difficultyMode === 'daily') {
+      startDailyFlow();
+      return;
+    }
     renderDifficulties();
     showScreen('difficulty');
   });
 
   // --- Clasificación online (Convex) ---
-  const BOARD_MODES = { clasico: 'Jugar', supervivencia: 'Supervivencia' };
+  const BOARD_MODES = { clasico: 'Maratón', supervivencia: 'Supervivencia' };
   const board = { mode: 'clasico', difficulty: 'facil', stop: null };
   const boardList = $('board-list');
   const boardStatus = $('board-status');
 
-  // Envía la partida terminada (no las del modo prueba) y muestra el puesto en el resultado
+  // Envía la partida terminada (no las del entrenamiento) y muestra el puesto en el resultado
   async function sendToLeaderboard() {
     const rank = $('results-rank');
     rank.hidden = true;
-    if (!rules.key || !leaderboardAvailable || score === 0) return;
+    if (!rules.recordKey || !leaderboardAvailable || score === 0) return;
     if (getPlayerName().length < 2) {
       rank.hidden = false;
       rank.textContent = 'Sin nombre: no entras en la clasificación';
@@ -641,6 +727,7 @@ export function createGame(globe) {
       score,
       total,
       timeMs: elapsedMs,
+      fails: failsCount(),
     });
     // Si mientras tanto se empezó otra partida, no se toca la pantalla
     if (!result || state !== 'results' || rules !== sentRules) return;
@@ -671,10 +758,16 @@ export function createGame(globe) {
       boardList.replaceChildren(
         ...rows.map((row) => {
           const li = el('li', row.name === me ? 'is-me' : '');
+          // Jugar: tiempo en completarlos todos y fallos; Supervivencia: aciertos y tiempo
+          const fails = row.fails ?? 0;
           li.append(
             el('span', 'board-name', row.name),
-            el('span', 'board-score', `${row.score}/${row.total}`),
-            el('span', 'board-time', formatTime(row.timeMs))
+            board.mode === 'clasico'
+              ? el('span', 'board-score', formatTime(row.timeMs))
+              : el('span', 'board-score', `${row.score}/${row.total}`),
+            board.mode === 'clasico'
+              ? el('span', 'board-time', `${fails} ${fails === 1 ? 'fallo' : 'fallos'}`)
+              : el('span', 'board-time', formatTime(row.timeMs))
           );
           return li;
         })
@@ -711,6 +804,108 @@ export function createGame(globe) {
       Object.fromEntries(Object.values(DIFFICULTIES).map((d) => [d.key, d.label])),
       'difficulty'
     );
+  }
+
+  // --- Diario ---
+  // 10 estados al día, los mismos para todos (los elige el servidor) y un intento por jugador.
+  // Tabla del día ordenada por aciertos y, a igualdad, por menos tiempo.
+  const dailyInfoText = $('daily-info-text');
+
+  // Bandera del país del jugador (por IP); si no hay, un hueco del mismo tamaño
+  const countryFlag = (code) => {
+    if (!code) return el('span', 'no-flag');
+    const img = el('img', 'country-flag');
+    img.src = `/flags/${code.toLowerCase()}.svg`;
+    img.alt = code;
+    img.title = code;
+    img.addEventListener('error', () => img.replaceWith(el('span', 'no-flag', code)), { once: true });
+    return img;
+  };
+
+  // Una fila de la tabla del Diario: puesto (CSS), bandera, nombre, aciertos y tiempo
+  const dailyRow = (row) => {
+    const li = el('li', row.name === getPlayerName() ? 'is-me' : '');
+    li.append(
+      countryFlag(row.country),
+      el('span', 'board-name', row.name),
+      el('span', 'board-score', `${row.score}/10`),
+      el('span', 'board-time', formatTime(row.timeMs))
+    );
+    return li;
+  };
+
+  function showDailyInfo(text) {
+    dailyInfoText.textContent = text;
+    showScreen('dailyInfo');
+  }
+
+  async function startDailyFlow() {
+    if (!leaderboardAvailable) return showDailyInfo('No disponible');
+    showDailyInfo('Cargando…');
+    const res = await startDaily();
+    if (screen !== 'dailyInfo') return; // salió mientras cargaba
+    if (res.status === 'error') return showDailyInfo('No se pudo empezar. Inténtalo de nuevo.');
+    if (res.status === 'played') {
+      return showDailyInfo(
+        res.finished
+          ? `Ya jugaste hoy · ${res.score}/10 en ${formatTime(res.timeMs)} · puesto ${res.position} de ${res.total}`
+          : 'Ya usaste tu intento de hoy'
+      );
+    }
+    startGame(dailyRules(res.countries, res.attemptId, settings.language));
+  }
+
+  // Guarda el intento y muestra el puesto en la tabla general del día
+  async function sendDaily() {
+    const rank = $('results-rank');
+    rank.hidden = false;
+    rank.textContent = 'Guardando…';
+    const sentRules = rules;
+    const result = await finishDaily(rules.attemptId, score, elapsedMs);
+    if (state !== 'results' || rules !== sentRules) return;
+    rank.textContent = result ? `Puesto ${result.position} de ${result.total} hoy` : 'No se pudo guardar el resultado';
+  }
+
+  // Top 5 del día en el menú principal (se actualiza solo)
+  const dailyCard = $('daily-card');
+  const dailyTop = $('daily-top');
+  const dailyEmpty = $('daily-empty');
+  const dailyTopWatch = { day: null, stop: null };
+  function watchDailyTop() {
+    dailyCard.hidden = !leaderboardAvailable;
+    const day = utcDay();
+    if (!leaderboardAvailable || dailyTopWatch.day === day) return;
+    dailyTopWatch.stop?.();
+    dailyTopWatch.day = day;
+    dailyTopWatch.stop = watchDaily(day, 5, (rows) => {
+      dailyTop.replaceChildren(...(rows ?? []).map(dailyRow));
+      dailyEmpty.textContent = rows === null ? 'No disponible' : rows.length ? '' : 'Nadie ha jugado hoy';
+    });
+  }
+
+  // "Ver todo": tabla completa del día con bandera, nombre, aciertos y tiempo
+  const dailyBoardList = $('daily-board-list');
+  const dailyBoardStatus = $('daily-board-status');
+  let dailyBoardStop = null;
+  function stopDailyBoard() {
+    dailyBoardStop?.();
+    dailyBoardStop = null;
+  }
+  function openDailyBoard() {
+    const day = utcDay();
+    $('daily-board-date').textContent = new Date(`${day}T12:00:00Z`).toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    showScreen('dailyBoard');
+    stopDailyBoard();
+    dailyBoardList.replaceChildren();
+    dailyBoardStatus.textContent = 'Cargando…';
+    dailyBoardStop = watchDaily(day, 500, (rows) => {
+      dailyBoardList.replaceChildren(...(rows ?? []).map(dailyRow));
+      dailyBoardStatus.textContent = rows === null ? 'No se pudo cargar' : rows.length ? '' : 'Nadie ha jugado hoy';
+    });
   }
 
   // --- Configuración ---
@@ -751,8 +946,8 @@ export function createGame(globe) {
     }
     if (!action) return;
     sound.play('click');
-    if (action === 'play' || action === 'survival') {
-      difficultyMode = action === 'survival' ? 'survival' : 'classic';
+    if (action === 'play' || action === 'survival' || action === 'daily') {
+      difficultyMode = action === 'play' ? 'classic' : action;
       askName();
     }
     else if (action === 'settings') showScreen('settings');
@@ -762,7 +957,8 @@ export function createGame(globe) {
     else if (action === 'menu') goToMenu();
     else if (action === 'pause') pause();
     else if (action === 'resume') resume();
-    else if (action === 'replay') startGame(rules);
+    else if (action === 'replay' && !isDaily()) startGame(rules);
+    else if (action === 'daily-board') openDailyBoard();
   });
 
   // --- Teclado ---
@@ -786,7 +982,7 @@ export function createGame(globe) {
     } else if (state === 'menu' && screen === 'difficulty' && /^[1-4]$/.test(e.key)) {
       sound.play('click');
       startGame(rulesFor(Object.values(DIFFICULTIES)[Number(e.key) - 1]));
-    } else if (state === 'results' && e.key === 'Enter' && !e.target.closest?.('button')) {
+    } else if (state === 'results' && !isDaily() && e.key === 'Enter' && !e.target.closest?.('button')) {
       sound.play('click');
       startGame(rules);
     }
@@ -798,14 +994,14 @@ export function createGame(globe) {
   });
 
   window.addEventListener('resize', () => {
-    if (screen) globe.setViewShift(wideScreen() ? MENU_VIEW_SHIFT : 0);
+    if (screen) globe.setViewShift(viewShiftFor(screen));
   });
 
   setupPractice();
   setupBoard();
   goToMenu();
 
-  // --- Pantalla del modo prueba ---
+  // --- Pantalla del entrenamiento ---
   // Construye el formulario a partir de CONTINENTS, TYPES, LANGUAGES, TIME_OPTIONS y
   // ROUND_OPTIONS, y guarda cada cambio en settings.practice (se recuerda entre visitas).
   function setupPractice() {
@@ -952,7 +1148,7 @@ export function createGame(globe) {
       startButton.replaceChildren(problem ? 'Empezar' : `Empezar · ${rounds} países`, el('kbd', null, '↵'));
     }
 
-    // Enter en el modo prueba también empieza
+    // Enter en el entrenamiento también empieza
     form.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !startButton.disabled) startButton.click();
     });

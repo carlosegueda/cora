@@ -8,6 +8,10 @@
  * @module
  */
 
+import type * as daily from "../daily.js";
+import type * as dailyCountries from "../dailyCountries.js";
+import type * as players from "../players.js";
+import type * as rankings from "../rankings.js";
 import type * as scores from "../scores.js";
 
 import type {
@@ -17,6 +21,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  daily: typeof daily;
+  dailyCountries: typeof dailyCountries;
+  players: typeof players;
+  rankings: typeof rankings;
   scores: typeof scores;
 }>;
 
@@ -46,4 +54,7 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  boardRanking: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"boardRanking">;
+  dailyRanking: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"dailyRanking">;
+};

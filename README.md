@@ -29,14 +29,23 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 
 ### Cómo se juega
 
-1. **Menú principal**: *Jugar*, *Supervivencia*, *Modo prueba* o *Configuración*. Detrás, el globo gira solo.
-2. **Jugar** → se elige la dificultad.
-3. **Cuenta atrás** 3, 2, 1 y “¡Ya!”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
-4. **10 países al azar** (sin repetir). Para cada uno se hace clic en el globo:
-   - **Acierto** (1 punto): el país se pinta de verde y aparece su nombre sobre el pin.
-   - **Fallo** (0 puntos): el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
-   - Un clic en el **mar** lejos del país no cuenta como respuesta: avisa “Eso es mar, prueba otra vez”.
-5. **Resultado**: puntos, tiempo total y la lista de los 10 países con ✓/✗. *Jugar otra vez* empieza otra partida con la misma dificultad (países nuevos); *Volver al menú* vuelve al menú principal.
+1. **Menú principal**: *Jugar* (reto diario), *Maratón*, *Supervivencia*, *Entrenamiento* y *Clasificación*, y a la derecha el **top 5 de hoy**. *Configuración* es el engranaje de abajo a la derecha. Detrás, el globo gira solo.
+2. Al elegir un modo se pide **el nombre del jugador** y, salvo en *Jugar*, la dificultad.
+3. **Cuenta atrás** 3, 2, 1 y “Ya”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
+4. Para cada país se hace clic en el globo:
+   - **Acierto**: el país se pinta de verde y aparece su nombre sobre el pin.
+   - **Fallo**: el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
+   - Un clic en el **mar** lejos del país no cuenta como respuesta (aviso “Mar”).
+5. **Resultado** según el modo, con *Jugar otra vez* (salvo en *Jugar*) y *Menú*.
+
+| Modo | Países | Objetivo | Un fallo… | Clasificación |
+| --- | --- | --- | --- | --- |
+| **Jugar** | 10 estados, los mismos para todos y distintos cada día | Más aciertos en menos tiempo | cuenta como fallo y sigue | Tabla del día; **un intento al día** |
+| **Maratón** | Todos los de la dificultad (198 o 239) | Completarlos todos en el menor tiempo | el país vuelve a salir más adelante | Por dificultad, por tiempo |
+| **Supervivencia** | Todos los de la dificultad | Aguantar con el reloj (15 s, +5 s por acierto) | el país vuelve a salir más adelante | Por dificultad, por aciertos |
+| **Entrenamiento** | Los que elijas | Practicar | cuenta como fallo y sigue | No |
+
+En **Maratón** el marcador muestra *Quedan* (países por acertar), *Fallos* y *Tiempo*, y el resultado muestra el tiempo total y los fallos. Al tardar bastante (un par de centenares de países), la pausa es útil.
 
 Durante la partida se puede girar y hacer zoom con normalidad (un arrastre no cuenta como clic).
 
@@ -57,6 +66,20 @@ El **tiempo** cuenta solo mientras se está buscando el país: se para durante l
 - Con pista **solo de bandera**, vale cualquier país que tenga **esa misma bandera** (p. ej. los territorios australianos usan la de Australia).
 - **Países diminutos** (Vaticano, Mónaco, islas del Pacífico…): si el país ocupa en pantalla menos de 25 px, vale un clic a menos de 15 px de él, porque si no serían casi imposibles de acertar sin mucho zoom.
 
+### Jugar (reto diario)
+
+Un reto al día igual para todo el mundo:
+
+- **10 estados** (sin territorios dependientes ni indeterminados), **los mismos para todos** y distintos cada día. Los elige el servidor: baraja los 198 estados una vez cada 19 días y cada día toma un tramo de 10, así no se repite ningún país dentro de ese ciclo.
+- El día cambia a las **00:00 UTC** (a la misma hora en todo el mundo).
+- La pista es **nombre y bandera**, en el idioma de *Configuración*, y **sin fronteras**.
+- **Un intento por jugador y día.** El intento cuenta desde que empieza: si se sale a mitad (la pausa lo avisa: “Si sales, pierdes el intento de hoy”), ya no se puede repetir. Al volver a entrar se ve “Ya jugaste hoy” con el resultado y el puesto.
+- **Clasificación del día**: primero quien más aciertos tenga y, a igualdad, el más rápido. Al terminar se ve el puesto en la tabla completa (“Puesto 12 de 340 hoy”).
+- **Menú principal**: el top 5 del día, en directo, con *Ver todo*, que abre la tabla completa con el puesto, la **bandera del país del jugador**, el nombre, los aciertos y el tiempo.
+- La **bandera del país del jugador** sale de su IP: en Vercel la da la función `api/country.js` (ver más abajo). En local, sin esa función, se usa la región del idioma del navegador (es-MX → México), si la tiene.
+
+El “un intento al día” va ligado al jugador (el token guardado en su navegador): quien borre los datos del navegador o use otro navegador puede volver a jugar como jugador nuevo. Para impedirlo del todo harían falta cuentas de usuario.
+
 ### Supervivencia
 
 Desde el menú principal, *Supervivencia* lleva a la misma pantalla de dificultad (las 4 dificultades deciden qué países entran, qué pista se da y si se ven las fronteras).
@@ -70,9 +93,9 @@ Desde el menú principal, *Supervivencia* lleva a la misma pantalla de dificulta
 - **Resultado**: aciertos sobre el total, tiempo jugado, número de fallos y las banderas de los países acertados.
 - Tiene su propio **récord** por dificultad (más aciertos; a igualdad, menos tiempo), que se ve en la pantalla de dificultad al entrar desde *Supervivencia*.
 
-### Modo prueba
+### Entrenamiento
 
-Para practicar con reglas a medida. Desde el menú principal, *Modo prueba* abre una pantalla con:
+Para practicar con reglas a medida. Desde el menú principal, *Entrenamiento* abre una pantalla con:
 
 | Opción | Valores |
 | --- | --- |
@@ -92,11 +115,11 @@ Para practicar con reglas a medida. Desde el menú principal, *Modo prueba* abre
 
 ### Nombre y clasificación online
 
-Al pulsar *Jugar* o *Supervivencia* se pide **el nombre del jugador** (relleno con el último usado; *Continuar* se activa con 2–20 caracteres; `Enter` también continúa). Ese nombre aparece en la clasificación.
+Al pulsar *Jugar*, *Maratón* o *Supervivencia* se pide **el nombre del jugador** (relleno con el último usado; *Continuar* se activa con 2–20 caracteres; `Enter` también continúa). Ese nombre aparece en la clasificación.
 
-Al terminar una partida de *Jugar* o *Supervivencia* con al menos 1 acierto, la puntuación se envía a la **clasificación online** y el resultado muestra el puesto (“Puesto 3 en la clasificación”). El modo prueba no cuenta.
+Al terminar una partida de *Maratón* (completa) o de *Supervivencia* con al menos 1 acierto, la puntuación se envía a la **clasificación online** y el resultado muestra el puesto (“Puesto 3 en la clasificación”). *Jugar* tiene su propia tabla diaria (ver arriba); el entrenamiento no cuenta.
 
-La pantalla **Clasificación** (menú principal) tiene una tabla por **modo** (Jugar, Supervivencia) y **dificultad** (Fácil, Normal, Difícil, Hardcore): los 20 mejores, ordenados por aciertos y, a igualdad, por menos tiempo. Cada jugador aparece una sola vez por tabla, con su mejor marca; la fila propia sale en ámbar. Se actualiza sola en tiempo real.
+La pantalla **Clasificación** (menú principal) tiene una tabla por **modo** (Maratón, Supervivencia) y **dificultad** (Fácil, Normal, Difícil, Hardcore): los 20 mejores. En *Maratón* se ordena por tiempo y se ven el tiempo y los fallos; en *Supervivencia*, por aciertos y luego tiempo. Cada jugador aparece una sola vez por tabla, con su mejor marca; la fila propia sale en ámbar. Se actualiza sola en tiempo real.
 
 Sin conexión o sin Convex configurado, el juego funciona igual y la clasificación dice “Clasificación no disponible”.
 
@@ -126,9 +149,16 @@ cora/
 │       ├── milky_way_2k.jpg      Fondo: panorámica real del cielo (ESO), 2048 × 1024
 │       ├── sun_256.jpg           Textura del sol, 256 × 128 (Solar System Scope)
 │       └── moon_256.jpg          Textura de la luna, 256 × 128 (Solar System Scope)
+├── api/
+│   └── country.js                Función de Vercel: país del visitante por IP (para el reto diario de *Jugar*)
 ├── convex/                       Backend (Convex): base de datos y funciones de servidor
-│   ├── schema.ts                 Tablas: players (nombre + token) y scores (mejor marca por tabla)
-│   ├── scores.ts                 Funciones: top (ranking en tiempo real) y submit (enviar partida)
+│   ├── schema.ts                 Tablas: players, scores (Maratón/Supervivencia) y dailyAttempts (reto diario de Jugar)
+│   ├── convex.config.ts          Componentes: dos rankings (@convex-dev/aggregate)
+│   ├── rankings.ts               Los rankings: puesto y total de cada tabla
+│   ├── scores.ts                 Maratón/Supervivencia: top y submit
+│   ├── daily.ts                  Reto diario (Jugar): start, finish, top y los países de cada día
+│   ├── players.ts                Utilidades: validar nombre/token, alta del jugador
+│   ├── dailyCountries.ts         Los 198 estados (generado por el script de datos)
 │   └── _generated/               Generado por Convex (se sube a git)
 ├── scripts/
 │   └── prepare-countries.mjs     Genera data/ y flags/ a partir de Natural Earth y flag-icons
@@ -137,7 +167,6 @@ cora/
     ├── game.js        El juego: menús, dificultades, partida, cronómetro, resultado
     ├── settings.js    Configuración (sonido, idioma) guardada en el navegador
     ├── sound.js       Efectos de sonido generados con Web Audio
-    ├── credits.js     Botón (i) y popup de créditos
     ├── leaderboard.js Cliente de Convex: enviar puntuaciones y escuchar la clasificación
     ├── fonts.css      Tipografías de toda la web (se cambian aquí)
     ├── tiles.js       Capa de teselas de alta resolución con nivel de detalle
@@ -203,21 +232,22 @@ Limitación: a esta escala los contornos están simplificados (precisión de ~1 
 Dirección visual de **atlas editorial**, con una sola tipografía (Bricolage Grotesque) en toda la web y cifras de ancho fijo en los datos (cronómetro, puntos, recuentos), paneles a la izquierda sobre una sombra en lugar de tarjetas flotantes, líneas finas y el ámbar del sol como único color de acento. Solo se muestran los textos imprescindibles.
 
 - **Pantalla de carga** (`#loading`): el logo CORA y una barra fina. Se quita cuando están la textura global, los países y las primeras teselas (o a los 8 s), así nunca se ve el planeta a medio cargar.
+- Las etiquetas pequeñas (`.eyebrow`, `.field-label`, `.k`) van en minúscula normal y en negrita, sin mayúsculas forzadas.
 - **Pantallas** (`.screen` > `.sheet`): `#screen-menu`, `#screen-difficulty`, `#screen-practice`, `#screen-settings` y `#screen-results`. Panel en la columna izquierda; en los menús el planeta se desplaza a la derecha para quedar a la vista (`setViewShift` en `main.js`). En pantallas de menos de 720 px el panel pasa a la parte de abajo.
-- **Menú principal**: el logo y la lista de opciones (Jugar, Modo prueba, Configuración) más el enlace a la lista de países.
+- **Menú principal**: el logo y la lista de opciones (Jugar, Entrenamiento, Configuración) más el enlace a la lista de países.
 - **Dificultad**: una fila por dificultad con su descripción, un indicador de nivel de 4 barras y, si existe, el récord (puntos y tiempo).
-- **Modo prueba**: solo el formulario hace scroll; el recuento y el botón *Empezar* quedan fijos abajo.
+- **Entrenamiento**: solo el formulario hace scroll; el recuento y el botón *Empezar* quedan fijos abajo.
 - **Resultado**: la dificultad como título, los puntos en grande, el tiempo, “Nuevo récord” si lo es, y la lista de los países con un punto verde o rojo.
 - **HUD** (`#hud`): país, puntos y tiempo arriba a la izquierda; la pista (bandera y/o nombre) arriba en el centro; *Pausa* arriba a la derecha; la barra de tiempo y el aviso (`#feedback`: “Correcto”, “Era …”, “Mar”) bajo la pista.
 - `#pause`: pantalla de pausa con *Reanudar* y *Salir*, sobre un fondo oscuro y desenfocado que tapa el globo.
 - `#countdown`: 3, 2, 1 y “Ya” en grande.
 - `.pin-label`: etiqueta sobre el pin con bandera y nombre; borde verde o rojo.
-- `#info-button` y `#info-dialog`: botón (i) abajo a la derecha que abre los créditos (`src/credits.js`). Las licencias de las imágenes obligan a citar la fuente, así que no conviene quitarlo.
+- `#settings-button`: engranaje abajo a la derecha (fuera de la partida) que abre *Configuración*: sonido, idioma de las pistas y los **créditos** de imágenes, datos, banderas y tipografías. Las licencias de las imágenes (CC BY 4.0 y CC BY-NC-SA 4.0) obligan a citar la fuente, así que los créditos no conviene quitarlos.
 - Colores en variables CSS al principio de `style.css`: `--ink` (fondo), `--paper` (texto), `--muted`, `--faint` (líneas), `--sun` (acento), `--correct`, `--wrong`.
 
-**Teclado** (funciona aunque no se indique en pantalla): `Esc` pausa y reanuda la partida, y en los menús vuelve al menú principal; `1`–`4` eligen dificultad; `Enter` juega otra vez en el resultado y empieza en el modo prueba.
+**Teclado** (funciona aunque no se indique en pantalla): `Esc` pausa y reanuda la partida, y en los menús vuelve al menú principal; `1`–`4` eligen dificultad; `Enter` juega otra vez en el resultado y empieza en el entrenamiento.
 
-**Récords**: se guarda la mejor partida de cada dificultad (más puntos; a igualdad, menos tiempo) en el navegador, junto con la configuración. El modo prueba no tiene récords.
+**Récords**: se guarda la mejor partida de cada dificultad (más puntos; a igualdad, menos tiempo) en el navegador, junto con la configuración. El entrenamiento no tiene récords.
 
 ### Tipografías: `src/fonts.css`
 
@@ -416,21 +446,20 @@ Natural Earth corta los países en el antimeridiano (±180°), así que Rusia o 
 
 `createGame(globe)` monta los menús y el juego. Estados: `menu` → `countdown` → `playing` ⇄ `feedback` → `results`.
 
-Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, pool, showName, showFlag, borders, timeLimit, rounds, language }`. Las dificultades fijas (`DIFFICULTIES`) y el modo prueba (`rulesFromPractice`) producen ese mismo objeto, así que el resto del juego no distingue entre ellos.
+Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, pool, showName, showFlag, borders, timeLimit, rounds, language }`. Las dificultades fijas (`DIFFICULTIES`) y el entrenamiento (`rulesFromPractice`) producen ese mismo objeto, así que el resto del juego no distingue entre ellos.
 
 | Constante / función | Qué hace |
 | --- | --- |
-| `ROUNDS` | Países por partida en *Jugar* (10). |
 | `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` / `SURVIVAL_LOW_S` | Supervivencia: tiempo inicial (15 s), segundos por acierto (5 s) y umbral del reloj en rojo (5 s). |
 | `survivalRules(d)` | Reglas de supervivencia a partir de una dificultad (mismos países y pista, sin límite por país, todos los países). |
 | `COUNTDOWN_FROM` | Desde dónde cuenta la cuenta atrás (3). |
 | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` | Pausa tras acertar (1200 ms) y tras fallar (2600 ms) antes del siguiente país. |
 | `SMALL_COUNTRY_PX` / `CLICK_TOLERANCE_PX` | Ayuda para países diminutos (25 px / 15 px). |
 | `DIFFICULTIES` | Cada dificultad: `label`, `description`, `pool` (qué países entran), `showName`, `showFlag`, `borders`, `timeLimit` (segundos por país o `null`) y `rounds`. Para añadir o cambiar una dificultad basta con tocar este objeto: los botones se generan a partir de él. |
-| `CONTINENTS` / `TYPES` | Continentes y tipos de país del modo prueba, con su nombre en pantalla. |
-| `TIME_OPTIONS` / `ROUND_OPTIONS` | Opciones de tiempo por país y de países por partida del modo prueba. |
-| `rulesFromPractice(practice)` | Convierte la configuración del modo prueba en reglas de partida. |
-| `setupPractice()` | Construye el formulario del modo prueba, guarda cada cambio y actualiza los recuentos y el botón *Empezar*. |
+| `CONTINENTS` / `TYPES` | Continentes y tipos de país del entrenamiento, con su nombre en pantalla. |
+| `TIME_OPTIONS` / `ROUND_OPTIONS` | Opciones de tiempo por país y de países por partida del entrenamiento. |
+| `rulesFromPractice(practice)` | Convierte la configuración del entrenamiento en reglas de partida. |
+| `setupPractice()` | Construye el formulario del entrenamiento, guarda cada cambio y actualiza los recuentos y el botón *Empezar*. |
 | `startGame(rules)` | Prepara la cola de países (`queue`): `rules.rounds` países al azar del `pool` (o todos, si hay menos; en supervivencia, todos), reinicia marcador y cronómetro, configura el globo (fronteras, sin giro automático) y lanza la cuenta atrás. |
 | `startRound()` | Muestra la pista del país actual y limpia el resaltado. |
 | `isCorrect(info)` | Acierto si se hizo clic en el país; con pista solo de bandera, también en uno con la misma bandera; y en países diminutos, también cerca de ellos. |
@@ -447,7 +476,7 @@ Los temporizadores (`later`) son propios en lugar de `setTimeout`: los descuenta
 
 ### `src/settings.js` y `src/sound.js`
 
-- `settings.js`: `loadSettings()` / `saveSettings()` con `localStorage` (clave `cora-settings`), con valores por defecto si el navegador no deja guardar. `LANGUAGES` define los idiomas de las pistas y `DEFAULT_PRACTICE` la configuración inicial del modo prueba (Europa, estados, nombre + bandera, con fronteras, sin límite de tiempo, 10 países).
+- `settings.js`: `loadSettings()` / `saveSettings()` con `localStorage` (clave `cora-settings`), con valores por defecto si el navegador no deja guardar. `LANGUAGES` define los idiomas de las pistas y `DEFAULT_PRACTICE` la configuración inicial del entrenamiento (Europa, estados, nombre + bandera, con fronteras, sin límite de tiempo, 10 países).
 - `sound.js`: `createSound(isEnabled)` devuelve `play(nombre)` con los efectos `tick`, `go`, `correct`, `wrong`, `timeout`, `finish` y `click`, hechos con osciladores de Web Audio. El contexto de audio se crea con el primer sonido (los navegadores solo dejan sonar tras una interacción).
 
 ### `paises.html`, `src/paises.js` y `src/paises.css`
@@ -460,13 +489,29 @@ El backend de la clasificación es [Convex](https://convex.dev): base de datos y
 
 ### Cómo está hecho
 
-- **`convex/schema.ts`**: tabla `players` (nombre y un token secreto que genera el navegador; no hay cuentas ni contraseñas) y tabla `scores` (la mejor marca de cada jugador en cada combinación de modo y dificultad). El campo `rank = aciertos × 10⁹ − tiempo` permite ordenar el ranking con un solo índice: más aciertos primero y, a igualdad, menos tiempo.
-- **`convex/scores.ts`**:
+- **`convex/schema.ts`**:
+  - `players`: nombre y un token secreto que genera el navegador (no hay cuentas ni contraseñas).
+  - `scores`: la mejor marca de cada jugador en cada tabla de *Maratón* / *Supervivencia* (modo + dificultad), con aciertos, total, tiempo y fallos. El campo `rank = aciertos × 10⁹ − tiempo` ordena con un solo índice: más aciertos primero y, a igualdad, menos tiempo (en *Maratón* todos completan, así que manda el tiempo).
+  - `dailyAttempts`: un intento por jugador y día (UTC), con el país del jugador, la hora de inicio y, al terminar, aciertos, tiempo y `rank`.
+- **`convex/convex.config.ts`** y **`convex/rankings.ts`**: dos componentes [`@convex-dev/aggregate`](https://www.convex.dev/components/aggregate) (`boardRanking` y `dailyRanking`) que dan el **puesto** de una marca y el total de una tabla en O(log n), sin recorrer la tabla. Se actualizan en la misma mutación que cada escritura.
+- **`convex/scores.ts`** (Maratón / Supervivencia):
   - `top({ mode, difficulty, limit })`: los mejores de una tabla (20 por defecto, máximo 100).
-  - `submit({ token, name, mode, difficulty, score, total, timeMs })`: valida y guarda la partida solo si mejora la marca del jugador; devuelve `{ improved, position }`. Si el jugador cambia de nombre, se actualiza en todas sus marcas.
-- **`src/leaderboard.js`**: crea el cliente (`ConvexClient`) con `VITE_CONVEX_URL`, guarda el token y el nombre en `localStorage`, y expone `submitScore` y `watchLeaderboard`. Si no hay URL, todo devuelve “no disponible” sin romper el juego.
+  - `submit({ token, name, mode, difficulty, score, total, timeMs, fails })`: valida y guarda la partida solo si mejora la marca del jugador; devuelve `{ improved, position, total }`.
+- **`convex/daily.ts`** (reto diario de *Jugar*):
+  - `start({ token, name, country })`: el servidor decide el día (UTC). Si el jugador ya tiene intento hoy, devuelve “ya jugado” con su resultado y puesto; si no, crea el intento y devuelve los 10 países del día (`countriesForDay`).
+  - `finish({ token, attemptId, score, timeMs })`: cierra el intento y devuelve el puesto y el total del día.
+  - `top({ day, limit })`: la tabla de un día (5 para el menú, hasta 500 para *Ver todo*). El día lo pasa el cliente porque las consultas de Convex no deben leer el reloj.
+- **`convex/players.ts`**: utilidades compartidas (validar nombre y token, alta del jugador y cambio de nombre).
+- **`convex/dailyCountries.ts`**: los 198 estados (ISO3), generado por `scripts/prepare-countries.mjs`.
+- **`src/leaderboard.js`**: el cliente (`ConvexClient`) con `VITE_CONVEX_URL`; guarda el token y el nombre en `localStorage`; expone `submitScore`, `watchLeaderboard`, `startDaily`, `finishDaily`, `watchDaily`, `utcDay` y `getPlayerCountry`. Si no hay URL, todo devuelve “no disponible” sin romper el juego.
+- **`api/country.js`**: función de Vercel que devuelve el país del visitante (`{ "country": "ES" }`) a partir de la cabecera `x-vercel-ip-country` que añade el propio Vercel. No llama a servicios externos ni guarda la IP.
 
-**Validaciones del servidor**: nombre de 2–20 caracteres; aciertos enteros entre 1 y el total; total ≤ 10 en *Jugar* y ≤ 242 en *Supervivencia*; y al menos 0.7 s por acierto. Frenan los envíos inventados evidentes, pero como el juego corre en el navegador **no hacen la clasificación a prueba de trampas**: para eso el servidor tendría que dirigir la partida (elegir los países y medir el tiempo él mismo).
+**Validaciones del servidor**:
+- Nombre de 2–20 caracteres.
+- *Maratón*: solo partidas completas (aciertos = total); *Supervivencia*: aciertos entre 1 y el total; al menos 0.7 s por acierto.
+- *Jugar*: un intento por jugador y día; aciertos entre 0 y 10; el tiempo no puede ser menor de 3 s ni mayor que el tiempo real transcurrido desde que empezó el intento (el servidor lo mide).
+
+Frenan los envíos inventados evidentes, pero como el juego corre en el navegador **no hacen las clasificaciones a prueba de trampas**.
 
 ### Desarrollo
 
@@ -489,7 +534,11 @@ Convex tiene un despliegue de **producción** separado del de desarrollo (otra U
    ```bash
    npx convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd 'npm run build'
    ```
-   Publica las funciones en producción y compila el juego con `VITE_CONVEX_URL` ya apuntando a producción. No hace falta añadir `VITE_CONVEX_URL` a mano.
+   Publica las funciones (y los componentes) en producción y compila el juego con `VITE_CONVEX_URL` ya apuntando a producción. No hace falta añadir `VITE_CONVEX_URL` a mano; si existe a mano en Vercel con la URL de desarrollo, hay que borrarla.
+
+   El log del build muestra a qué backend queda conectada la web: `Clasificación online conectada a: https://….convex.cloud`. En producción tiene que ser la URL de **producción**.
+
+   La función `api/country.js` (país del jugador para el reto diario) la publica Vercel sola, sin configurar nada.
 
 **A mano** (otro hosting estático):
 
@@ -525,11 +574,11 @@ y se sube la carpeta `dist/`. La URL de producción está en el panel de Convex 
 | Zoom más suave o más directo | `ZOOM_SMOOTHING` |
 | Arrastre más rápido o más lento | `ROTATE_SPEED` |
 | Más o menos inercia al soltar | `controls.dampingFactor` |
-| Países por partida | `ROUNDS` en `game.js` |
+| Países y reglas del reto diario (*Jugar*) | `convex/daily.ts` (`PER_DAY`, `countriesForDay`); la lista de estados se genera en `convex/dailyCountries.ts` |
 | Tiempo inicial y bonus de supervivencia | `SURVIVAL_START_S` / `SURVIVAL_BONUS_S` en `game.js` |
 | Tiempo por país en hardcore | `timeLimit` de `hardcore` en `DIFFICULTIES` |
 | Qué países entran en cada dificultad | `pool` en `DIFFICULTIES` |
-| Opciones del modo prueba | `TIME_OPTIONS`, `ROUND_OPTIONS`, `CONTINENTS` en `game.js`; valores iniciales en `DEFAULT_PRACTICE` (`settings.js`) |
+| Opciones del entrenamiento | `TIME_OPTIONS`, `ROUND_OPTIONS`, `CONTINENTS` en `game.js`; valores iniciales en `DEFAULT_PRACTICE` (`settings.js`) |
 | Duración de las pausas tras responder | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` |
 | Más o menos ayuda con países diminutos | `SMALL_COUNTRY_PX` / `CLICK_TOLERANCE_PX` |
 | Mostrar u ocultar las fronteras en el menú | `SHOW_BORDERS` |

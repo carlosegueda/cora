@@ -60,9 +60,7 @@ canvas {
   color: var(--sun);
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .wordmark {
@@ -139,7 +137,8 @@ kbd {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* "safe": centrado si cabe; si el contenido es más alto que la pantalla, empieza arriba y hace scroll */
+  justify-content: safe center;
   width: min(432px, 100%);
   height: 100%;
   /* 6 px de margen interior a cada lado: el panel tiene scroll y, sin ese margen, recortaría
@@ -161,7 +160,7 @@ kbd {
   justify-content: flex-start;
 }
 
-/* Modo prueba: solo el formulario hace scroll; el pie con "Empezar" queda fijo debajo */
+/* Entrenamiento: solo el formulario hace scroll; el pie con "Empezar" queda fijo debajo */
 #screen-practice .sheet {
   overflow: hidden;
   padding-bottom: 28px;
@@ -397,7 +396,7 @@ button:disabled {
 }
 
 
-/* --- Campos (configuración y modo prueba) ------------------------------------ */
+/* --- Campos (configuración y entrenamiento) ------------------------------------ */
 .field {
   padding: 16px 0;
   border-top: 1px solid var(--faint);
@@ -412,9 +411,8 @@ button:disabled {
   margin-bottom: 10px;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .field-row {
@@ -678,6 +676,124 @@ button:disabled {
   font-size: 13px;
 }
 
+/* --- Diario -------------------------------------------------------------------------- */
+/* Top 5 del día en el menú: columna propia a la derecha (el menú a la izquierda y el
+   planeta en el centro); en pantallas medianas, abajo a la derecha; en móvil, arriba */
+.daily-card {
+  position: absolute;
+  top: 50%;
+  right: var(--gutter);
+  width: 330px;
+  padding: 16px 18px 12px;
+  border: 1px solid var(--faint);
+  border-radius: 4px;
+  background: rgba(7, 9, 15, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: auto;
+  transform: translateY(-50%);
+  animation: fade-in 0.4s ease-out;
+}
+
+@media (max-width: 1099px) {
+  .daily-card {
+    top: auto;
+    bottom: 64px;
+    transform: none;
+  }
+}
+
+.daily-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.daily-head .field-label {
+  margin: 0;
+}
+
+.daily-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: daily;
+}
+
+/* Fila: puesto, bandera del país del jugador, nombre, aciertos, tiempo */
+.daily-list li {
+  display: grid;
+  grid-template-columns: 20px 22px minmax(0, 1fr) auto 56px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  counter-increment: daily;
+}
+
+.daily-list li::before {
+  content: counter(daily);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.daily-list li:nth-child(-n + 3)::before {
+  color: var(--sun);
+  font-weight: 600;
+}
+
+.daily-list li.is-me .board-name {
+  color: var(--sun);
+}
+
+.daily-list .country-flag,
+.daily-list .no-flag {
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 1px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.daily-list .board-time {
+  color: var(--muted);
+  text-align: right;
+}
+
+.daily-list-full {
+  margin-top: 16px;
+  border-top: 1px solid var(--faint);
+}
+
+.daily-list-full li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--faint);
+  font-size: 15px;
+}
+
+.daily-empty {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.info-text {
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.pause-note {
+  margin: -6px 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 /* --- Resultado ---------------------------------------------------------------- */
 .score {
   display: flex;
@@ -715,9 +831,8 @@ button:disabled {
 .k {
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 #results-record {
@@ -963,7 +1078,7 @@ button:disabled {
   height: 72px;
 }
 
-/* Tiempo por país (hardcore y modo prueba) */
+/* Tiempo por país (hardcore y entrenamiento) */
 #round-timer {
   width: 200px;
   height: 2px;
@@ -1143,8 +1258,6 @@ button:disabled {
   color: var(--muted);
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 
 .loading-bar {
@@ -1207,66 +1320,28 @@ button:disabled {
 }
 
 /* --- Información -------------------------------------------------------------------- */
-#info-button {
+/* Engranaje de Configuración, abajo a la derecha (se oculta durante la partida) */
+#settings-button {
   position: fixed;
   right: var(--gutter);
   bottom: 18px;
   z-index: 15;
-  width: 28px;
-  height: 28px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 1px solid var(--faint);
   border-radius: 50%;
-  background: transparent;
+  background: rgba(7, 9, 15, 0.5);
   color: var(--muted);
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
+  transition: color 0.15s, border-color 0.15s, transform 0.3s;
 }
 
-#info-button:hover {
+#settings-button:hover {
   border-color: var(--muted);
   color: var(--paper);
-}
-
-#info-dialog {
-  width: min(440px, calc(100vw - 32px));
-  padding: 32px;
-  border: 1px solid var(--faint);
-  border-radius: 4px;
-  background: var(--ink-2);
-  color: var(--paper);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-}
-
-#info-dialog[open] {
-  animation: hint-in 0.25s ease-out;
-}
-
-#info-dialog::backdrop {
-  background: rgba(7, 9, 15, 0.6);
-}
-
-#info-dialog .title {
-  margin-bottom: 16px;
-}
-
-.dialog-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.dialog-close:hover {
-  color: var(--paper);
+  transform: rotate(45deg);
 }
 
 .credits-list {
@@ -1279,9 +1354,8 @@ button:disabled {
   margin-top: 14px;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .credits-list dt:first-child {
@@ -1323,11 +1397,24 @@ button:disabled {
     max-height: 78%;
     margin: 0;
     padding: 24px var(--gutter) 64px;
-    justify-content: flex-end;
+    /* "safe": si no cabe, empieza arriba y hace scroll en vez de cortar el logo */
+    justify-content: safe flex-end;
   }
 
   .wordmark {
-    font-size: 64px;
+    font-size: 56px;
+  }
+
+  .screen .wordmark {
+    margin-bottom: 20px;
+  }
+
+  .menu-item {
+    padding: 11px 0;
+  }
+
+  .menu-label {
+    font-size: 22px;
   }
 
   .hud-stats {
@@ -1353,6 +1440,20 @@ button:disabled {
   /* Deja sitio abajo para el botón (i) */
   #screen-practice .sheet {
     padding-bottom: 64px;
+  }
+
+  .daily-card {
+    top: 12px;
+    right: var(--gutter);
+    left: var(--gutter);
+    bottom: auto;
+    width: auto;
+    padding: 10px 12px 6px;
+  }
+
+  .daily-card .daily-list li {
+    padding: 3px 0;
+    font-size: 13px;
   }
 
 }

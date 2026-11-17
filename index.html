@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>CORA</title>
     <meta name="theme-color" content="#07090f" />
     <link rel="stylesheet" href="/src/style.css" />
@@ -19,23 +22,54 @@
       <div class="sheet">
         <h1 class="wordmark">CORA</h1>
         <nav class="menu" aria-label="Menú principal">
-          <button data-action="play" class="menu-item">
+          <button data-action="daily" class="menu-item">
             <span class="menu-label">Jugar</span>
+          </button>
+          <button data-action="play" class="menu-item">
+            <span class="menu-label">Maratón</span>
           </button>
           <button data-action="survival" class="menu-item">
             <span class="menu-label">Supervivencia</span>
           </button>
           <button data-action="practice" class="menu-item">
-            <span class="menu-label">Modo prueba</span>
+            <span class="menu-label">Entrenamiento</span>
           </button>
           <button data-action="leaderboard" class="menu-item">
             <span class="menu-label">Clasificación</span>
           </button>
-          <button data-action="settings" class="menu-item">
-            <span class="menu-label">Configuración</span>
-          </button>
         </nav>
         <a class="foot-link" href="/paises.html" target="_blank">Lista de países ↗</a>
+      </div>
+
+      <!-- Top 5 del Diario de hoy (se actualiza solo) -->
+      <aside id="daily-card" class="daily-card" hidden>
+        <div class="daily-head">
+          <span class="field-label">Hoy</span>
+          <button data-action="daily-board" class="link-button">Ver todo</button>
+        </div>
+        <ol id="daily-top" class="daily-list"></ol>
+        <p id="daily-empty" class="daily-empty"></p>
+      </aside>
+    </section>
+
+    <!-- Jugar (reto diario): avisos (ya jugaste hoy, no disponible, cargando) -->
+    <section id="screen-daily-info" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Jugar</h2>
+        <p id="daily-info-text" class="info-text"></p>
+        <button data-action="daily-board" class="ghost">Ver la tabla de hoy</button>
+      </div>
+    </section>
+
+    <!-- Jugar (reto diario): tabla completa del día -->
+    <section id="screen-daily-board" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="menu" class="back">← Menú</button>
+        <h2 class="title">Hoy</h2>
+        <p id="daily-board-date" class="field-label"></p>
+        <ol id="daily-board-list" class="daily-list daily-list-full"></ol>
+        <p id="daily-board-status" class="daily-empty"></p>
       </div>
     </section>
 
@@ -61,11 +95,11 @@
       </div>
     </section>
 
-    <!-- Modo prueba: reglas a medida (el formulario lo crea game.js) -->
+    <!-- Entrenamiento: reglas a medida (el formulario lo crea game.js) -->
     <section id="screen-practice" class="screen" hidden>
       <div class="sheet sheet-wide">
         <button data-action="menu" class="back">← Menú</button>
-        <h2 class="title">Modo prueba</h2>
+        <h2 class="title">Entrenamiento</h2>
         <form id="practice-form" onsubmit="return false"></form>
         <div class="sheet-footer">
           <p id="practice-summary"></p>
@@ -101,6 +135,26 @@
           <span class="field-label">Idioma de las pistas</span>
           <div id="setting-language" class="tabs"></div>
         </div>
+        <div class="field">
+          <span class="field-label">Créditos</span>
+          <dl class="credits-list">
+            <dt>Imágenes de satélite</dt>
+            <dd>
+              <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
+              (contiene datos modificados de Copernicus Sentinel 2024) · CC BY-NC-SA 4.0
+            </dd>
+            <dt>Tierra base, sol y luna</dt>
+            <dd><a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">Solar System Scope</a> · CC BY 4.0</dd>
+            <dt>Cielo</dt>
+            <dd><a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener">ESO/S. Brunier</a> · CC BY 4.0</dd>
+            <dt>Fronteras y nombres de países</dt>
+            <dd><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> · dominio público</dd>
+            <dt>Banderas</dt>
+            <dd><a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> · MIT</dd>
+            <dt>Tipografías</dt>
+            <dd>Bricolage Grotesque · SIL Open Font License</dd>
+          </dl>
+        </div>
       </div>
     </section>
 
@@ -110,14 +164,15 @@
         <h2 class="title" id="results-difficulty"></h2>
         <div class="score">
           <span class="score-value"><strong id="results-score"></strong><span id="results-total"></span></span>
-          <span class="score-time"><span class="k">Tiempo</span><span id="results-time"></span></span>
+          <span class="score-time"><span class="k" id="results-time-k">Tiempo</span><span id="results-time"></span></span>
         </div>
         <p id="results-record" hidden></p>
         <p id="results-rank" hidden></p>
         <ol id="results-list"></ol>
         <div id="results-flags" hidden></div>
         <div class="actions">
-          <button data-action="replay" class="primary">Jugar otra vez</button>
+          <button data-action="replay" id="results-replay" class="primary">Jugar otra vez</button>
+          <button data-action="daily-board" id="results-daily-board" class="primary" hidden>Ver la tabla de hoy</button>
           <button data-action="menu" class="ghost">Menú</button>
         </div>
       </div>
@@ -150,6 +205,7 @@
     <div id="pause" hidden>
       <div class="pause-panel" role="dialog" aria-modal="true" aria-labelledby="pause-title">
         <h2 id="pause-title" class="title">Pausa</h2>
+        <p id="pause-note" class="pause-note" hidden>Si sales, pierdes el intento de hoy</p>
         <button data-action="resume" class="primary">Reanudar</button>
         <button data-action="menu" class="ghost">Salir</button>
       </div>
@@ -158,29 +214,14 @@
     <!-- Cuenta atrás 3, 2, 1 -->
     <div id="countdown" hidden></div>
 
-    <!-- Botón de información y popup con los créditos (ver src/credits.js) -->
-    <button id="info-button" type="button" aria-label="Información y créditos" title="Información y créditos">i</button>
-    <dialog id="info-dialog" aria-labelledby="info-title">
-      <button type="button" class="dialog-close" aria-label="Cerrar">✕</button>
-      <h2 id="info-title" class="title">Créditos</h2>
-      <dl class="credits-list">
-        <dt>Imágenes de satélite</dt>
-        <dd>
-          <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
-          (contiene datos modificados de Copernicus Sentinel 2024) · CC BY-NC-SA 4.0
-        </dd>
-        <dt>Tierra base, sol y luna</dt>
-        <dd><a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">Solar System Scope</a> · CC BY 4.0</dd>
-        <dt>Cielo</dt>
-        <dd><a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener">ESO/S. Brunier</a> · CC BY 4.0</dd>
-        <dt>Fronteras y nombres de países</dt>
-        <dd><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> · dominio público</dd>
-        <dt>Banderas</dt>
-        <dd><a href="https://github.com/lipis/flag-icons" target="_blank" rel="noopener">flag-icons</a> · MIT</dd>
-        <dt>Tipografías</dt>
-        <dd>Bricolage Grotesque · SIL Open Font License</dd>
-      </dl>
-    </dialog>
+    <!-- Configuración: botón de engranaje abajo a la derecha (fuera de la partida) -->
+    <button id="settings-button" data-action="settings" type="button" aria-label="Configuración" title="Configuración">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"
+          d="M10.3 2.6h3.4l.5 2.6c.6.2 1.1.5 1.6.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.2 0 1.8l2 1.7-1.7 2.9-2.5-.9c-.5.4-1 .7-1.6.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.1-.5-1.6-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.2 0-1.8l-2-1.7 1.7-2.9 2.5.9c.5-.4 1-.7 1.6-.9z" />
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7" />
+      </svg>
+    </button>
 
     <script type="module" src="/src/main.js"></script>
   </body>
