@@ -27,6 +27,7 @@ export default defineSchema({
     total: v.number(),
     timeMs: v.number(),
     fails: v.optional(v.number()),
+    country: v.optional(v.union(v.string(), v.null())), // país del jugador (ISO alfa-2), según su IP
     // Orden del ranking en un solo número: más aciertos primero; a igualdad, menos tiempo
     rank: v.number(),
   })

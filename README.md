@@ -32,7 +32,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 1. **Menú principal**: *Jugar* (reto diario), *Maratón*, *Supervivencia*, *Entrenamiento* y *Clasificación*, y a la derecha el **top 5 de hoy**. *Configuración* es el engranaje de abajo a la derecha. Detrás, el globo gira solo.
 2. Al elegir un modo se pide **el nombre del jugador** y, salvo en *Jugar*, la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “Ya”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
-4. Para cada país se **mantiene pulsado** sobre el globo **1.5 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*).
+4. Para cada país se **mantiene pulsado** sobre el globo **1.05 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*).
    - **Acierto**: el país se pinta de verde y aparece su nombre sobre el pin.
    - **Fallo**: el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
    - Un clic en el **mar** lejos del país no cuenta como respuesta (aviso “Mar”).
@@ -51,7 +51,7 @@ Durante la partida se puede girar y hacer zoom con normalidad (un arrastre no cu
 
 **Pausa**: con el botón *Pausa* (arriba a la derecha) o la tecla `Esc`. La pantalla de pausa tiene *Reanudar* (o `Esc` otra vez) y *Salir* (vuelve al menú). Mientras está en pausa se detienen el cronómetro, el tiempo por país de hardcore, la cuenta atrás y la espera entre países, y el globo queda tapado y bloqueado para que no se pueda buscar el país sin que corra el tiempo. Si se cambia de pestaña o se minimiza la ventana en mitad de una partida, se pausa sola.
 
-El **tiempo** cuenta solo mientras se está buscando el país: se para durante las pausas que muestran si se acertó (1.2 s al acertar, 2.6 s al fallar), para no penalizar la animación.
+El **tiempo** cuenta solo mientras se está buscando el país: se para durante las pausas que muestran si se acertó (1.2 s al acertar, 3.4 s al fallar: 1 s quieta en el pin y luego viaja al país correcto), para no penalizar la animación.
 
 ### Dificultades
 

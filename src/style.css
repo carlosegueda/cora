@@ -695,7 +695,7 @@ button:disabled {
 
 #board-list li {
   display: grid;
-  grid-template-columns: 30px 1fr auto 70px;
+  grid-template-columns: 30px 22px minmax(0, 1fr) auto 70px;
   align-items: baseline;
   gap: 10px;
   padding: 9px 0;
@@ -726,6 +726,19 @@ button:disabled {
 .board-time {
   color: var(--muted);
   text-align: right;
+}
+
+/* Bandera del país del jugador */
+#board-list .country-flag,
+#board-list .no-flag {
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 1px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 16px;
+  text-align: center;
 }
 
 #board-list li.is-me .board-name {

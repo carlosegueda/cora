@@ -54,8 +54,10 @@ export async function submitScore({ mode, difficulty, score, total, timeMs, fail
   const name = getPlayerName();
   if (!client || name.length < 2 || score === 0) return null;
   try {
+    const country = await getPlayerCountry();
     return await client.mutation(api.scores.submit, {
       token: playerToken(),
+      country,
       name,
       mode,
       difficulty,

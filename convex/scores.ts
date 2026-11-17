@@ -21,13 +21,14 @@ export const top = query({
       .withIndex('by_mode_and_difficulty_and_rank', (q) => q.eq('mode', mode).eq('difficulty', difficulty))
       .order('desc')
       .take(Math.min(limit ?? 20, 100));
-    return rows.map(({ _id, name, score, total, timeMs, fails }) => ({
+    return rows.map(({ _id, name, score, total, timeMs, fails, country }) => ({
       _id,
       name,
       score,
       total,
       timeMs,
       fails: fails ?? null,
+      country: country ?? null,
     }));
   },
 });
@@ -45,6 +46,7 @@ export const submit = mutation({
     total: v.number(),
     timeMs: v.number(),
     fails: v.optional(v.number()),
+    country: v.optional(v.union(v.string(), v.null())), // ISO alfa-2 del jugador, para su bandera
   },
   handler: async (ctx, args) => {
     if (
@@ -73,7 +75,8 @@ export const submit = mutation({
       )
       .unique();
 
-    const row = { name: player.name, score: args.score, total: args.total, timeMs, fails, rank };
+    const country = args.country && /^[A-Z]{2}$/.test(args.country) ? args.country : null;
+    const row = { name: player.name, score: args.score, total: args.total, timeMs, fails, rank, country };
     let improved = false;
     let best = existing;
     if (!existing) {
@@ -86,6 +89,9 @@ export const submit = mutation({
       best = (await ctx.db.get(existing._id))!;
       await boardRanking.replace(ctx, existing, best);
       improved = true;
+    } else if (!existing.country && country) {
+      // Marca sin país (de antes de guardarlo): se le añade aunque no mejore
+      await ctx.db.patch(existing._id, { country });
     }
 
     const namespace = `${args.mode}:${args.difficulty}`;

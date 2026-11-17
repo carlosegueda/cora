@@ -27,7 +27,7 @@ import {
 const COUNTDOWN_FROM = 3;
 // Para elegir un país hay que mantener pulsado sobre el globo este tiempo (un clic normal no hace
 // nada). El anillo de carga y el gesto los gestiona main.js; aquí solo se usa para los puntos.
-export const HOLD_TO_SELECT_MS = 1500;
+export const HOLD_TO_SELECT_MS = 800;
 // Modo supervivencia: reloj que baja desde SURVIVAL_START_S; cada acierto suma SURVIVAL_BONUS_S
 const SURVIVAL_START_S = 20;
 const SURVIVAL_BONUS_S = 5;
@@ -65,7 +65,8 @@ function dailyPoints(country, distanceKm, seconds) {
 // 1234.5 km → "1235 km"; 0.4 → "0 km"
 const formatKm = (km) => `${Math.round(km)} km`; // en los menús el planeta se desplaza a la derecha (fracción del ancho)
 const FEEDBACK_CORRECT_MS = 1200; // pausa tras acertar antes del siguiente país
-const FEEDBACK_WRONG_MS = 2600; // pausa tras fallar (la cámara viaja al país correcto)
+const FEEDBACK_WRONG_MS = 3400; // pausa tras fallar: 1 s quieta en el pin, luego viaja al país correcto
+const FLY_TO_ANSWER_DELAY_MS = 1000; // tras fallar, cuánto se queda la cámara en el pin antes de viajar
 // Ayuda para países diminutos (Vaticano, Mónaco, islas del Pacífico…): si el país ocupa en
 // pantalla menos de SMALL_COUNTRY_PX, vale un clic a menos de CLICK_TOLERANCE_PX de él.
 const SMALL_COUNTRY_PX = 25;
@@ -540,8 +541,10 @@ export function createGame(globe) {
         { b: nameOf(target) },
         ...(isDaily() ? [t('feedback.distance', { km: formatKm(distanceKm), points: earned })] : [])
       );
+      // Se ve un momento dónde quedó el pin y luego la cámara viaja al país correcto
+      // (temporizador del juego: se detiene con la pausa)
       const { lon, lat } = countryCenter(target);
-      globe.flyTo(lon, lat);
+      later(() => globe.flyTo(lon, lat), FLY_TO_ANSWER_DELAY_MS);
     }
     updateHud();
     later(nextRound, correct ? FEEDBACK_CORRECT_MS : FEEDBACK_WRONG_MS);
@@ -855,6 +858,7 @@ export function createGame(globe) {
           // Jugar: tiempo en completarlos todos y fallos; Supervivencia: aciertos y tiempo
           const fails = row.fails ?? 0;
           li.append(
+            countryFlag(row.country),
             el('span', 'board-name', row.name),
             board.mode === 'clasico'
               ? el('span', 'board-score', formatTime(row.timeMs))
