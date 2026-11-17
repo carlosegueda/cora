@@ -32,7 +32,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 1. **Menú principal**: *Jugar* (reto diario), *Maratón*, *Supervivencia*, *Entrenamiento* y *Clasificación*, y a la derecha el **top 5 de hoy**. *Configuración* es el engranaje de abajo a la derecha. Detrás, el globo gira solo.
 2. Al elegir un modo se pide **el nombre del jugador** y, salvo en *Jugar*, la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “Ya”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
-4. Para cada país se **mantiene pulsado** sobre el globo **1.05 s** (un clic normal no hace nada): mientras tanto se llena un anillo de carga junto al puntero y, al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*). **En pantallas táctiles** (móvil, tablet) no hace falta mantener: basta un toque, sin anillo; si el dedo se mueve (girar) o hay dos dedos (pellizco), no cuenta.
+4. Para cada país se **mantiene pulsado** sobre el globo **1.05 s** (un clic normal no hace nada): el anillo de carga aparece junto al puntero a los 0.5 s (para que al arrastrar no parezca que carga; `HOLD_RING_DELAY_MS` en `main.js`) y se llena en lo que queda; al completarse, se elige el punto que hay debajo. Si el puntero se mueve (se está girando el globo), se suelta antes o entra un segundo dedo (pellizco), se cancela. El tiempo está en `HOLD_TO_SELECT_MS` (`src/game.js`) y el gesto en `main.js` (*Selección de país: mantener pulsado*). **En pantallas táctiles** (móvil, tablet) no hace falta mantener: basta un toque, sin anillo; si el dedo se mueve (girar) o hay dos dedos (pellizco), no cuenta.
    - **Acierto**: el país se pinta de verde y aparece su nombre sobre el pin.
    - **Fallo**: el país elegido se pinta de rojo, el correcto de verde, y la cámara viaja hasta el correcto.
    - Un clic en el **mar** lejos del país no cuenta como respuesta (aviso “Mar”).
@@ -250,6 +250,10 @@ La clasificación la hace `scripts/prepare-countries.mjs` (función `classify`):
 ### Banderas
 
 239 de los 242 tienen bandera, guardada en `public/flags/<iso>.svg` (del paquete [flag-icons](https://github.com/lipis/flag-icons), licencia MIT, proporción 4:3). Algunos territorios comparten la del país del que dependen (por ejemplo, los territorios australianos usan la de Australia), por eso hay 237 archivos. **Sin bandera** (no tienen código ISO oficial): Somalilandia, República Turca del Norte de Chipre y Glaciar de Siachen; en la lista aparecen con “—” y en la etiqueta del pin solo con el nombre.
+
+**Banderas cambiadas a mano** (el script no sobrescribe las que ya existen, así que se conservan al regenerar los datos):
+
+- `cr.svg` (Costa Rica): la de flag-icons es la bandera civil, sin escudo; se usa la **bandera de Estado, con el escudo**, de [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Flag_of_Costa_Rica_(state).svg) (dominio público), recortada a 4:3 con `viewBox="100 0 800 600"` (solo se quita un poco de franja a cada lado; el escudo queda entero).
 
 ### Regenerar los datos
 

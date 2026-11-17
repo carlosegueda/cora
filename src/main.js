@@ -558,7 +558,11 @@ const raycaster = new THREE.Raycaster();
 const earthBounds = new THREE.Sphere(new THREE.Vector3(0, 0, 0), SPHERE_RADIUS);
 const pointer = new THREE.Vector2();
 const holdRing = document.getElementById('hold-ring');
-holdRing.style.setProperty('--hold-ms', `${HOLD_TO_SELECT_MS}ms`);
+// El anillo no aparece hasta pasado este tiempo manteniendo pulsado: así, al empezar a arrastrar
+// para girar el globo, no da la impresión de que se está cargando una selección. Luego se llena
+// en lo que queda hasta HOLD_TO_SELECT_MS (el tiempo total para elegir no cambia).
+const HOLD_RING_DELAY_MS = 500;
+holdRing.style.setProperty('--hold-ms', `${HOLD_TO_SELECT_MS - HOLD_RING_DELAY_MS}ms`);
 const activePointers = new Set();
 let hold = null; // { id, x, y, timer }
 let tap = null; // toque en pantalla táctil: { id, startX, startY }
@@ -603,6 +607,7 @@ function hideHoldRing(done = false) {
 function cancelHold() {
   if (!hold) return;
   clearTimeout(hold.timer);
+  clearTimeout(hold.ringTimer);
   hold = null;
   hideHoldRing();
 }
@@ -615,6 +620,7 @@ function selectAt(x, y) {
 
 function completeHold() {
   const { x, y } = hold;
+  clearTimeout(hold.ringTimer);
   hold = null;
   hideHoldRing(true);
   selectAt(x, y);
@@ -635,7 +641,7 @@ canvas.addEventListener('pointerdown', (e) => {
   }
   hold = { id: e.pointerId, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY };
   hold.timer = setTimeout(completeHold, HOLD_TO_SELECT_MS);
-  showHoldRing(e.clientX, e.clientY);
+  hold.ringTimer = setTimeout(() => showHoldRing(hold.x, hold.y), HOLD_RING_DELAY_MS);
 });
 
 canvas.addEventListener('pointermove', (e) => {

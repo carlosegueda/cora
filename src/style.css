@@ -33,6 +33,18 @@ body {
   font-family: var(--sans);
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  /* Los textos de la interfaz no se seleccionan al clicar (solo lo que escribe el usuario) */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Lo que escribe el usuario sí se puede seleccionar */
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 canvas {
