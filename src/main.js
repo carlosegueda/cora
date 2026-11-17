@@ -3,12 +3,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { loadCountries, findCountry, createBorders, createCountryOutline, createCountryMask } from './countries.js';
-import { vector3ToLonLat } from './geo.js';
+import { vector3ToLonLat, lonLatToVector3 } from './geo.js';
 import { createTileLayer } from './tiles.js';
+import { createGame } from './game.js';
 
 const SPHERE_RADIUS = 1;
 const CLICK_MOVE_TOLERANCE = 5; // px: más movimiento que esto cuenta como arrastre, no clic
-const SHOW_BORDERS = false; // fronteras entre países: true = visibles, false = ocultas
+const SHOW_BORDERS = false; // fronteras en el menú (en el juego las decide la dificultad: solo en fácil)
 
 // Teselas de alta resolución que se cargan al acercarse (ver src/tiles.js).
 // Sentinel-2 cloudless 2024 de EOX (https://s2maps.eu): mosaico sin nubes, sin franjas, con el
@@ -264,21 +265,28 @@ const EARTH_HIGHLIGHT_KNEE = 0.2;
 const EARTH_HIGHLIGHT_COMPRESSION = 2.5;
 const MAX_ANISOTROPY = renderer.capabilities.getMaxAnisotropy();
 
-// Relleno del país con pin: lo pinta el propio shader de la Tierra (ver createCountryMask)
-const HIGHLIGHT_COLOR = '#2ecc71'; // verde del país con pin (relleno, contorno y etiqueta)
-const countryMask = createCountryMask({ color: HIGHLIGHT_COLOR, opacity: 0.45 });
+// Relleno de países: lo pinta el propio shader de la Tierra (ver createCountryMask).
+// Verde = país correcto; rojo = país en el que se hizo clic por error.
+const CORRECT_COLOR = '#2ecc71';
+const WRONG_COLOR = '#ff4d4f';
+const MASK_OPACITY = 0.45;
+const masks = [
+  createCountryMask({ name: 'correctMask', color: CORRECT_COLOR, opacity: MASK_OPACITY }),
+  createCountryMask({ name: 'wrongMask', color: WRONG_COLOR, opacity: MASK_OPACITY }),
+];
+const [correctMask, wrongMask] = masks;
 
 // Modifica el shader estándar de three para la Tierra:
-//  - sube la saturación de la textura (color base y emisivo)
-//  - mezcla el relleno verde del país seleccionado, calculando lon/lat de cada píxel
+//  - sube la saturación de la textura y suaviza las zonas muy claras
+//  - mezcla los rellenos de países (verde y rojo), calculando lon/lat de cada píxel
 // Es una única función compartida, así que todos los materiales de la Tierra usan el mismo
-// programa, y los uniforms del relleno son los mismos objetos para todos.
+// programa, y los uniforms de los rellenos son los mismos objetos para todos.
 function earthShader(shader) {
-  Object.assign(shader.uniforms, countryMask.uniforms, {
+  Object.assign(shader.uniforms, ...masks.map((m) => m.uniforms), {
     saturation: { value: EARTH_SATURATION },
     highlightKnee: { value: EARTH_HIGHLIGHT_KNEE },
     highlightCompression: { value: EARTH_HIGHLIGHT_COMPRESSION },
-    countryMaskGlow: { value: EARTH_GLOW },
+    earthGlow: { value: EARTH_GLOW },
   });
 
   shader.vertexShader = shader.vertexShader
@@ -298,11 +306,22 @@ function earthShader(shader) {
         float over = l - highlightKnee;
         return c * (highlightKnee + over / (1.0 + over * highlightCompression)) / l;
       }
-      uniform sampler2D countryMask;
-      uniform vec4 countryMaskBounds;
-      uniform float countryMaskOpacity;
-      uniform vec3 countryMaskColor;
-      uniform float countryMaskGlow;
+      ${masks
+        .map(
+          ({ name }) => `uniform sampler2D ${name};
+      uniform vec4 ${name}Bounds;
+      uniform float ${name}Opacity;
+      uniform vec3 ${name}Color;`
+        )
+        .join('\n')}
+      uniform float earthGlow;
+      // Cuánto tapa una máscara este punto (0 = nada); bounds = lon0, lon1, latS, latN
+      float maskAmount(sampler2D tex, vec4 bounds, float opacity, vec2 lonLat) {
+        if (opacity <= 0.0) return 0.0;
+        vec2 uv = (lonLat - bounds.xz) / (bounds.yw - bounds.xz);
+        if (any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) return 0.0;
+        return texture2D(tex, uv).a * opacity;
+      }
       varying vec3 vEarthPos;
       void main() {`
     )
@@ -312,20 +331,14 @@ function earthShader(shader) {
       float luma = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
       diffuseColor.rgb = compressHighlights(max(mix(vec3(luma), diffuseColor.rgb, saturation), 0.0));
 
-      float countryMix = 0.0;
-      if (countryMaskOpacity > 0.0) {
-        vec3 ep = normalize(vEarthPos);
-        float lonDeg = degrees(atan(-ep.z, ep.x));
-        float latDeg = degrees(asin(clamp(ep.y, -1.0, 1.0)));
-        vec2 maskUv = vec2(
-          (lonDeg - countryMaskBounds.x) / (countryMaskBounds.y - countryMaskBounds.x),
-          (latDeg - countryMaskBounds.z) / (countryMaskBounds.w - countryMaskBounds.z)
-        );
-        if (all(greaterThanEqual(maskUv, vec2(0.0))) && all(lessThanEqual(maskUv, vec2(1.0)))) {
-          countryMix = texture2D(countryMask, maskUv).a * countryMaskOpacity;
-        }
-      }
-      diffuseColor.rgb = mix(diffuseColor.rgb, countryMaskColor, countryMix);`
+      vec3 ep = normalize(vEarthPos);
+      vec2 lonLat = vec2(degrees(atan(-ep.z, ep.x)), degrees(asin(clamp(ep.y, -1.0, 1.0))));
+      ${masks
+        .map(
+          ({ name }) => `float ${name}Mix = maskAmount(${name}, ${name}Bounds, ${name}Opacity, lonLat);
+      diffuseColor.rgb = mix(diffuseColor.rgb, ${name}Color, ${name}Mix);`
+        )
+        .join('\n')}`
     )
     .replace(
       '#include <emissivemap_fragment>',
@@ -333,10 +346,12 @@ function earthShader(shader) {
       float eLuma = dot(totalEmissiveRadiance, vec3(0.2126, 0.7152, 0.0722));
       totalEmissiveRadiance = max(mix(vec3(eLuma), totalEmissiveRadiance, saturation), 0.0);
       // La emisiva es textura × EARTH_GLOW: se comprime la textura y se vuelve a escalar
-      if (countryMaskGlow > 0.0) {
-        totalEmissiveRadiance = compressHighlights(totalEmissiveRadiance / countryMaskGlow) * countryMaskGlow;
+      if (earthGlow > 0.0) {
+        totalEmissiveRadiance = compressHighlights(totalEmissiveRadiance / earthGlow) * earthGlow;
       }
-      totalEmissiveRadiance = mix(totalEmissiveRadiance, countryMaskColor * countryMaskGlow, countryMix);`
+      ${masks
+        .map(({ name }) => `totalEmissiveRadiance = mix(totalEmissiveRadiance, ${name}Color * earthGlow, ${name}Mix);`)
+        .join('\n')}`
     );
 }
 
@@ -378,40 +393,47 @@ const tileLayer = createTileLayer({
 });
 sphere.add(tileLayer.group);
 
-// --- Países: fronteras, resaltado y detección -------------------------------
+// --- Países: fronteras y resaltado -----------------------------------------
 const bordersMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
-const highlightMaterial = new THREE.LineBasicMaterial({ color: HIGHLIGHT_COLOR });
+const outlineMaterials = {
+  correct: new THREE.LineBasicMaterial({ color: CORRECT_COLOR }),
+  wrong: new THREE.LineBasicMaterial({ color: WRONG_COLOR }),
+};
 
 let countries = null; // se rellena cuando termina de cargar el JSON
 let borders = null; // todas las fronteras (LineSegments)
-let highlight = null; // contorno del país seleccionado
-let highlightedCountry = null;
+let bordersVisible = SHOW_BORDERS;
+const outlines = { correct: null, wrong: null }; // contornos de los países resaltados
 
+const countriesReady = loadCountries().then((data) => {
+  countries = data;
+  // Un pelo por encima de las teselas más detalladas (~250 m): pegadas al suelo incluso de cerca
+  borders = createBorders(countries, SPHERE_RADIUS * (1 + 4e-5), bordersMaterial);
+  borders.visible = bordersVisible;
+  sphere.add(borders);
+  return countries;
+});
+countriesReady.catch((err) => console.error(err));
 
-loadCountries()
-  .then((data) => {
-    countries = data;
-    // Un pelo por encima de las teselas más detalladas (~250 m): pegadas al suelo incluso de cerca
-    borders = createBorders(countries, SPHERE_RADIUS * (1 + 4e-5), bordersMaterial);
-    borders.visible = SHOW_BORDERS;
-    sphere.add(borders);
-    if (pin.visible) updatePinInfo(); // por si se colocó el pin antes de que cargaran
-  })
-  .catch((err) => console.error(err));
+function setBordersVisible(visible) {
+  bordersVisible = visible;
+  if (borders) borders.visible = visible;
+}
 
-function setHighlight(country) {
-  if (country === highlightedCountry) return; // mismo país: no hace falta repintar
-  highlightedCountry = country;
-
-  if (highlight) {
-    sphere.remove(highlight);
-    highlight.geometry.dispose();
-    highlight = null;
-  }
-  countryMask.draw(country);
-  if (country) {
-    highlight = createCountryOutline(country, SPHERE_RADIUS * (1 + 5e-5), highlightMaterial);
-    sphere.add(highlight);
+// Resalta el país correcto (verde) y, si lo hay, el que se eligió por error (rojo)
+function setHighlights({ correct = null, wrong = null } = {}) {
+  correctMask.draw(correct);
+  wrongMask.draw(wrong);
+  for (const [kind, country] of Object.entries({ correct, wrong })) {
+    if (outlines[kind]) {
+      sphere.remove(outlines[kind]);
+      outlines[kind].geometry.dispose();
+      outlines[kind] = null;
+    }
+    if (country) {
+      outlines[kind] = createCountryOutline(country, SPHERE_RADIUS * (1 + 5e-5), outlineMaterials[kind]);
+      sphere.add(outlines[kind]);
+    }
   }
 }
 
@@ -457,46 +479,30 @@ labelRenderer.domElement.className = 'label-layer';
 document.body.appendChild(labelRenderer.domElement);
 
 const UP = new THREE.Vector3(0, 1, 0);
-let pinLonLat = null;
 
 function placePin(localPoint) {
   const normal = localPoint.clone().normalize();
   pin.position.copy(normal).multiplyScalar(SPHERE_RADIUS);
   pin.quaternion.setFromUnitVectors(UP, normal);
   pin.visible = true;
-  pinLonLat = vector3ToLonLat(normal);
-  updatePinInfo();
 }
 
 function removePin() {
   pin.visible = false;
-  pinLonLat = null;
-  setHighlight(null);
-  updatePinInfo();
 }
 
-const coordsEl = document.getElementById('coords');
-function updatePinInfo() {
-  if (!pinLonLat) {
-    coordsEl.textContent = '';
-    return;
-  }
-  const { lon, lat } = pinLonLat;
-  const country = countries ? findCountry(countries, lon, lat) : null;
-  const name = !countries ? 'Cargando países…' : country ? country.name_es : 'Océano';
-
-  setHighlight(country);
+// Contenido de la etiqueta del pin: bandera + texto; kind = 'correct' | 'wrong' | 'ocean'
+function setPinLabel({ flag = null, text = '', kind = 'correct' } = {}) {
   labelEl.replaceChildren();
-  if (country?.flag) {
-    const flag = document.createElement('img');
-    flag.src = country.flag;
-    flag.alt = '';
-    flag.className = 'pin-flag';
-    labelEl.append(flag);
+  if (flag) {
+    const img = document.createElement('img');
+    img.src = flag;
+    img.alt = '';
+    img.className = 'pin-flag';
+    labelEl.append(img);
   }
-  labelEl.append(name);
-  labelEl.classList.toggle('is-ocean', countries !== null && !country);
-  coordsEl.textContent = `${name} · lat ${lat.toFixed(2)}°, lon ${lon.toFixed(2)}°`;
+  labelEl.append(text);
+  labelEl.className = `pin-label is-${kind}`;
 }
 
 // Cada frame: escala el pin según la distancia a la cámara y oculta la etiqueta
@@ -538,14 +544,77 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   raycaster.setFromCamera(pointer, camera);
 
   // Contra la esfera matemática exacta (no contra la malla, que es poligonal y va algo más baja):
-  // así el pin cae justo donde se hace clic aunque la cámara esté a pocos km del suelo
+  // así el punto cae justo donde se hace clic aunque la cámara esté a pocos km del suelo
   const hit = raycaster.ray.intersectSphere(earthBounds, new THREE.Vector3());
-  if (hit) {
-    placePin(sphere.worldToLocal(hit));
-  } else {
-    removePin();
-  }
+  if (!hit || !globe.onEarthClick) return;
+
+  const localPoint = sphere.worldToLocal(hit.clone());
+  const { lon, lat } = vector3ToLonLat(localPoint);
+  // Cuántos km de suelo ocupa un píxel de pantalla en ese punto
+  const distanceKm = camera.position.distanceTo(hit) * EARTH_RADIUS_KM;
+  const kmPerPixel =
+    (2 * distanceKm * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / renderer.domElement.clientHeight;
+  globe.onEarthClick({
+    lon,
+    lat,
+    localPoint,
+    kmPerPixel,
+    country: countries ? findCountry(countries, lon, lat) : null,
+  });
 });
+
+// --- Vuelo de la cámara hasta un punto -------------------------------------
+// Gira la cámara alrededor del planeta hasta quedar sobre (lon, lat), manteniendo la altura
+// (o alejándose un poco si está muy cerca, para que se vea el país entero).
+let flight = null;
+function flyTo(lon, lat, duration = 1.2) {
+  const altitude = camera.position.length() - SPHERE_RADIUS;
+  flight = {
+    from: camera.position.clone().normalize(),
+    to: lonLatToVector3(lon, lat, 1),
+    fromAltitude: altitude,
+    toAltitude: THREE.MathUtils.clamp(altitude, 0.35, 3),
+    t: 0,
+    duration,
+  };
+  controls.enabled = false;
+  zooming = false;
+}
+
+const flightRotation = new THREE.Quaternion();
+const identity = new THREE.Quaternion();
+function updateFlight(dt) {
+  if (!flight) return;
+  flight.t = Math.min(1, flight.t + dt / flight.duration);
+  const e = flight.t < 0.5 ? 4 * flight.t ** 3 : 1 - (-2 * flight.t + 2) ** 3 / 2; // ease in-out
+  flightRotation.setFromUnitVectors(flight.from, flight.to);
+  const dir = flight.from.clone().applyQuaternion(identity.clone().slerp(flightRotation, e));
+  const altitude = THREE.MathUtils.lerp(flight.fromAltitude, flight.toAltitude, e);
+  camera.position.copy(dir.multiplyScalar(SPHERE_RADIUS + altitude));
+  if (flight.t >= 1) {
+    flight = null;
+    controls.enabled = true;
+  }
+}
+
+// --- API del globo para el juego ----------------------------------------------
+const globe = {
+  countriesReady, // promesa con la lista de países
+  onEarthClick: null, // (info) => void; info = { lon, lat, localPoint, kmPerPixel, country }
+  menuBordersVisible: SHOW_BORDERS,
+  setBordersVisible,
+  setHighlights,
+  placePin,
+  removePin,
+  setPinLabel,
+  flyTo,
+  setAutoRotate(enabled) {
+    controls.autoRotate = enabled;
+    controls.autoRotateSpeed = 0.4;
+  },
+};
+
+createGame(globe);
 
 // --- Loop y resize ----------------------------------------------------------
 window.addEventListener('resize', () => {
@@ -561,6 +630,7 @@ renderer.setAnimationLoop((time) => {
   lastTime = time;
 
   updateZoom(dt);
+  updateFlight(dt);
   if (!zooming) targetAltitude = camera.position.length() - SPHERE_RADIUS; // p. ej. tras un pellizco
   const altitude = camera.position.length() - SPHERE_RADIUS;
   updateRotateSpeed(altitude);

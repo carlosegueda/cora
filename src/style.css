@@ -1,9 +1,22 @@
+:root {
+  --bg: #0b0f1a;
+  --panel: rgba(13, 18, 32, 0.88);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --text: #e6ebf5;
+  --muted: #8f9bb3;
+  --correct: #2ecc71;
+  --wrong: #ff4d4f;
+  --accent: #2ecc71;
+  --hint-bg: rgba(13, 18, 32, 0.9);
+}
+
 html,
 body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: #0b0f1a;
+  background: var(--bg);
+  color: var(--text);
   font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -12,27 +25,422 @@ canvas {
   touch-action: none;
 }
 
-#info {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #cfd6e6;
-  font-size: 13px;
-  line-height: 1.5;
-  pointer-events: none;
-  user-select: none;
+[hidden] {
+  display: none !important;
 }
 
-#coords {
+/* --- Pantallas (menú, dificultad, configuración, resultado) ---------------- */
+/* La capa ocupa toda la ventana pero deja pasar el ratón: el globo gira detrás.
+   Solo el panel recibe los clics. */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.panel {
+  box-sizing: border-box;
+  width: min(380px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 24px 24px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+h1,
+h2 {
+  margin: 0;
+  text-align: center;
+  color: #fff;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  margin: 0 0 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+button {
+  padding: 12px 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button.primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: #062312;
+}
+
+button.primary:hover {
+  background: #45d987;
+}
+
+button.secondary {
   margin-top: 6px;
-  color: #ff5a5f;
+  background: transparent;
+  color: var(--muted);
+}
+
+.small-link {
+  margin-top: 6px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Botones de dificultad */
+#difficulty-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button.difficulty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  border-left: 4px solid var(--level);
+}
+
+button.difficulty span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.difficulty.is-facil {
+  --level: #2ecc71;
+}
+.difficulty.is-normal {
+  --level: #3fa7ff;
+}
+.difficulty.is-dificil {
+  --level: #ffb020;
+}
+.difficulty.is-hardcore {
+  --level: #ff4d4f;
+}
+
+/* Configuración */
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--panel-border);
+  cursor: pointer;
+}
+
+.setting-column {
+  flex-direction: column;
+  align-items: stretch;
+  cursor: default;
+}
+
+/* Interruptor on/off */
+.switch {
+  appearance: none;
+  position: relative;
+  width: 44px;
+  height: 24px;
+  margin: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.switch:checked {
+  background: var(--accent);
+}
+
+.switch:checked::after {
+  transform: translateX(20px);
+}
+
+/* Selector de idioma */
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.segmented label {
+  flex: 1;
+  padding: 8px;
+  border-radius: 7px;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.segmented input {
+  display: none;
+}
+
+.segmented label:has(input:checked) {
+  background: var(--accent);
+  color: #062312;
+  font-weight: 600;
+}
+
+/* Resultado */
+.results-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.results-stats div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.results-stats span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.results-stats strong {
+  font-size: 28px;
   font-variant-numeric: tabular-nums;
 }
 
-/* Capa de etiquetas 3D (CSS2DRenderer): encima del canvas pero sin bloquear los clics */
+#results-list {
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+#results-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+#results-list img {
+  height: 16px;
+  border-radius: 2px;
+}
+
+#results-list .mark {
+  width: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+#results-list .is-correct .mark {
+  color: var(--correct);
+}
+
+#results-list .is-wrong .mark {
+  color: var(--wrong);
+}
+
+/* --- HUD durante la partida -------------------------------------------------- */
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-stats {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--hint-bg);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+#hud-time {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.hud-quit {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 14px;
+  font-size: 14px;
+  pointer-events: auto;
+}
+
+.hud-center {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+}
+
+#hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--hint-bg);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+#hint-flag {
+  height: 48px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Barra de tiempo del modo hardcore */
+#round-timer {
+  width: 220px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+#round-timer-bar {
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+#round-timer.is-low #round-timer-bar {
+  background: var(--wrong);
+}
+
+#feedback {
+  min-height: 24px;
+  padding: 2px 12px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+#feedback.is-correct {
+  color: var(--correct);
+}
+
+#feedback.is-wrong {
+  color: var(--wrong);
+}
+
+#feedback.is-hint {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* Cuenta atrás */
+#countdown {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: min(30vw, 200px);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  z-index: 20;
+}
+
+#countdown.pop {
+  animation: pop 0.9s ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  20% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+}
+
+/* --- Etiqueta del pin (CSS2DRenderer) ------------------------------------ */
+/* Capa encima del canvas que no bloquea los clics */
 .label-layer {
   position: fixed;
   inset: 0;
@@ -40,10 +448,13 @@ canvas {
 }
 
 .pin-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 10px;
+  border: 1px solid var(--correct);
   border-radius: 6px;
   background: rgba(11, 15, 26, 0.85);
-  border: 1px solid #2ecc71;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -51,28 +462,8 @@ canvas {
   pointer-events: none;
 }
 
-.pin-label.is-ocean {
-  border-color: #6aa9ff;
-  color: #cfe2ff;
-  font-weight: 400;
-}
-
-#credits {
-  position: fixed;
-  right: 12px;
-  bottom: 8px;
-  color: rgba(207, 214, 230, 0.5);
-  font-size: 11px;
-}
-
-#credits a {
-  color: inherit;
-}
-
-.pin-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.pin-label.is-wrong {
+  border-color: var(--wrong);
 }
 
 .pin-flag {
@@ -81,10 +472,29 @@ canvas {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-/* Enlace a la lista de países: el panel ignora el ratón, pero este enlace sí lo recibe */
-#info a {
-  display: inline-block;
-  margin-top: 8px;
-  color: #2ecc71;
-  pointer-events: auto;
+/* --- Créditos -------------------------------------------------------------- */
+#credits {
+  position: fixed;
+  right: 12px;
+  bottom: 8px;
+  max-width: calc(100vw - 24px);
+  color: rgba(207, 214, 230, 0.5);
+  font-size: 11px;
+  text-align: right;
+}
+
+#credits a {
+  color: inherit;
+}
+
+@media (max-width: 600px) {
+  #hint {
+    font-size: 17px;
+  }
+  #hint-flag {
+    height: 36px;
+  }
+  .hud-center {
+    top: 110px; /* debajo del marcador en pantallas estrechas */
+  }
 }

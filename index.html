@@ -3,16 +3,82 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cora · Esfera con pin</title>
+    <title>Cora · ¿Dónde está?</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="info">
-      Arrastra para rotar · Rueda / pellizco para zoom<br />
-      Clic en la esfera para colocar un pin · Clic fuera para quitarlo
-      <div id="coords"></div>
-      <a href="/paises.html" target="_blank">Ver lista de países</a>
+    <!-- Menú principal -->
+    <section id="screen-menu" class="screen" hidden>
+      <div class="panel">
+        <h1>¿Dónde está?</h1>
+        <p class="subtitle">Encuentra el país en el globo</p>
+        <button data-action="play" class="primary">Jugar</button>
+        <button data-action="settings">Configuración</button>
+        <a class="small-link" href="/paises.html" target="_blank">Lista de países</a>
+      </div>
+    </section>
+
+    <!-- Elegir dificultad (los botones los crea game.js a partir de DIFFICULTIES) -->
+    <section id="screen-difficulty" class="screen" hidden>
+      <div class="panel">
+        <h2>Elige la dificultad</h2>
+        <div id="difficulty-list"></div>
+        <button data-action="menu" class="secondary">Volver</button>
+      </div>
+    </section>
+
+    <!-- Configuración -->
+    <section id="screen-settings" class="screen" hidden>
+      <div class="panel">
+        <h2>Configuración</h2>
+        <label class="setting">
+          <span>Sonido</span>
+          <input type="checkbox" id="setting-sound" class="switch" />
+        </label>
+        <div class="setting setting-column">
+          <span>Idioma de las pistas</span>
+          <div id="setting-language" class="segmented"></div>
+        </div>
+        <button data-action="menu" class="secondary">Volver</button>
+      </div>
+    </section>
+
+    <!-- Resultado de la partida -->
+    <section id="screen-results" class="screen" hidden>
+      <div class="panel">
+        <h2>¡Partida terminada!</h2>
+        <p class="subtitle" id="results-difficulty"></p>
+        <div class="results-stats">
+          <div><span>Puntos</span><strong id="results-score"></strong></div>
+          <div><span>Tiempo</span><strong id="results-time"></strong></div>
+        </div>
+        <ol id="results-list"></ol>
+        <button data-action="replay" class="primary">Jugar otra vez</button>
+        <button data-action="menu" class="secondary">Volver al menú</button>
+      </div>
+    </section>
+
+    <!-- Durante la partida -->
+    <div id="hud" hidden>
+      <div class="hud-stats">
+        <span id="hud-round"></span>
+        <span id="hud-score"></span>
+        <span id="hud-time"></span>
+      </div>
+      <button data-action="menu" class="hud-quit">Salir</button>
+      <div class="hud-center">
+        <div id="hint" hidden>
+          <img id="hint-flag" alt="Bandera del país que hay que encontrar" />
+          <span id="hint-name"></span>
+        </div>
+        <div id="round-timer" hidden><div id="round-timer-bar"></div></div>
+        <div id="feedback"></div>
+      </div>
     </div>
+
+    <!-- Cuenta atrás 3, 2, 1 -->
+    <div id="countdown" hidden></div>
+
     <div id="credits">
       Imágenes: <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2024</a> by EOX IT Services GmbH
       (contiene datos modificados de Copernicus Sentinel 2024, CC BY-NC-SA 4.0) ·

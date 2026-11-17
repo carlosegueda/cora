@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { lonLatToVector3 } from './geo.js';
+import { lonLatToVector3, vector3ToLonLat } from './geo.js';
 
 // Datos generados con scripts/prepare-countries.mjs:
 // [{ name_es, name_en, name_pt, iso, iso3, type, sovereign, continent, flag,
@@ -103,9 +103,11 @@ export function createCountryOutline(country, radius, material) {
 // Tierra (textura global y teselas) mezcla ese canvas con el terreno. Así el relleno queda
 // pegado al suelo a cualquier zoom, sin geometría extra que pueda flotar o atravesarse.
 //
+// `name` es el prefijo de sus uniforms en el shader (puede haber varias máscaras a la vez,
+// p. ej. una verde para el acierto y otra roja para el fallo).
 // Devuelve `uniforms` (objetos compartidos: el shader de la Tierra los enlaza tal cual,
 // así que basta con cambiar su `value`) y `draw(country)` para cambiar de país.
-export function createCountryMask({ color, opacity, maxSize = 2048 }) {
+export function createCountryMask({ name, color, opacity, maxSize = 2048 }) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
@@ -113,15 +115,15 @@ export function createCountryMask({ color, opacity, maxSize = 2048 }) {
   empty.needsUpdate = true;
 
   const uniforms = {
-    countryMask: { value: empty },
-    countryMaskBounds: { value: new THREE.Vector4(0, 1, 0, 1) }, // lon0, lon1, latS, latN (grados)
-    countryMaskOpacity: { value: 0 },
-    countryMaskColor: { value: new THREE.Color(color) },
+    [name]: { value: empty },
+    [`${name}Bounds`]: { value: new THREE.Vector4(0, 1, 0, 1) }, // lon0, lon1, latS, latN (grados)
+    [`${name}Opacity`]: { value: 0 },
+    [`${name}Color`]: { value: new THREE.Color(color) },
   };
 
   function draw(country) {
     if (!country) {
-      uniforms.countryMaskOpacity.value = 0;
+      uniforms[`${name}Opacity`].value = 0;
       return;
     }
 
@@ -162,16 +164,68 @@ export function createCountryMask({ color, opacity, maxSize = 2048 }) {
     ctx.stroke();
 
     // El canvas cambia de tamaño en cada país, así que la textura se crea de nuevo
-    if (uniforms.countryMask.value !== empty) uniforms.countryMask.value.dispose();
+    if (uniforms[name].value !== empty) uniforms[name].value.dispose();
     const texture = new THREE.CanvasTexture(canvas);
     // Sin mipmaps: el shader calcula la UV con atan(), que salta en ±180°, y con mipmaps
     // ese salto dibujaría una línea en países que cruzan el antimeridiano (Rusia, Fiyi)
     texture.generateMipmaps = false;
     texture.minFilter = THREE.LinearFilter;
-    uniforms.countryMask.value = texture;
-    uniforms.countryMaskBounds.value.set(lon0, lon1, latS, latN);
-    uniforms.countryMaskOpacity.value = opacity;
+    uniforms[name].value = texture;
+    uniforms[`${name}Bounds`].value.set(lon0, lon1, latS, latN);
+    uniforms[`${name}Opacity`].value = opacity;
   }
 
-  return { uniforms, draw };
+  return { name, uniforms, draw };
+}
+
+// --- Utilidades para el juego ----------------------------------------------------
+const EARTH_RADIUS_KM = 6371;
+
+// Distancia en km sobre la superficie entre dos puntos (fórmula del haversine)
+export function distanceKm(lon1, lat1, lon2, lat2) {
+  const toRad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * toRad;
+  const dLon = (lon2 - lon1) * toRad;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLon / 2) ** 2;
+  return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+// Distancia en km desde un punto al vértice más cercano del contorno del país
+export function distanceToCountryKm(country, lon, lat) {
+  let min = Infinity;
+  for (const polygon of country.polygons) {
+    for (const [vLon, vLat] of polygon[0]) min = Math.min(min, distanceKm(lon, lat, vLon, vLat));
+  }
+  return min;
+}
+
+// Tamaño aproximado del país en km (diagonal de su recuadro lon/lat)
+export function countrySizeKm(country) {
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+  for (const b of country.bboxes) {
+    minLon = Math.min(minLon, b.minLon);
+    maxLon = Math.max(maxLon, b.maxLon);
+    minLat = Math.min(minLat, b.minLat);
+    maxLat = Math.max(maxLat, b.maxLat);
+  }
+  return distanceKm(minLon, minLat, maxLon, maxLat);
+}
+
+// Punto representativo del país (para llevar la cámara hasta él): el centro de su polígono
+// más grande, calculado en 3D para que funcione también cerca del antimeridiano
+export function countryCenter(country) {
+  let best = null;
+  let bestArea = -1;
+  country.polygons.forEach((polygon, i) => {
+    const b = country.bboxes[i];
+    const area = (b.maxLon - b.minLon) * (b.maxLat - b.minLat);
+    if (area > bestArea) {
+      bestArea = area;
+      best = polygon[0];
+    }
+  });
+  const sum = new THREE.Vector3();
+  const v = new THREE.Vector3();
+  for (const [lon, lat] of best) sum.add(lonLatToVector3(lon, lat, 1, v));
+  return vector3ToLonLat(sum);
 }
