@@ -238,6 +238,108 @@ button.difficulty span {
   font-weight: 600;
 }
 
+/* Modo prueba */
+.panel-wide {
+  width: min(560px, 100%);
+}
+
+#practice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#practice-form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#practice-form legend {
+  margin-bottom: 6px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#practice-form .setting {
+  padding: 6px 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.chip input {
+  display: none;
+}
+
+.chip small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chip:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(46, 204, 113, 0.18);
+}
+
+.quick-select {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: underline;
+}
+
+.link-button:hover {
+  background: none;
+  color: var(--text);
+}
+
+#practice-summary {
+  margin: 4px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+#practice-summary.is-problem {
+  color: var(--wrong);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Resultado */
 .results-stats {
   display: grid;

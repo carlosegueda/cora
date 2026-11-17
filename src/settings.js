@@ -6,6 +6,19 @@ const STORAGE_KEY = 'cora-settings';
 export const DEFAULT_SETTINGS = {
   sound: true,
   language: 'es', // idioma de las pistas: 'es' | 'en' | 'pt'
+  practice: null, // configuración del modo prueba (se completa con DEFAULT_PRACTICE)
+};
+
+// Configuración inicial del modo prueba (luego se recuerda la última usada)
+export const DEFAULT_PRACTICE = {
+  continents: ['Europe'],
+  types: ['estado'],
+  showName: true,
+  showFlag: true,
+  borders: true,
+  language: 'es',
+  timeLimit: null, // segundos por país, o null = sin límite
+  rounds: 10, // 5 | 10 | 20 | 'all'
 };
 
 export const LANGUAGES = {

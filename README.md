@@ -28,7 +28,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 
 ### Cómo se juega
 
-1. **Menú principal**: *Jugar* o *Configuración*. Detrás, el globo gira solo.
+1. **Menú principal**: *Jugar*, *Modo prueba* o *Configuración*. Detrás, el globo gira solo.
 2. **Jugar** → se elige la dificultad.
 3. **Cuenta atrás** 3, 2, 1 y “¡Ya!”: en ese momento aparece la primera pista y el cronómetro empieza en 0.
 4. **10 países al azar** (sin repetir). Para cada uno se hace clic en el globo:
@@ -53,6 +53,26 @@ El **tiempo** cuenta solo mientras se está buscando el país: se para durante l
 - En difícil y hardcore entran también territorios dependientes e indeterminados. Quedan fuera los 3 que no tienen bandera (Somalilandia, Chipre del Norte, Glaciar de Siachen), porque su pista sería imposible.
 - Con pista **solo de bandera**, vale cualquier país que tenga **esa misma bandera** (p. ej. los territorios australianos usan la de Australia).
 - **Países diminutos** (Vaticano, Mónaco, islas del Pacífico…): si el país ocupa en pantalla menos de 25 px, vale un clic a menos de 15 px de él, porque si no serían casi imposibles de acertar sin mucho zoom.
+
+### Modo prueba
+
+Para practicar con reglas a medida. Desde el menú principal, *Modo prueba* abre una pantalla con:
+
+| Opción | Valores |
+| --- | --- |
+| Continentes | Varios a la vez: África, Asia, Europa, América del Norte (incluye Centroamérica y el Caribe), América del Sur, Oceanía, Antártida e Islas oceánicas (Maldivas, Mauricio, Seychelles…). Con atajos *Todos* / *Ninguno*. |
+| Tipos de país | Estados, territorios dependientes, estatus indeterminado (varios a la vez). |
+| Pista | Nombre del país y/o bandera (al menos una). |
+| Mapa | Mostrar fronteras o no. |
+| Idioma de los nombres | Español, English, Português (independiente del idioma de *Configuración*). |
+| Tiempo por país | Sin límite, 5, 10, 20 o 30 s. Si se acaba, cuenta como fallo. |
+| Países por partida | 5, 10, 20 o todos los de la selección. |
+
+- Junto a cada continente y tipo se ve cuántos países aporta con el resto de filtros, y abajo el total disponible (“12 países disponibles · partida de 5”).
+- Si la combinación no deja jugar (sin pista, sin continentes, sin tipos o ningún país que cumpla las reglas), el botón *Empezar* se desactiva y se explica por qué.
+- Con pista solo de bandera se excluyen los países sin bandera.
+- La partida funciona igual que las normales (cuenta atrás, cronómetro, resultado); *Jugar otra vez* repite las mismas reglas con países nuevos.
+- La última configuración se recuerda entre visitas.
 
 ### Configuración
 
@@ -144,7 +164,7 @@ Limitación: a esta escala los contornos están simplificados (precisión de ~1 
 
 ### `index.html` y `src/style.css`
 
-- **Pantallas** (`.screen`): `#screen-menu`, `#screen-difficulty`, `#screen-settings` y `#screen-results`. Cada una es un panel centrado; la capa que lo contiene deja pasar el ratón, así que el globo se puede seguir girando detrás. Los botones de dificultad y de idioma los crea `game.js`.
+- **Pantallas** (`.screen`): `#screen-menu`, `#screen-difficulty`, `#screen-practice`, `#screen-settings` y `#screen-results`. El formulario del modo prueba (`#practice-form`) lo crea `game.js`. Cada una es un panel centrado; la capa que lo contiene deja pasar el ratón, así que el globo se puede seguir girando detrás. Los botones de dificultad y de idioma los crea `game.js`.
 - **HUD** (`#hud`): marcador arriba a la izquierda (país X/10, puntos, cronómetro), botón *Salir* arriba a la derecha, y en el centro la pista (`#hint`: bandera y/o nombre), la barra de tiempo de hardcore (`#round-timer`) y el aviso de acierto/fallo (`#feedback`).
 - `#countdown`: números grandes de la cuenta atrás, con una animación de “pop”.
 - `.pin-label`: etiqueta sobre el pin con bandera y nombre; borde verde (`.is-correct`) o rojo (`.is-wrong`).
@@ -305,14 +325,20 @@ Natural Earth corta los países en el antimeridiano (±180°), así que Rusia o 
 
 `createGame(globe)` monta los menús y el juego. Estados: `menu` → `countdown` → `playing` ⇄ `feedback` → `results`.
 
+Una partida siempre se juega con un **objeto de reglas** (`rules`): `{ label, pool, showName, showFlag, borders, timeLimit, rounds, language }`. Las dificultades fijas (`DIFFICULTIES`) y el modo prueba (`rulesFromPractice`) producen ese mismo objeto, así que el resto del juego no distingue entre ellos.
+
 | Constante / función | Qué hace |
 | --- | --- |
 | `ROUNDS` | Países por partida (10). |
 | `COUNTDOWN_FROM` | Desde dónde cuenta la cuenta atrás (3). |
 | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` | Pausa tras acertar (1200 ms) y tras fallar (2600 ms) antes del siguiente país. |
 | `SMALL_COUNTRY_PX` / `CLICK_TOLERANCE_PX` | Ayuda para países diminutos (25 px / 15 px). |
-| `DIFFICULTIES` | Cada dificultad: `label`, `description`, `pool` (qué países entran), `showName`, `showFlag`, `borders` y `timeLimit` (segundos por país o `null`). Para añadir o cambiar una dificultad basta con tocar este objeto: los botones se generan a partir de él. |
-| `startGame(key)` | Elige 10 países al azar del `pool`, reinicia marcador y cronómetro, configura el globo (fronteras, sin giro automático) y lanza la cuenta atrás. |
+| `DIFFICULTIES` | Cada dificultad: `label`, `description`, `pool` (qué países entran), `showName`, `showFlag`, `borders`, `timeLimit` (segundos por país o `null`) y `rounds`. Para añadir o cambiar una dificultad basta con tocar este objeto: los botones se generan a partir de él. |
+| `CONTINENTS` / `TYPES` | Continentes y tipos de país del modo prueba, con su nombre en pantalla. |
+| `TIME_OPTIONS` / `ROUND_OPTIONS` | Opciones de tiempo por país y de países por partida del modo prueba. |
+| `rulesFromPractice(practice)` | Convierte la configuración del modo prueba en reglas de partida. |
+| `setupPractice()` | Construye el formulario del modo prueba, guarda cada cambio y actualiza los recuentos y el botón *Empezar*. |
+| `startGame(rules)` | Elige al azar `rules.rounds` países del `pool` (o todos, si hay menos), reinicia marcador y cronómetro, configura el globo (fronteras, sin giro automático) y lanza la cuenta atrás. |
 | `startRound()` | Muestra la pista del país actual y limpia el resaltado. |
 | `isCorrect(info)` | Acierto si se hizo clic en el país; con pista solo de bandera, también en uno con la misma bandera; y en países diminutos, también cerca de ellos. |
 | `answer(correct, clicked)` | Suma el punto, pinta verde/rojo, pone la etiqueta, suena y, si falló, lleva la cámara al país correcto. |
@@ -323,7 +349,7 @@ Todos los temporizadores (`later`) se cancelan al salir al menú, así que salir
 
 ### `src/settings.js` y `src/sound.js`
 
-- `settings.js`: `loadSettings()` / `saveSettings()` con `localStorage` (clave `cora-settings`), con valores por defecto si el navegador no deja guardar. `LANGUAGES` define los idiomas de las pistas.
+- `settings.js`: `loadSettings()` / `saveSettings()` con `localStorage` (clave `cora-settings`), con valores por defecto si el navegador no deja guardar. `LANGUAGES` define los idiomas de las pistas y `DEFAULT_PRACTICE` la configuración inicial del modo prueba (Europa, estados, nombre + bandera, con fronteras, sin límite de tiempo, 10 países).
 - `sound.js`: `createSound(isEnabled)` devuelve `play(nombre)` con los efectos `tick`, `go`, `correct`, `wrong`, `timeout`, `finish` y `click`, hechos con osciladores de Web Audio. El contexto de audio se crea con el primer sonido (los navegadores solo dejan sonar tras una interacción).
 
 ### `paises.html`, `src/paises.js` y `src/paises.css`
@@ -356,6 +382,7 @@ Página independiente que carga `countries-list.json`, muestra el recuento por t
 | Países por partida | `ROUNDS` en `game.js` |
 | Tiempo por país en hardcore | `timeLimit` de `hardcore` en `DIFFICULTIES` |
 | Qué países entran en cada dificultad | `pool` en `DIFFICULTIES` |
+| Opciones del modo prueba | `TIME_OPTIONS`, `ROUND_OPTIONS`, `CONTINENTS` en `game.js`; valores iniciales en `DEFAULT_PRACTICE` (`settings.js`) |
 | Duración de las pausas tras responder | `FEEDBACK_CORRECT_MS` / `FEEDBACK_WRONG_MS` |
 | Más o menos ayuda con países diminutos | `SMALL_COUNTRY_PX` / `CLICK_TOLERANCE_PX` |
 | Mostrar u ocultar las fronteras en el menú | `SHOW_BORDERS` |

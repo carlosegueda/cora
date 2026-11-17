@@ -13,6 +13,7 @@
         <h1>¿Dónde está?</h1>
         <p class="subtitle">Encuentra el país en el globo</p>
         <button data-action="play" class="primary">Jugar</button>
+        <button data-action="practice">Modo prueba</button>
         <button data-action="settings">Configuración</button>
         <a class="small-link" href="/paises.html" target="_blank">Lista de países</a>
       </div>
@@ -23,6 +24,18 @@
       <div class="panel">
         <h2>Elige la dificultad</h2>
         <div id="difficulty-list"></div>
+        <button data-action="menu" class="secondary">Volver</button>
+      </div>
+    </section>
+
+    <!-- Modo prueba: reglas a medida (el formulario lo crea game.js) -->
+    <section id="screen-practice" class="screen" hidden>
+      <div class="panel panel-wide">
+        <h2>Modo prueba</h2>
+        <p class="subtitle">Elige qué practicar y con qué reglas</p>
+        <form id="practice-form" onsubmit="return false"></form>
+        <p id="practice-summary"></p>
+        <button id="practice-start" data-action="start-practice" class="primary">Empezar</button>
         <button data-action="menu" class="secondary">Volver</button>
       </div>
     </section>
