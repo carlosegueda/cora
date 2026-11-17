@@ -258,7 +258,6 @@ export function createGame(globe) {
     practice: $('screen-practice'),
     leaderboard: $('screen-leaderboard'),
     dailyInfo: $('screen-daily-info'),
-    dailyBoard: $('screen-daily-board'),
     results: $('screen-results'),
     arcade: $('screen-arcade'),
     minigames: $('screen-minigames'),
@@ -366,7 +365,6 @@ export function createGame(globe) {
     boardButton.classList.toggle('is-active', name === 'leaderboard');
     if (screen === 'minigamePlay' && name !== 'minigamePlay') minigames?.stop();
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
-    if (screen === 'dailyBoard' && name !== 'dailyBoard') stopDailyBoard();
     if (name === 'menu') watchDailyTop();
     screen = name;
     for (const [key, node] of Object.entries(screens)) node.hidden = key !== name;
@@ -820,8 +818,10 @@ export function createGame(globe) {
   });
 
   // --- Clasificación online (Convex) ---
-  const BOARD_MODES = { clasico: 'menu.marathon', supervivencia: 'menu.survival' }; // claves de traducción
-  const board = { mode: 'clasico', difficulty: 'facil', stop: null };
+  // Pestañas de la clasificación (claves de traducción)
+  const BOARD_MODES = { daily: 'board.daily', clasico: 'menu.marathon', supervivencia: 'menu.survival' };
+  const BOARD_LIMIT = { daily: 100, clasico: 20, supervivencia: 20 };
+  const board = { mode: 'daily', difficulty: 'facil', stop: null };
   const boardList = $('board-list');
   const boardStatus = $('board-status');
 
@@ -855,43 +855,103 @@ export function createGame(globe) {
     board.stop = null;
   }
 
+  // Lo que se muestra de cada fila según la tabla: [columna principal, columna secundaria]
+  const boardColumns = () =>
+    ({
+      daily: ['board.colPoints', 'board.colTime'],
+      clasico: ['board.colTime', 'board.colMisses'],
+      supervivencia: ['board.colHits', 'board.colTime'],
+    })[board.mode];
+  const boardValues = (row) =>
+    ({
+      daily: () => [`${row.points ?? 0}`, formatTime(row.timeMs)],
+      clasico: () => [formatTime(row.timeMs), String(row.fails ?? 0)],
+      supervivencia: () => [`${row.score}/${row.total}`, formatTime(row.timeMs)],
+    })[board.mode]();
+
+  // Podio con los tres primeros (en pantalla: 2.º, 1.º, 3.º) y tabla con el resto
+  function renderBoard(rows) {
+    const me = getPlayerName();
+    const podium = $('board-podium');
+    podium.replaceChildren(
+      ...rows.slice(0, 3).map((row, i) => {
+        const [main, value] = boardValues(row);
+        // En el podio, los fallos de Maratón con su palabra ("4 fallos"), que aquí no hay cabecera
+        const extra = board.mode === 'clasico' ? t('board.fails', { fails: row.fails ?? 0 }) : value;
+        const card = el('div', `podium-card place-${i + 1}${row.name === me ? ' is-me' : ''}`);
+        const flag = countryFlag(row.country);
+        flag.classList.add('podium-flag');
+        card.append(
+          el('span', 'podium-medal', String(i + 1)),
+          flag,
+          el('span', 'podium-name', row.name),
+          el('span', 'podium-main', main),
+          el('span', 'podium-extra', extra)
+        );
+        if (row.name === me) card.append(el('span', 'you-tag', t('board.you')));
+        return card;
+      })
+    );
+    podium.hidden = !rows.length;
+    const rest = rows.slice(3);
+    $('board-table').hidden = !rest.length;
+    boardList.replaceChildren(
+      ...rest.map((row, i) => {
+        const [main, extra] = boardValues(row);
+        const li = el('li', row.name === me ? 'is-me' : '');
+        const player = el('span', 'board-player');
+        player.append(countryFlag(row.country), el('span', 'board-name', row.name));
+        if (row.name === me) player.append(el('span', 'you-tag', t('board.you')));
+        li.append(el('span', 'board-rank', String(i + 4)), player, el('span', 'board-main', main), el('span', 'board-extra', extra));
+        return li;
+      })
+    );
+  }
+
+  // Solo en desarrollo: para probar la tabla con filas de ejemplo desde la consola
+  if (import.meta.env.DEV) window.__renderBoard = renderBoard;
+
   function loadBoard() {
     stopBoard();
-    boardList.replaceChildren();
+    const daily = board.mode === 'daily';
+    $('board-difficulty').hidden = daily;
+    const [a, b] = boardColumns();
+    $('board-col-a').textContent = t(a);
+    $('board-col-b').textContent = t(b);
+    renderBoard([]);
+    const sub = $('board-sub');
+    sub.textContent = daily
+      ? new Date(`${utcDay()}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
     if (!leaderboardAvailable) {
       boardStatus.textContent = t('board.unavailable');
       return;
     }
     boardStatus.textContent = t('board.loading');
-    const me = getPlayerName();
-    board.stop = watchLeaderboard(board.mode, board.difficulty, (rows) => {
+    const onRows = (rows) => {
       if (rows === null) {
         boardStatus.textContent = t('board.loadError');
         return;
       }
-      boardStatus.textContent = rows.length ? '' : t('board.empty');
-      boardList.replaceChildren(
-        ...rows.map((row) => {
-          const li = el('li', row.name === me ? 'is-me' : '');
-          // Jugar: tiempo en completarlos todos y fallos; Supervivencia: aciertos y tiempo
-          const fails = row.fails ?? 0;
-          li.append(
-            countryFlag(row.country),
-            el('span', 'board-name', row.name),
-            board.mode === 'clasico'
-              ? el('span', 'board-score', formatTime(row.timeMs))
-              : el('span', 'board-score', `${row.score}/${row.total}`),
-            board.mode === 'clasico'
-              ? el('span', 'board-time', t('board.fails', { fails }))
-              : el('span', 'board-time', formatTime(row.timeMs))
-          );
-          return li;
-        })
-      );
-    });
+      boardStatus.textContent = rows.length ? '' : daily ? t('daily.nobody') : t('board.empty');
+      if (rows.length) {
+        sub.textContent = daily
+          ? `${new Date(`${utcDay()}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })} · ${t('board.players', { n: rows.length })}`
+          : t('board.top', { n: BOARD_LIMIT[board.mode] });
+      }
+      renderBoard(rows);
+    };
+    board.stop = daily
+      ? watchDaily(utcDay(), BOARD_LIMIT.daily, onRows)
+      : watchLeaderboard(board.mode, board.difficulty, onRows);
   }
 
-  function openBoard() {
+  // `mode` (opcional) abre directamente una pestaña: 'daily' | 'clasico' | 'supervivencia'
+  function openBoard(mode) {
+    if (mode) {
+      board.mode = mode;
+      setupBoard();
+    }
     showScreen('leaderboard');
     loadBoard();
   }
@@ -1008,31 +1068,6 @@ export function createGame(globe) {
     });
   }
 
-  // "Ver todo": tabla completa del día con bandera, nombre, aciertos y tiempo
-  const dailyBoardList = $('daily-board-list');
-  const dailyBoardStatus = $('daily-board-status');
-  let dailyBoardStop = null;
-  function stopDailyBoard() {
-    dailyBoardStop?.();
-    dailyBoardStop = null;
-  }
-  function openDailyBoard() {
-    const day = utcDay();
-    $('daily-board-date').textContent = new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-    showScreen('dailyBoard');
-    stopDailyBoard();
-    dailyBoardList.replaceChildren();
-    dailyBoardStatus.textContent = t('daily.loading');
-    dailyBoardStop = watchDaily(day, 500, (rows) => {
-      dailyBoardList.replaceChildren(...(rows ?? []).map(dailyRow));
-      dailyBoardStatus.textContent = rows === null ? t('daily.loadError') : rows.length ? '' : t('daily.nobody');
-    });
-  }
-
   // --- Configuración ---
   const soundToggle = $('setting-sound');
   soundToggle.checked = settings.sound;
@@ -1091,7 +1126,7 @@ export function createGame(globe) {
     else if (action === 'pause') pause();
     else if (action === 'resume') resume();
     else if (action === 'replay' && !isDaily()) startGame(rules);
-    else if (action === 'daily-board') openDailyBoard();
+    else if (action === 'daily-board') openBoard('daily');
   });
 
   // --- Teclado ---

@@ -23,7 +23,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 | Página | URL |
 | --- | --- |
 | Globo | http://localhost:5173/ |
-| Lista de países | http://localhost:5173/paises.html (también enlazada desde el menú del juego) |
+| Lista de países | http://localhost:5173/paises.html (enlazada desde Configuración) |
 
 ## El juego
 
@@ -85,7 +85,11 @@ Un reto al día igual para todo el mundo:
   Ejemplos: Francia acertada en 3 s → 983; a 800 km en 3 s → 457; Rusia a 800 km → 133; Vanuatu a 800 km → 501. Los valores están en las constantes `DAILY_*` de `src/game.js` (`dailyPoints`).
 - **Clasificación del día**: primero quien más puntos tenga y, a igualdad, el más rápido. Al terminar se ve el puesto en la tabla completa (“Puesto 12 de 340 hoy”).
 - **Resultado**: los puntos en grande, aciertos y tiempo, y la lista de los 10 países con los puntos de cada uno. **Al pulsar un país de la lista** se pinta de verde en el globo y la cámara va hasta él, acercándose según su tamaño (también funciona con el teclado: `Tab` y `Enter`).
-- **Menú principal**: el top 5 del día, en directo, con *Ver todo*, que abre la tabla completa con el puesto, la **bandera del país del jugador**, el nombre, los aciertos y el tiempo.
+- **Menú principal**: el top 5 del día, en directo, con *Ver todo*, que abre la pestaña *Diario* de la clasificación.
+
+### Clasificación
+
+Se abre con el **trofeo** (abajo a la derecha). Una sola pantalla con tres pestañas: **Diario** (la tabla de hoy, hasta 100 jugadores, con la fecha y cuántos han jugado), **Maratón** y **Supervivencia** (top 20 por dificultad). Los tres primeros salen en un **podio** (1.º en el centro, con medallas oro, plata y bronce); del 4.º en adelante, una tabla con cabeceras: puesto, jugador (con la bandera de su país), y dos columnas según la tabla (Diario: puntos y tiempo; Maratón: tiempo y fallos; Supervivencia: aciertos y tiempo). Tu fila se resalta con la etiqueta *Tú*. Se actualiza sola en directo. En desarrollo, `window.__renderBoard([...filas])` pinta filas de ejemplo para probar el diseño.
 - La **bandera del país del jugador** sale de su IP: en Vercel la da la función `api/country.js` (ver más abajo). En local, sin esa función, se usa la región del idioma del navegador (es-MX → México), si la tiene.
 
 El “un intento al día” va ligado al jugador (el token guardado en su navegador): quien borre los datos del navegador o use otro navegador puede volver a jugar como jugador nuevo. Para impedirlo del todo harían falta cuentas de usuario.
@@ -226,7 +230,7 @@ La clasificación la hace `scripts/prepare-countries.mjs` (función `classify`):
 
 ### Dónde ver la lista
 
-- **En el navegador**: http://localhost:5173/paises.html, con bandera, nombre en español, inglés y portugués, código ISO, tipo y continente, y un buscador (busca en los tres idiomas, el código y el continente, sin importar tildes).
+- **En el navegador**: http://localhost:5173/paises.html, con bandera, nombre en español, inglés y portugués, código ISO, tipo y continente, y un buscador (busca en los tres idiomas, el código y el continente, sin importar tildes). Las filas de `FLAGGED` (`src/paises.js`) salen en rojo sangre y su tipo se sustituye: Israel, *Estado ilegítimo* en lugar de *Estado* (`listType.illegitimate` en `i18n.js`). Es solo en esta lista; en el juego Israel es un estado más.
 - **En un archivo**: `public/data/countries-list.json`. Cada país tiene esta forma:
 
 ```json
@@ -533,7 +537,7 @@ El backend de la clasificación es [Convex](https://convex.dev): base de datos y
 - **`convex/daily.ts`** (reto diario de *Jugar*):
   - `start({ token, name, country })`: el servidor decide el día (UTC). Si el jugador ya tiene intento hoy, devuelve “ya jugado” con su resultado y puesto; si no, crea el intento y devuelve los 10 países del día (`countriesForDay`).
   - `finish({ token, attemptId, score, timeMs })`: cierra el intento y devuelve el puesto y el total del día.
-  - `top({ day, limit })`: la tabla de un día (5 para el menú, hasta 500 para *Ver todo*). El día lo pasa el cliente porque las consultas de Convex no deben leer el reloj.
+  - `top({ day, limit })`: la tabla de un día (5 para el menú, hasta 100 en la clasificación). El día lo pasa el cliente porque las consultas de Convex no deben leer el reloj.
 - **`convex/players.ts`**: utilidades compartidas (validar nombre y token, alta del jugador y cambio de nombre).
 - **`convex/dailyCountries.ts`**: los 198 estados (ISO3), generado por `scripts/prepare-countries.mjs`.
 - **`src/leaderboard.js`**: el cliente (`ConvexClient`) con `VITE_CONVEX_URL`; guarda el token y el nombre en `localStorage`; expone `submitScore`, `watchLeaderboard`, `startDaily`, `finishDaily`, `watchDaily`, `utcDay` y `getPlayerCountry`. Si no hay URL, todo devuelve “no disponible” sin romper el juego.

@@ -97,3 +97,14 @@ tr:hover td {
     display: none;
   }
 }
+
+/* Filas marcadas (ver FLAGGED en paises.js): en rojo sangre */
+tr.is-flagged td {
+  background: rgba(138, 3, 3, 0.35);
+  color: #c1121f;
+  font-weight: 600;
+}
+
+tr.is-flagged:hover td {
+  background: rgba(138, 3, 3, 0.5);
+}

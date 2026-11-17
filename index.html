@@ -35,7 +35,6 @@
             <span class="menu-label" data-i18n="menu.minigames">Minigames</span>
           </button>
         </nav>
-        <a class="foot-link" href="/paises.html" target="_blank" data-i18n="menu.countryList">Country list ↗</a>
       </div>
 
       <!-- Top 5 del Diario de hoy (se actualiza solo) -->
@@ -59,16 +58,6 @@
       </div>
     </section>
 
-    <!-- Jugar (reto diario): tabla completa del día -->
-    <section id="screen-daily-board" class="screen" hidden>
-      <div class="sheet">
-        <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
-        <h2 class="title" data-i18n="daily.today">Today</h2>
-        <p id="daily-board-date" class="field-label"></p>
-        <ol id="daily-board-list" class="daily-list daily-list-full"></ol>
-        <p id="daily-board-status" class="daily-empty"></p>
-      </div>
-    </section>
 
     <!-- Nombre del jugador: se pide al pulsar Jugar o Supervivencia y se usa en la clasificación -->
     <section id="screen-name" class="screen" hidden>
@@ -105,14 +94,26 @@
       </div>
     </section>
 
-    <!-- Clasificación online (Convex) -->
+    <!-- Clasificación online (Convex): Diario, Maratón y Supervivencia (lo rellena game.js) -->
     <section id="screen-leaderboard" class="screen" hidden>
-      <div class="sheet">
+      <div class="sheet sheet-wide">
         <button data-action="menu" class="back" data-i18n="menu.back">← Menu</button>
-        <h2 class="title" data-i18n="board.title">Leaderboard</h2>
-        <div id="board-mode" class="tabs"></div>
+        <div class="board-head">
+          <h2 class="title" data-i18n="board.title">Leaderboard</h2>
+          <span id="board-sub" class="board-sub"></span>
+        </div>
+        <div id="board-mode" class="seg"></div>
         <div id="board-difficulty" class="tabs"></div>
-        <ol id="board-list"></ol>
+        <div id="board-podium" class="podium"></div>
+        <div id="board-table" class="board-table">
+          <div class="board-cols">
+            <span>#</span>
+            <span data-i18n="board.colPlayer">Player</span>
+            <span id="board-col-a"></span>
+            <span id="board-col-b"></span>
+          </div>
+          <ol id="board-list"></ol>
+        </div>
         <p id="board-status"></p>
       </div>
     </section>
@@ -227,6 +228,9 @@
         <div class="field">
           <span class="field-label" data-i18n="settings.language">Language</span>
           <div id="setting-language" class="tabs"></div>
+        </div>
+        <div class="field">
+          <a class="foot-link" href="/paises.html" target="_blank" data-i18n="menu.countryList">Country list ↗</a>
         </div>
         <div class="field">
           <span class="field-label" data-i18n="settings.credits">Credits</span>

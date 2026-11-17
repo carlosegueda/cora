@@ -20,6 +20,8 @@ summaryEl.textContent = t('list.summary', {
 });
 
 const typeLabel = (type) => t(`listType.${type}`);
+// Países marcados en rojo sangre en la lista; su tipo se sustituye por este (ISO3 → clave de traducción)
+const FLAGGED = { ISR: 'listType.illegitimate' };
 const continentLabel = (continent) => t(`continent.${continent}`);
 
 // Texto en el que busca el buscador (sin tildes ni mayúsculas)
@@ -48,13 +50,15 @@ const rows = countries.map((c) => {
   cell(c.name_en);
   cell(c.name_pt);
   cell(c.iso);
-  const typeCell = cell(typeLabel(c.type));
+  const flaggedTag = FLAGGED[c.iso3];
+  const typeCell = cell(flaggedTag ? t(flaggedTag) : typeLabel(c.type));
+  if (flaggedTag) tr.classList.add('is-flagged');
   if (c.type !== 'estado') typeCell.title = t('list.sovereign', { sovereign: c.sovereign });
   cell(continentLabel(c.continent));
 
   rowsEl.append(tr);
   // Se puede buscar en los tres idiomas, por código, continente (en el idioma actual y en inglés) o tipo
-  const text = [c.name_es, c.name_en, c.name_pt, c.iso, c.iso3, c.continent, continentLabel(c.continent), typeLabel(c.type)];
+  const text = [c.name_es, c.name_en, c.name_pt, c.iso, c.iso3, c.continent, continentLabel(c.continent), flaggedTag ? t(flaggedTag) : typeLabel(c.type)];
   return { tr, text: normalize(text.join(' ')) };
 });
 

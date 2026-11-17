@@ -677,44 +677,252 @@ button:disabled {
 }
 
 /* --- Clasificación ---------------------------------------------------------------- */
-#board-mode {
-  margin-bottom: 6px;
-}
-
-#board-mode label {
-  font-size: 16px;
-}
-
-#board-list {
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: board;
-  border-top: 1px solid var(--faint);
-}
-
-#board-list li {
-  display: grid;
-  grid-template-columns: 30px 22px minmax(0, 1fr) auto 70px;
+.board-head {
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--faint);
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
-  counter-increment: board;
+  justify-content: space-between;
+  gap: 4px 16px;
 }
 
-#board-list li::before {
-  content: counter(board);
+.board-sub {
   color: var(--muted);
   font-size: 13px;
 }
 
-/* Los tres primeros, con el número en ámbar */
-#board-list li:nth-child(-n + 3)::before {
-  color: var(--sun);
+/* Pestañas principales (Diario · Maratón · Supervivencia): control segmentado */
+.seg {
+  display: flex;
+  gap: 2px;
+  margin: 4px 0 12px;
+  padding: 3px;
+  border: 1px solid var(--faint);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.seg label {
+  flex: 1;
+  position: relative;
+  padding: 8px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
   font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.seg label:hover {
+  color: var(--paper);
+}
+
+.seg input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.seg label:has(input:checked) {
+  background: var(--paper);
+  color: var(--ink, #07090f);
+}
+
+.seg label:has(input:focus-visible) {
+  outline: 2px solid var(--sun);
+  outline-offset: 2px;
+}
+
+#board-difficulty[hidden],
+.podium[hidden],
+.board-table[hidden] {
+  display: none;
+}
+
+/* Podio: 2.º, 1.º (más alto) y 3.º */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.podium-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px 10px 14px;
+  border: 1px solid var(--faint);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  animation: fade-in 0.3s ease-out;
+}
+
+.podium-card.place-1 {
+  grid-column: 2;
+  padding-top: 26px;
+  padding-bottom: 22px;
+  border-color: rgba(242, 193, 78, 0.45);
+  background: linear-gradient(180deg, rgba(242, 193, 78, 0.12), rgba(255, 255, 255, 0.03));
+}
+
+.podium-card.place-2 {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.podium-card.place-3 {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.podium-medal {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #c9ced6;
+  color: #07090f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.podium-card.place-1 {
+  grid-row: 1;
+}
+
+.place-1 .podium-medal {
+  width: 32px;
+  height: 32px;
+  background: #f2c14e;
+  font-size: 15px;
+}
+
+.place-3 .podium-medal {
+  background: #d08a52;
+}
+
+.podium .podium-flag {
+  width: 36px;
+  height: 26px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.podium span.podium-flag {
+  display: block;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.podium-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.podium-main {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.place-1 .podium-main {
+  font-size: 24px;
+}
+
+.podium-extra {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.podium-card.is-me {
+  border-color: var(--sun);
+}
+
+.podium-card .you-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Etiqueta "Tú" */
+.you-tag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--sun);
+  color: #07090f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Tabla (del 4.º en adelante) */
+.board-table {
+  margin-top: 18px;
+}
+
+.board-cols,
+#board-list li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 84px 72px;
+  align-items: center;
+  gap: 10px;
+}
+
+.board-cols {
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--faint);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.board-cols span:nth-child(n + 3) {
+  text-align: right;
+}
+
+#board-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#board-list li {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--faint);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+#board-list li:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+#board-list li.is-me {
+  border-radius: 8px;
+  background: rgba(242, 163, 58, 0.12);
+}
+
+.board-rank {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.board-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .board-name {
@@ -723,7 +931,13 @@ button:disabled {
   white-space: nowrap;
 }
 
-.board-time {
+.board-main {
+  font-family: var(--mono);
+  font-weight: 600;
+  text-align: right;
+}
+
+.board-extra {
   color: var(--muted);
   text-align: right;
 }
@@ -731,6 +945,7 @@ button:disabled {
 /* Bandera del país del jugador */
 #board-list .country-flag,
 #board-list .no-flag {
+  flex: none;
   width: 22px;
   height: 16px;
   object-fit: cover;
@@ -741,8 +956,33 @@ button:disabled {
   text-align: center;
 }
 
-#board-list li.is-me .board-name {
-  color: var(--sun);
+@media (max-width: 480px) {
+  .podium {
+    gap: 6px;
+  }
+
+  .podium-card {
+    padding: 12px 6px 10px;
+  }
+
+  .podium-main,
+  .place-1 .podium-main {
+    font-size: 17px;
+  }
+
+  .podium-card .you-tag {
+    position: static;
+  }
+
+  .board-cols,
+  #board-list li {
+    grid-template-columns: 26px minmax(0, 1fr) 70px 54px;
+    gap: 8px;
+  }
+
+  #board-list li {
+    font-size: 14px;
+  }
 }
 
 #board-status,
@@ -1727,4 +1967,15 @@ button:disabled {
 .is-map .mg-flag,
 .is-map .mg-country {
   display: none;
+}
+
+/* Que el trofeo y el engranaje (abajo a la derecha) no tapen las últimas filas */
+#screen-leaderboard .sheet {
+  padding-bottom: 72px;
+}
+
+/* Enlace a la lista de países dentro de Configuración */
+.field .foot-link {
+  margin-top: 0;
+  font-size: 14px;
 }
