@@ -1,0 +1,134 @@
+<!doctype html>
+<!-- Solo para desarrollo (no entra en el build): escuchar los sonidos del juego.
+     Usa el mismo módulo que el juego, así que también suenan los archivos de src/sounds/. -->
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CORA · Sonidos</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 48px 24px;
+        background: #07090f;
+        color: #ece6d9;
+        font: 15px/1.5 system-ui, sans-serif;
+      }
+      main {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 26px;
+      }
+      p {
+        margin: 0 0 24px;
+        color: #8d8a82;
+      }
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      li {
+        display: grid;
+        grid-template-columns: 110px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #23262f;
+      }
+      .options {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      code {
+        font: 13px ui-monospace, monospace;
+      }
+      .when {
+        color: #8d8a82;
+        font-size: 13px;
+      }
+      .source {
+        display: block;
+        font-size: 11px;
+      }
+      button {
+        padding: 8px 16px;
+        border: 1px solid #3a3d47;
+        border-radius: 999px;
+        background: none;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: #f2b84b;
+        color: #f2b84b;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Sonidos</h1>
+      <p>«Actual» es el pitido por código que suena ahora en el juego. Los numerados 1–4 son archivos de audio hechos por personas (Freesound, CC0) para sustituirlo.</p>
+      <ul id="list"></ul>
+    </main>
+    <script type="module">
+      import { createSound } from './src/sound.js';
+
+      const sound = createSound(() => true);
+      const files = Object.keys(import.meta.glob('./src/sounds/*.{mp3,ogg,wav}')).map((path) => path.split('/').pop());
+      const options = import.meta.glob('./src/sounds/opciones/*/*.{mp3,ogg,wav}', {
+        query: '?url',
+        import: 'default',
+        eager: true,
+      });
+      const credits = Object.values(import.meta.glob('./src/sounds/opciones/creditos.json', { eager: true }))[0]?.default ?? {};
+      const SOUNDS = {
+        click: 'Botones y pestañas',
+        correct: 'Acierto',
+        wrong: 'Fallo',
+        tick: 'Cuenta atrás (3, 2, 1)',
+        go: '¡Ya!',
+        timeout: 'Se acabó el tiempo',
+        finish: 'Fin de la partida',
+      };
+      const list = document.getElementById('list');
+      for (const [name, when] of Object.entries(SOUNDS)) {
+        const file = files.find((f) => f.replace(/\.\w+$/, '') === name);
+        const li = document.createElement('li');
+        li.innerHTML = `<code>${name}</code><span class="when">${when}<span class="source">${
+          file ? `ahora: archivo ${file}` : 'ahora: pitido generado por código'
+        }</span></span>`;
+        const button = document.createElement('button');
+        button.textContent = file ? '▶ Actual (archivo)' : '▶ Actual (pitido)';
+        button.addEventListener('click', () => sound.play(name));
+        li.append(button);
+        // Candidatos de src/sounds/opciones/<nombre>/ (para elegir uno)
+        const row = document.createElement('div');
+        row.className = 'options';
+        for (const [path, url] of Object.entries(options).sort()) {
+          const [, group, file] = path.match(/opciones\/([^/]+)\/([^/]+)$/);
+          if (group !== name) continue;
+          const option = document.createElement('button');
+          const credit = credits[`${group}/${file}`];
+          option.textContent = `▶ ${file.split('-')[0]} · ${credit ? `${credit.title} — ${credit.author}` : file}`;
+          option.title = credit?.url ?? file;
+          option.addEventListener('click', () => {
+            const clip = new Audio(url);
+            clip.volume = 0.6;
+            clip.play();
+          });
+          row.append(option);
+        }
+        if (row.children.length) li.append(row);
+        list.append(li);
+      }
+    </script>
+  </body>
+</html>

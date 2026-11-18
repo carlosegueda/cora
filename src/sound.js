@@ -1,14 +1,50 @@
-// Efectos de sonido generados con la Web Audio API (sin archivos de audio).
+// Efectos de sonido. Cada uno puede venir de un archivo en src/sounds/ (click.mp3, correct.ogg…;
+// ver src/sounds/README.md); los que no tienen archivo se generan con la Web Audio API.
 // El navegador solo permite sonar después de una interacción del usuario, así que el
 // contexto de audio se crea la primera vez que se reproduce algo (tras pulsar un botón).
+const FILES = Object.fromEntries(
+  Object.entries(import.meta.glob('./sounds/*.{mp3,ogg,wav}', { query: '?url', import: 'default', eager: true })).map(
+    ([path, url]) => [path.match(/([^/]+)\.\w+$/)[1], url]
+  )
+);
+const FILE_VOLUME = 0.6;
+
 export function createSound(isEnabled) {
   let ctx = null;
+  const buffers = {}; // nombre → audio ya decodificado
+  let loading = false;
+
+  // Descarga y decodifica los archivos la primera vez que hay contexto de audio
+  function loadFiles(ac) {
+    if (loading) return;
+    loading = true;
+    for (const [name, url] of Object.entries(FILES)) {
+      fetch(url)
+        .then((res) => res.arrayBuffer())
+        .then((data) => ac.decodeAudioData(data))
+        .then((buffer) => (buffers[name] = buffer))
+        .catch((err) => console.warn(`No se pudo cargar el sonido "${name}":`, err));
+    }
+  }
+
+  function playFile(name) {
+    const ac = audio();
+    if (!ac || !buffers[name]) return false;
+    const source = ac.createBufferSource();
+    const gain = ac.createGain();
+    source.buffer = buffers[name];
+    gain.gain.value = FILE_VOLUME;
+    source.connect(gain).connect(ac.destination);
+    source.start();
+    return true;
+  }
 
   function audio() {
     if (!ctx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return null;
       ctx = new AudioContext();
+      loadFiles(ctx);
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
@@ -50,7 +86,7 @@ export function createSound(isEnabled) {
 
   return {
     play(name) {
-      if (isEnabled()) sounds[name]?.();
+      if (isEnabled() && !playFile(name)) sounds[name]?.();
     },
   };
 }

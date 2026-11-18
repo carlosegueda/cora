@@ -32,7 +32,11 @@ const roundRing = (ring) => ring.map(([lon, lat]) => [round(lon), round(lat)]);
 //  - estado: se gobierna a sí mismo (ADMIN = SOVEREIGNT)
 //  - territorio: depende de otro estado (Puerto Rico, Groenlandia, Hong Kong…)
 //  - indeterminado: estatus internacional sin resolver (Antártida, Sahara Occidental…)
+// Excepciones decididas para el juego (código ADM0_A3 de Natural Earth → tipo)
+const TYPE_OVERRIDES = { PSX: 'estado', PSE: 'estado', ISR: 'indeterminado' };
 function classify(p) {
+  const override = TYPE_OVERRIDES[p.ADM0_A3] ?? TYPE_OVERRIDES[p.ISO_A3];
+  if (override) return override;
   if (p.TYPE === 'Indeterminate') return 'indeterminado';
   return p.ADMIN === p.SOVEREIGNT ? 'estado' : 'territorio';
 }
@@ -197,7 +201,8 @@ const countries = source.features
       // Capital: nombre a mostrar en cada idioma y todos los nombres aceptados (null si no tiene)
       capital: capital?.display ? { ...capital.display, names: unique(capital.names) } : null,
       type: classify(p),
-      sovereign: p.SOVEREIGNT,
+      // Un estado es su propio soberano (Natural Earth pone a Palestina bajo Israel)
+      sovereign: classify(p) === 'estado' ? p.ADMIN : p.SOVEREIGNT,
       continent: p.CONTINENT,
       flag,
       polygons: polygons.map((poly) => poly.map(roundRing)),

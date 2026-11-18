@@ -360,6 +360,14 @@ export function createGame(globe) {
   const settingsButton = $('settings-button');
   const boardButton = $('board-button');
   let minigames = null;
+  const OVERLAYS = ['settings', 'leaderboard'];
+  let overlayFrom = 'menu';
+  // Botones de la esquina: un clic abre; otro clic en el mismo botón cierra
+  function toggleOverlay(name) {
+    if (screen === name) showScreen(overlayFrom);
+    else if (name === 'leaderboard') openBoard();
+    else showScreen(name);
+  }
   function showScreen(name) {
     // Durante la partida (sin pantalla de menú) y en un minijuego no se ven
     settingsButton.hidden = boardButton.hidden = !name || name === 'minigamePlay';
@@ -369,6 +377,8 @@ export function createGame(globe) {
     if (screen === 'minigameResults' && name !== 'minigameResults') minigames?.clearReview();
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
     if (name === 'menu') watchDailyTop();
+    // Clasificación y Configuración se cierran volviendo a la pantalla desde la que se abrieron
+    if (OVERLAYS.includes(name) && !OVERLAYS.includes(screen)) overlayFrom = screen ?? 'menu';
     screen = name;
     for (const [key, node] of Object.entries(screens)) node.hidden = key !== name;
     // En los menús el planeta se aparta a la derecha para dejar sitio al panel
@@ -1215,8 +1225,7 @@ export function createGame(globe) {
       difficultyMode = action === 'play' ? 'classic' : action;
       askName();
     }
-    else if (action === 'settings') showScreen('settings');
-    else if (action === 'leaderboard') openBoard();
+    else if (action === 'settings' || action === 'leaderboard') toggleOverlay(action);
     else if (action === 'minigames') showScreen('minigames');
     else if (action === 'arcade') showScreen('arcade');
     else if (action === 'practice') showScreen('practice');

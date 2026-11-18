@@ -2090,6 +2090,25 @@ button:disabled {
   margin-top: 8px;
 }
 
+/* Resultado: el panel no hace scroll; solo la lista de países, dentro de su hueco */
+#screen-minigame-results .sheet {
+  overflow: hidden;
+}
+
+#screen-minigame-results .sheet > * {
+  flex: none;
+}
+
+#screen-minigame-results .sheet > .mg-review {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+}
+
 .mg-review {
   margin: 14px 0 24px;
   padding: 0;

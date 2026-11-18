@@ -2786,7 +2786,7 @@
         "Jerusalém"
       ]
     },
-    "type": "estado",
+    "type": "indeterminado",
     "sovereign": "Israel",
     "continent": "Asia",
     "flag": "/flags/il.svg"
@@ -4050,8 +4050,8 @@
       "State of Palestine"
     ],
     "capital": null,
-    "type": "indeterminado",
-    "sovereign": "Israel",
+    "type": "estado",
+    "sovereign": "Palestine",
     "continent": "Asia",
     "flag": "/flags/ps.svg"
   },
