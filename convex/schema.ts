@@ -46,17 +46,17 @@ export default defineSchema({
     .index('by_mode_and_difficulty_and_rank', ['mode', 'difficulty', 'rank'])
     .index('by_player_and_mode_and_difficulty', ['playerId', 'mode', 'difficulty']),
 
-  // Reto diario (Jugar): un intento por jugador y día (UTC). Se crea al empezar, así abandonar
+  // Reto diario (Jugar): un intento por jugador y día (cambia a las 00:00 de UTC−6). Se crea al empezar, así abandonar
   // también gasta el intento; al terminar se guardan puntos, aciertos, tiempo y orden.
   dailyAttempts: defineTable({
-    day: v.string(), // 'AAAA-MM-DD' en UTC
+    day: v.string(), // 'AAAA-MM-DD' (día del Diario, en UTC−6)
     playerId: v.id('players'),
     name: v.string(),
     country: v.union(v.string(), v.null()), // país del jugador (ISO alfa-2), según su IP
     startedAt: v.number(),
     finished: v.boolean(),
-    score: v.optional(v.number()), // aciertos (0–10)
-    points: v.optional(v.number()), // puntos (0–10 000): cercanía, aciertos y rapidez
+    score: v.optional(v.number()), // aciertos (0–5; 0–10 hasta el 2026-11-18)
+    points: v.optional(v.number()), // puntos (0–5000; antes 0–10 000): cercanía, aciertos y rapidez
     timeMs: v.optional(v.number()),
     rank: v.optional(v.number()),
     rounds: v.optional(v.array(dailyRound)), // detalle país a país (intentos antiguos no lo tienen)

@@ -354,7 +354,18 @@ button:disabled {
 }
 
 
-.menu-item:hover,
+/* Diario ya jugado: cuenta atrás hasta el siguiente, sin poder pulsarlo */
+.menu-item:disabled {
+  color: var(--paper);
+  opacity: 0.8;
+  cursor: default;
+}
+
+.menu-item:disabled .menu-label {
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-item:hover:not(:disabled),
 .menu-item:focus-visible {
   padding-left: 8px;
   color: var(--sun);

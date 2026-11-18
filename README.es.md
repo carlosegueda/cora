@@ -44,7 +44,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 
 | Modo | Países | Objetivo | Un fallo… | Clasificación |
 | --- | --- | --- | --- | --- |
-| **Jugar** | 10 estados, los mismos para todos y distintos cada día | Más puntos (cercanía + rapidez) | puntúa según lo cerca que quedó | Tabla del día; **un intento al día** |
+| **Jugar** | 5 estados, los mismos para todos y distintos cada día | Más puntos (cercanía + rapidez) | puntúa según lo cerca que quedó | Tabla del día; **un intento al día** |
 | **Maratón** | Todos los de la dificultad (198 o 239) | Completarlos todos en el menor tiempo | el país vuelve a salir más adelante | Por dificultad, por tiempo |
 | **Supervivencia** | Todos los de la dificultad | Aguantar con el reloj (20 s, +5 s por acierto) | el país vuelve a salir más adelante | Por dificultad, por aciertos |
 | **Entrenamiento** | Los que elijas | Practicar | cuenta como fallo y sigue | No |
@@ -74,11 +74,11 @@ El **tiempo** cuenta solo mientras se está buscando el país: se para durante l
 
 Un reto al día igual para todo el mundo:
 
-- **10 estados** (sin territorios dependientes ni indeterminados), **los mismos para todos** y distintos cada día. Los elige el servidor: baraja los 198 estados una vez cada 19 días y cada día toma un tramo de 10, así no se repite ningún país dentro de ese ciclo.
-- El día cambia a las **00:00 UTC** (a la misma hora en todo el mundo).
+- **5 estados** (sin territorios dependientes ni indeterminados), **los mismos para todos** y distintos cada día. Los elige el servidor: baraja los 198 estados una vez cada 39 días y cada día toma un tramo de 5, así no se repite ningún país dentro de ese ciclo.
+- El día cambia a las **00:00 de UTC−6** (06:00 UTC; a la misma hora en todo el mundo).
 - La pista es **nombre y bandera**, en el idioma de *Configuración*, y **sin fronteras**.
 - **Un intento por jugador y día.** El intento cuenta desde que empieza: si se sale a mitad (la pausa lo avisa: “Si sales, pierdes el intento de hoy”), ya no se puede repetir. Al volver a entrar se ve “Ya jugaste hoy” con el resultado y el puesto.
-- **Puntos**: cada país vale hasta **1000** (máximo del día: 10 000). En este modo **cualquier clic cuenta** como respuesta, también en el mar, y tras cada uno se ve la distancia y los puntos (“Era Guyana · a 520 km · +412”).
+- **Puntos**: cada país vale hasta **1000** (máximo del día: 5000). En este modo **cualquier clic cuenta** como respuesta, también en el mar, y tras cada uno se ve la distancia y los puntos (“Era Guyana · a 520 km · +412”).
 
   | Parte | Puntos | Cómo |
   | --- | --- | --- |
@@ -88,7 +88,7 @@ Un reto al día igual para todo el mundo:
 
   Ejemplos: Francia acertada en 3 s → 983; a 800 km en 3 s → 457; Rusia a 800 km → 133; Vanuatu a 800 km → 501. Los valores están en las constantes `DAILY_*` de `src/game.js` (`dailyPoints`).
 - **Clasificación del día**: primero quien más puntos tenga y, a igualdad, el más rápido. Al terminar se ve el puesto en la tabla completa (“Puesto 12 de 340 hoy”).
-- **Resultado**: los puntos en grande, aciertos y tiempo, y la lista de los 10 países con los puntos de cada uno. **Al pulsar un país de la lista** se pinta de verde en el globo y la cámara va hasta él, acercándose según su tamaño (también funciona con el teclado: `Tab` y `Enter`).
+- **Resultado**: los puntos en grande, aciertos y tiempo, y la lista de los 5 países con los puntos de cada uno. **Al pulsar un país de la lista** se pinta de verde en el globo y la cámara va hasta él, acercándose según su tamaño (también funciona con el teclado: `Tab` y `Enter`).
 - **Menú principal**: el top 5 del día, en directo, con *Ver todo*, que abre la pestaña *Diario* de la clasificación.
 
 ### Clasificación
@@ -537,13 +537,13 @@ El backend de la clasificación es [Convex](https://convex.dev): base de datos y
 - **`convex/schema.ts`**:
   - `players`: nombre y un token secreto que genera el navegador (no hay cuentas ni contraseñas).
   - `scores`: la mejor marca de cada jugador en cada tabla de *Maratón* / *Supervivencia* (modo + dificultad), con aciertos, total, tiempo y fallos. El campo `rank = aciertos × 10⁹ − tiempo` ordena con un solo índice: más aciertos primero y, a igualdad, menos tiempo (en *Maratón* todos completan, así que manda el tiempo).
-  - `dailyAttempts`: un intento por jugador y día (UTC), con el país del jugador, la hora de inicio y, al terminar, aciertos, tiempo y `rank`.
+  - `dailyAttempts`: un intento por jugador y día (cambia a las 00:00 de UTC−6), con el país del jugador, la hora de inicio y, al terminar, aciertos, tiempo y `rank`.
 - **`convex/convex.config.ts`** y **`convex/rankings.ts`**: dos componentes [`@convex-dev/aggregate`](https://www.convex.dev/components/aggregate) (`boardRanking` y `dailyRanking`) que dan el **puesto** de una marca y el total de una tabla en O(log n), sin recorrer la tabla. Se actualizan en la misma mutación que cada escritura.
 - **`convex/scores.ts`** (Maratón / Supervivencia):
   - `top({ mode, difficulty, limit })`: los mejores de una tabla (20 por defecto, máximo 100).
   - `submit({ token, name, mode, difficulty, score, total, timeMs, fails })`: valida y guarda la partida solo si mejora la marca del jugador; devuelve `{ improved, position, total }`.
 - **`convex/daily.ts`** (reto diario de *Jugar*):
-  - `start({ token, name, country })`: el servidor decide el día (UTC). Si el jugador ya tiene intento hoy, devuelve “ya jugado” con su resultado y puesto; si no, crea el intento y devuelve los 10 países del día (`countriesForDay`).
+  - `start({ token, name, country })`: el servidor decide el día (cambia a las 00:00 de UTC−6). Si el jugador ya tiene intento hoy, devuelve “ya jugado” con su resultado y puesto; si no, crea el intento y devuelve los 10 países del día (`countriesForDay`).
   - `finish({ token, attemptId, score, timeMs })`: cierra el intento y devuelve el puesto y el total del día.
   - `top({ day, limit })`: la tabla de un día (5 para el menú, hasta 100 en la clasificación). El día lo pasa el cliente porque las consultas de Convex no deben leer el reloj.
 - **`convex/players.ts`**: utilidades compartidas (validar nombre y token, alta del jugador y cambio de nombre).

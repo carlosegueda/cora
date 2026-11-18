@@ -114,8 +114,10 @@ export function watchMinigame(game, onChange) {
 }
 
 // --- Modo Diario ---------------------------------------------------------------------
-// El día va en UTC (el mismo para todo el mundo): cambia a las 00:00 UTC
-export const utcDay = (ms = Date.now()) => new Date(ms).toISOString().slice(0, 10);
+// El día del Diario es el mismo para todo el mundo y cambia a las 00:00 de UTC−6 (06:00 UTC).
+// Debe coincidir con RESET_OFFSET_MS de convex/daily.ts
+export const DAILY_RESET_OFFSET_MS = 6 * 3_600_000;
+export const dailyDay = (ms = Date.now()) => new Date(ms - DAILY_RESET_OFFSET_MS).toISOString().slice(0, 10);
 
 // País del jugador (código ISO de 2 letras) para su bandera en la tabla del Diario.
 // En producción lo da /api/country (Vercel lo sabe por la IP). En local esa función no existe:
@@ -173,6 +175,15 @@ export async function finishDaily(attemptId, score, points, timeMs, rounds) {
     console.warn('No se pudo guardar el Diario:', err);
     return null;
   }
+}
+
+// Se suscribe a si este jugador ya gastó su intento de ese día: onChange(true | false)
+export function watchDailyPlayed(day, onChange) {
+  if (!client) return () => {};
+  return client.onUpdate(api.daily.played, { token: playerToken(), day }, onChange, (err) => {
+    console.warn('No se pudo comprobar el intento del Diario:', err);
+    onChange(false);
+  });
 }
 
 // Primer día con partidas del Diario ('AAAA-MM-DD'), o null si no hay o no se pudo cargar

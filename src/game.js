@@ -23,8 +23,10 @@ import {
   startDaily,
   finishDaily,
   watchDaily,
+  watchDailyPlayed,
   fetchDailyFirstDay,
-  utcDay,
+  dailyDay,
+  DAILY_RESET_OFFSET_MS,
 } from './leaderboard.js';
 
 const COUNTDOWN_FROM = 3;
@@ -195,7 +197,7 @@ function survivalRules(d) {
   };
 }
 
-// Reglas del Diario: los 10 estados del día en el orden que da el servidor (los mismos para
+// Reglas del Diario: los estados del día en el orden que da el servidor (los mismos para
 // todos), un intento por país, nombre y bandera en el idioma del jugador, sin fronteras
 function dailyRules(order, attemptId, language) {
   return {
@@ -384,7 +386,7 @@ export function createGame(globe) {
     // En los menús el planeta se aparta a la derecha para dejar sitio al panel
     globe.setViewShift(viewShiftFor(name));
     // Lleva el foco al primer botón de la pantalla (navegación con teclado)
-    if (name) screens[name].querySelector('.text-input, .menu-item, .row, .primary, .back')?.focus({ preventScroll: true });
+    if (name) screens[name].querySelector('.text-input, .menu-item:not(:disabled), .row, .primary, .back')?.focus({ preventScroll: true });
   }
 
   function resetGlobe() {
@@ -854,9 +856,9 @@ export function createGame(globe) {
   const isMinigameBoard = () => MINIGAME_BOARDS.includes(board.mode);
   // day: día del Diario que se está viendo (null = hoy); firstDay: primer día con partidas
   const board = { mode: 'daily', difficulty: 'facil', day: null, firstDay: null, stop: null };
-  const shiftDay = (day, n) => utcDay(Date.parse(`${day}T00:00:00Z`) + n * 86_400_000);
+  const shiftDay = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
   // El día que se ve en la tabla del Diario (nunca posterior a hoy)
-  const boardDay = () => (board.day && board.day < utcDay() ? board.day : utcDay());
+  const boardDay = () => (board.day && board.day < dailyDay() ? board.day : dailyDay());
   const formatDay = (day, options) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), options);
   const boardList = $('board-list');
   const boardStatus = $('board-status');
@@ -964,7 +966,7 @@ export function createGame(globe) {
     const sub = $('board-sub');
     sub.textContent = '';
     const day = boardDay();
-    const isToday = day === utcDay();
+    const isToday = day === dailyDay();
     $('board-day').hidden = !daily;
     if (daily) {
       const date = formatDay(day, { day: 'numeric', month: 'long', year: 'numeric' });
@@ -1059,7 +1061,7 @@ export function createGame(globe) {
   }
 
   // --- Diario ---
-  // 10 estados al día, los mismos para todos (los elige el servidor) y un intento por jugador.
+  // 5 estados al día, los mismos para todos (los elige el servidor) y un intento por jugador.
   // Tabla del día ordenada por aciertos y, a igualdad, por menos tiempo.
   const dailyInfoText = $('daily-info-text');
 
@@ -1165,9 +1167,45 @@ export function createGame(globe) {
   const dailyTop = $('daily-top');
   const dailyEmpty = $('daily-empty');
   const dailyTopWatch = { day: null, stop: null };
+
+  // Botón "Juego diario" del menú: si el jugador ya gastó el intento de hoy, se desactiva y
+  // muestra la cuenta atrás hasta el siguiente (00:00 de UTC−6)
+  const dailyButton = $('menu-daily');
+  const dailyButtonLabel = $('menu-daily-label');
+  const dailyPlayed = { day: null, played: false, stop: null };
+  function updateDailyButton() {
+    const played = dailyPlayed.played && dailyPlayed.day === dailyDay();
+    dailyButton.disabled = played;
+    if (!played) {
+      dailyButtonLabel.textContent = t('menu.play');
+      return;
+    }
+    const left = Math.max(0, Math.ceil((Date.parse(`${dailyDay()}T00:00:00Z`) + DAILY_RESET_OFFSET_MS + 86_400_000 - Date.now()) / 1000));
+    const two = (n) => String(n).padStart(2, '0');
+    const time = `${Math.floor(left / 3600)}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`;
+    dailyButtonLabel.textContent = t('menu.nextIn', { time });
+  }
+  // Cada segundo mientras se ve el menú: avanza la cuenta atrás y, al cambiar el día, se vuelve
+  // a comprobar (el botón se reactiva solo)
+  setInterval(() => {
+    if (screen !== 'menu') return;
+    if (dailyTopWatch.day !== dailyDay()) watchDailyTop();
+    else if (dailyPlayed.played) updateDailyButton();
+  }, 1000);
+
   function watchDailyTop() {
     dailyCard.hidden = !leaderboardAvailable;
-    const day = utcDay();
+    const day = dailyDay();
+    if (leaderboardAvailable && dailyPlayed.day !== day) {
+      dailyPlayed.stop?.();
+      dailyPlayed.day = day;
+      dailyPlayed.played = false;
+      dailyPlayed.stop = watchDailyPlayed(day, (played) => {
+        dailyPlayed.played = played;
+        updateDailyButton();
+      });
+    }
+    updateDailyButton();
     if (!leaderboardAvailable || dailyTopWatch.day === day) return;
     dailyTopWatch.stop?.();
     dailyTopWatch.day = day;

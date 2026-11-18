@@ -13,6 +13,7 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const STRINGS = {
   en: {
     'menu.play': 'Daily Game',
+    'menu.nextIn': ({ time }) => `Next in ${time}`,
     'menu.arcade': 'Arcade',
     'arcade.back': '← Arcade',
     'menu.marathon': 'Marathon',
@@ -215,6 +216,7 @@ const STRINGS = {
 
   es: {
     'menu.play': 'Juego diario',
+    'menu.nextIn': ({ time }) => `Siguiente en ${time}`,
     'menu.arcade': 'Arcade',
     'arcade.back': '← Arcade',
     'menu.marathon': 'Maratón',
@@ -417,6 +419,7 @@ const STRINGS = {
 
   pt: {
     'menu.play': 'Jogo diário',
+    'menu.nextIn': ({ time }) => `Próximo em ${time}`,
     'menu.arcade': 'Arcade',
     'arcade.back': '← Arcade',
     'menu.marathon': 'Maratona',

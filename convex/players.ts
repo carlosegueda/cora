@@ -1,5 +1,5 @@
 // Utilidades compartidas: validación de nombre y token, y alta/renombrado del jugador
-import type { MutationCtx } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import type { Doc } from './_generated/dataModel';
 import { ConvexError } from 'convex/values';
 
@@ -43,7 +43,7 @@ export async function upsertPlayer(ctx: MutationCtx, token: string, rawName: str
 }
 
 // Jugador por token, sin crearlo (null si no existe)
-export async function findPlayer(ctx: MutationCtx, token: string): Promise<Doc<'players'> | null> {
+export async function findPlayer(ctx: QueryCtx | MutationCtx, token: string): Promise<Doc<'players'> | null> {
   checkToken(token);
   return await ctx.db
     .query('players')

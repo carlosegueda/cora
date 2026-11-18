@@ -1,4 +1,4 @@
-// Reto diario (Jugar): 10 estados, los mismos para todos, distintos cada día (UTC); un intento
+// Reto diario (Jugar): 5 estados (10 hasta el 2026-11-18), los mismos para todos, distintos cada día (cambia a las 00:00 de UTC−6); un intento
 // por jugador y día. Cada país vale hasta 1000 puntos (cercanía del clic al país, ponderada por
 // su tamaño, más rapidez); la tabla del día se ordena por puntos y, a igualdad, por menos tiempo.
 // Los puntos los calcula el cliente (necesita los contornos de los países); el servidor
@@ -11,12 +11,18 @@ import { dailyRanking } from './rankings';
 import { dailyRound } from './schema';
 
 const DAY_MS = 86_400_000;
-const PER_DAY = 10;
+// Países por día: 5 desde FIVE_FROM; los días anteriores fueron de 10 (se conserva para que
+// sus tablas y repasos sigan cuadrando)
+const FIVE_FROM = '2026-11-19';
+const perDay = (day: string) => (day >= FIVE_FROM ? 5 : 10);
 const MAX_POINTS_PER_COUNTRY = 1000;
 const MIN_MS_PER_ANSWER = 300; // nadie responde un país en menos de esto
 const CLOCK_SLACK_MS = 5000; // margen entre el reloj del jugador y el del servidor
 
-const dayKey = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+// El día del Diario cambia a las 00:00 de UTC−6 (06:00 UTC), igual para todo el mundo.
+// Debe coincidir con DAILY_RESET_OFFSET_MS de src/leaderboard.js
+const RESET_OFFSET_MS = 6 * 3_600_000;
+const dayKey = (ms: number) => new Date(ms - RESET_OFFSET_MS).toISOString().slice(0, 10);
 const isDayKey = (day: string) => /^\d{4}-\d{2}-\d{2}$/.test(day);
 // Más puntos primero; a igualdad, menos tiempo
 const rankOf = (points: number, timeMs: number) => points * 1e9 - timeMs;
@@ -33,10 +39,11 @@ function mulberry32(seed: number) {
   };
 }
 
-// Los 10 países de un día. Se baraja la lista de estados una vez por "ciclo" de 19 días y cada
-// día toma un tramo de 10, así no se repite ningún país dentro de un mismo ciclo.
+// Los países de un día. Se baraja la lista de estados una vez por "ciclo" (39 días con 5
+// países al día; 19 con 10) y cada día toma un tramo, así no se repite ningún país dentro de un mismo ciclo.
 export function countriesForDay(day: string): string[] {
   const dayNumber = Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
+  const PER_DAY = perDay(day);
   const daysPerCycle = Math.floor(DAILY_COUNTRIES.length / PER_DAY);
   const cycle = Math.floor(dayNumber / daysPerCycle);
   const slot = dayNumber - cycle * daysPerCycle;
@@ -50,7 +57,7 @@ export function countriesForDay(day: string): string[] {
 }
 
 // Empieza el intento de hoy. Si el jugador ya jugó (o empezó y abandonó) hoy, no deja repetir
-// y devuelve su resultado. Si no, crea el intento y devuelve los 10 países del día.
+// y devuelve su resultado. Si no, crea el intento y devuelve los países del día.
 export const start = mutation({
   args: { token: v.string(), name: v.string(), country: v.union(v.string(), v.null()) },
   handler: async (ctx, args) => {
@@ -108,6 +115,7 @@ export const finish = mutation({
     const attempt = await ctx.db.get(args.attemptId);
     if (!player || !attempt || attempt.playerId !== player._id) throw new ConvexError('Intento no válido');
     if (attempt.finished) throw new ConvexError('Este intento ya terminó');
+    const PER_DAY = perDay(attempt.day);
     if (!Number.isInteger(args.score) || args.score < 0 || args.score > PER_DAY) {
       throw new ConvexError('Puntuación no válida');
     }
@@ -162,6 +170,21 @@ export const finish = mutation({
     const position = (await dailyRanking.indexOfDoc(ctx, done)) + 1;
     const total = await dailyRanking.count(ctx, { namespace: attempt.day });
     return { day: attempt.day, position, total };
+  },
+});
+
+// ¿Ya gastó este jugador su intento de ese día? (también cuenta si empezó y abandonó)
+export const played = query({
+  args: { token: v.string(), day: v.string() },
+  handler: async (ctx, { token, day }) => {
+    if (!isDayKey(day)) throw new ConvexError('Día no válido');
+    const player = await findPlayer(ctx, token);
+    if (!player) return false;
+    const attempt = await ctx.db
+      .query('dailyAttempts')
+      .withIndex('by_day_and_player', (q) => q.eq('day', day).eq('playerId', player._id))
+      .unique();
+    return attempt !== null;
   },
 });
 
