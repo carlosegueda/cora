@@ -25,3 +25,14 @@ export const dailyRanking = new TableAggregate<{
   namespace: (doc) => doc.day,
   sortKey: (doc) => -(doc.rank ?? 0),
 });
+
+// Minijuegos (ranked): una tabla por minijuego; mejor marca = menos tiempo
+export const minigameRanking = new TableAggregate<{
+  Namespace: string;
+  Key: number;
+  DataModel: DataModel;
+  TableName: 'minigameScores';
+}>(components.minigameRanking, {
+  namespace: (doc) => doc.game,
+  sortKey: (doc) => doc.timeMs,
+});

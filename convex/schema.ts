@@ -10,6 +10,18 @@ export const difficulty = v.union(
   v.literal('hardcore')
 );
 
+// Minijuegos de escribir (modo ranked)
+export const minigame = v.union(v.literal('flags'), v.literal('map'), v.literal('capitals'));
+
+// Diario: lo que pasó con cada país del intento (para poder repasarlo después)
+export const dailyRound = v.object({
+  iso3: v.string(), // país que había que encontrar
+  correct: v.boolean(),
+  points: v.number(), // 0–1000
+  distanceKm: v.union(v.number(), v.null()), // del clic al país (0 si acertó; null si no hubo clic)
+  clicked: v.union(v.string(), v.null()), // ISO3 del país donde hizo clic (null = mar o ninguno)
+});
+
 export default defineSchema({
   // Jugador identificado por un token secreto que guarda su navegador (sin cuentas ni contraseñas)
   players: defineTable({
@@ -47,7 +59,22 @@ export default defineSchema({
     points: v.optional(v.number()), // puntos (0–10 000): cercanía, aciertos y rapidez
     timeMs: v.optional(v.number()),
     rank: v.optional(v.number()),
+    rounds: v.optional(v.array(dailyRound)), // detalle país a país (intentos antiguos no lo tienen)
   })
     .index('by_day_and_player', ['day', 'playerId'])
     .index('by_day_and_finished_and_rank', ['day', 'finished', 'rank']),
+
+  // Minijuegos en modo ranked (todos los continentes, solo estados, todos los países): mejor
+  // tiempo de cada jugador en cada minijuego. Menos tiempo = mejor puesto.
+  minigameScores: defineTable({
+    playerId: v.id('players'),
+    name: v.string(),
+    game: minigame,
+    timeMs: v.number(),
+    total: v.number(), // países de la partida
+    skips: v.number(),
+    country: v.union(v.string(), v.null()), // país del jugador (ISO alfa-2), según su IP
+  })
+    .index('by_game_and_timeMs', ['game', 'timeMs'])
+    .index('by_player_and_game', ['playerId', 'game']),
 });

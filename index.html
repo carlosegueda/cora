@@ -104,6 +104,12 @@
         </div>
         <div id="board-mode" class="seg"></div>
         <div id="board-difficulty" class="tabs"></div>
+        <!-- Diario: moverse por los días anteriores -->
+        <div id="board-day" class="board-day" hidden>
+          <button id="board-day-prev" type="button" data-i18n-attr="aria-label:board.prevDay;title:board.prevDay">‹</button>
+          <span id="board-day-label"></span>
+          <button id="board-day-next" type="button" data-i18n-attr="aria-label:board.nextDay;title:board.nextDay">›</button>
+        </div>
         <div id="board-podium" class="podium"></div>
         <div id="board-table" class="board-table">
           <div class="board-cols">
@@ -163,7 +169,18 @@
       <div class="sheet sheet-wide">
         <button data-action="minigames" class="back" data-i18n="mini.back">← Minigames</button>
         <h2 class="title" id="minigame-setup-title"></h2>
+        <!-- Casual: cualquier configuración, sin clasificación · Ranked: reglas fijas y clasificación -->
+        <div id="minigame-mode" class="seg"></div>
         <form id="minigame-form" onsubmit="return false"></form>
+        <div id="minigame-ranked" class="mg-ranked" hidden>
+          <p id="minigame-ranked-rules" class="info-text"></p>
+          <label id="minigame-name-field" class="field">
+            <span class="field-label" data-i18n="name.title">Your name</span>
+            <input type="text" id="minigame-name" class="text-input" maxlength="20" minlength="2"
+              autocomplete="nickname" spellcheck="false" />
+          </label>
+          <button id="minigame-board" class="link-button" type="button" data-i18n="mini.seeBoard">See leaderboard</button>
+        </div>
         <div class="sheet-footer">
           <p id="minigame-summary"></p>
           <button id="minigame-start" class="primary" data-i18n="practice.start">Start</button>
@@ -185,6 +202,7 @@
           autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
         <div class="mg-bottom">
           <p id="mg-last" class="mg-last"></p>
+          <button id="mg-giveup" class="ghost mg-giveup" type="button" data-i18n="mini.giveUp">Give up</button>
           <button id="mg-skip" class="ghost mg-skip" type="button" data-i18n="mini.skip">Skip</button>
         </div>
       </div>
@@ -207,6 +225,10 @@
           <span class="score-value"><strong id="mg-results-time"></strong></span>
           <span class="score-time" id="mg-results-detail"></span>
         </div>
+        <p id="mg-results-rank" class="mg-results-rank" hidden></p>
+        <button id="mg-results-board" class="link-button" type="button" hidden data-i18n="mini.seeBoard">See leaderboard</button>
+        <!-- Todos los países de la partida con su respuesta (al rendirse, primero los que faltaban) -->
+        <ol id="mg-review" class="mg-review"></ol>
         <div class="actions">
           <button id="mg-replay" class="primary" data-i18n="results.replay">Play again</button>
           <button data-action="minigames" class="ghost" data-i18n="mini.back">← Minigames</button>

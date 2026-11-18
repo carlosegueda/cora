@@ -1,8 +1,13 @@
 // Minijuegos de escribir: adivinar la bandera (se ve una bandera y se escribe el país) y
 // adivinar la capital (se ve la bandera y el país y se escribe su capital).
 //
-//  - Antes de empezar se eligen continentes, tipos de país y cuántos (se recuerda entre visitas).
-//  - Cuenta atrás 3, 2, 1 y un cronómetro que cuenta hasta acertarlos todos. Sin clasificación.
+//  - Cada minijuego tiene dos modos:
+//      · Casual: se eligen continentes, tipos de país y cuántos (se recuerda). Sin clasificación.
+//      · Ranked: reglas fijas (todos los continentes, solo estados, todos los países) y el
+//        tiempo en completarlos todos entra en la clasificación online.
+//  - Cuenta atrás 3, 2, 1 y un cronómetro que cuenta hasta acertarlos todos.
+//  - "Rendirse" (en los dos modos) para el cronómetro y enseña todos los países con su
+//    respuesta. Una partida ranked abandonada no entra en la clasificación.
 //  - "Saltar" (o Tab) manda el país al final de la cola: volverá a salir.
 //  - Adivina el país: se ilumina un país en verde en el globo (la cámara viaja hasta él) y se
 //    escribe su nombre. La tarjeta pasa a ser una barra abajo y el globo se puede mover.
@@ -12,6 +17,12 @@ import { t, getLanguage } from './i18n.js';
 import { saveSettings } from './settings.js';
 import { countryCenter, countrySizeKm } from './countries.js';
 import { lonLatToVector3 } from './geo.js';
+import {
+  leaderboardAvailable,
+  submitMinigame,
+  getPlayerName,
+  setPlayerName,
+} from './leaderboard.js';
 
 const EARTH_RADIUS_KM = 6371;
 // En el minijuego del mapa, los países más pequeños que esto llevan además un pin encima
@@ -23,7 +34,12 @@ const DEFAULT_MINIGAMES = {
   continents: ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania', 'Seven seas (open ocean)'],
   types: ['estado'],
   rounds: 20,
+  mode: 'casual', // 'casual' | 'ranked'
 };
+// Reglas fijas del modo ranked: todos los continentes, solo estados, todos los países
+const RANKED = { continents: DEFAULT_MINIGAMES.continents, types: ['estado'], rounds: 'all' };
+const MODES = { casual: 'mini.casual', ranked: 'mini.ranked' };
+const GIVE_UP_CONFIRM_MS = 3000; // tras el primer clic en "Rendirse", tiempo para confirmarlo
 
 // --- Comparación tolerante de respuestas ------------------------------------------------
 // Clave de comparación: sin tildes ni mayúsculas, sin artículos iniciales, "St." = "Saint",
@@ -135,7 +151,7 @@ function shuffle(list) {
   return copy;
 }
 
-export function createMinigames({ settings, sound, showScreen, globe, continents, types }) {
+export function createMinigames({ settings, sound, showScreen, openBoard, globe, continents, types }) {
   const countriesReady = globe.countriesReady;
   const $ = (id) => document.getElementById(id);
   const el = (tag, className, text) => {
@@ -160,6 +176,14 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
   const card = document.querySelector('.mg-card');
   const pauseOverlay = $('mg-pause');
   const playScreen = $('screen-minigame-play');
+  const modeTabs = $('minigame-mode');
+  const rankedPanel = $('minigame-ranked');
+  const nameInput = $('minigame-name');
+  const giveUpButton = $('mg-giveup');
+  const review = $('mg-review');
+  const isRanked = () => prefs.mode === 'ranked';
+  // Reglas en uso: las fijas en ranked, las elegidas en casual
+  const rulesNow = () => (isRanked() ? RANKED : prefs);
   const usesGlobe = () => Boolean(GAMES[game]?.globe);
 
   // Minijuego del mapa: marca el país en verde y lleva la cámara hasta él
@@ -182,15 +206,37 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
 
   let countries = null;
   let game = null; // clave de GAMES
-  let run = null; // { queue, total, skips, start, hiddenAt, hiddenMs, timeouts, raf, accepted, others }
+  let run = null; // { queue, all, ranked, total, skips, start, pausedAt, pausedMs, timeouts, raf, accepted, allKeys }
+  let reviewOnGlobe = false; // hay un país del repaso resaltado en el globo
+  let resultToken = 0; // para ignorar la respuesta del servidor si ya se empezó otra partida
 
-  const pool = (g = game, p = prefs) =>
+  const pool = (g = game, p = rulesNow()) =>
     (countries ?? []).filter(
       (c) => GAMES[g].valid(c) && p.continents.includes(c.continent) && p.types.includes(c.type)
     );
 
   // --- Pantalla de configuración ---
+  // Pestañas Casual / Ranked
+  function buildModes() {
+    modeTabs.replaceChildren();
+    for (const [value, label] of Object.entries(MODES)) {
+      const option = el('label');
+      const radio = el('input');
+      radio.type = 'radio';
+      radio.name = 'minigame-mode';
+      radio.checked = prefs.mode === value;
+      radio.addEventListener('change', () => {
+        prefs.mode = value;
+        sound.play('click');
+        save();
+      });
+      option.append(radio, t(label));
+      modeTabs.append(option);
+    }
+  }
+
   function buildForm() {
+    buildModes();
     form.replaceChildren();
     const field = (label) => {
       const node = el('div', 'field');
@@ -277,15 +323,33 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
     refresh();
   }
 
-  const roundsFor = (available) => (prefs.rounds === 'all' ? available : Math.min(prefs.rounds, available));
+  const roundsFor = (available) => {
+    const { rounds } = rulesNow();
+    return rounds === 'all' ? available : Math.min(rounds, available);
+  };
+  // En ranked hace falta un nombre para la clasificación (si la hay)
+  const validName = () => nameInput.value.trim().length >= 2;
 
   function refresh() {
-    if (!countries || !game) return;
+    if (!game) return;
+    form.hidden = isRanked();
+    rankedPanel.hidden = !isRanked();
+    if (!countries) return;
     for (const node of form.querySelectorAll('[data-count-for]')) {
       const [key, value] = node.dataset.countFor.split(':');
       node.textContent = pool(game, { ...prefs, [key]: [value] }).length;
     }
     const available = pool().length;
+    if (isRanked()) {
+      $('minigame-ranked-rules').textContent = t('mini.rankedRules', { total: available });
+      $('minigame-name-field').hidden = !leaderboardAvailable;
+      const needName = leaderboardAvailable && !validName();
+      summary.textContent = leaderboardAvailable ? '' : t('board.unavailable');
+      summary.classList.toggle('is-problem', !leaderboardAvailable);
+      startButton.disabled = needName || !available;
+      startButton.textContent = t('practice.startCount', { rounds: available });
+      return;
+    }
     let problem = null;
     if (!prefs.continents.length) problem = t('practice.needContinent');
     else if (!prefs.types.length) problem = t('practice.needType');
@@ -300,6 +364,7 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
   function openSetup(key) {
     game = key;
     $('minigame-setup-title').textContent = t(GAMES[key].title);
+    nameInput.value = getPlayerName();
     buildForm();
     showScreen('minigameSetup');
   }
@@ -308,12 +373,15 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
   function start() {
     stop();
     const g = GAMES[game];
+    const ranked = isRanked();
+    if (ranked && leaderboardAvailable && validName()) setPlayerName(nameInput.value);
+    resultToken++;
     const list = pool();
     const queue = shuffle(list).slice(0, roundsFor(list.length));
     // Claves aceptadas de cada país, y las de todos los demás (para descartar confusiones)
     const accepted = new Map(list.map((c) => [c, unique(g.names(c).map(answerKey))]));
     const allKeys = new Map((countries ?? []).filter(g.valid).map((c) => [c, g.names(c).map(answerKey)]));
-    run = { queue, total: queue.length, skips: 0, start: 0, pausedAt: null, pausedMs: 0, timeouts: [], raf: 0, accepted, allKeys };
+    run = { queue, all: [...queue], ranked, total: queue.length, skips: 0, start: 0, pausedAt: null, pausedMs: 0, timeouts: [], raf: 0, accepted, allKeys };
 
     playScreen.classList.toggle('is-map', usesGlobe());
     showScreen('minigamePlay');
@@ -327,6 +395,8 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
     input.disabled = true;
     input.className = 'text-input text-input-big mg-input';
     last.textContent = '';
+    disarmGiveUp();
+    giveUpButton.disabled = true; // hasta que acabe la cuenta atrás
     clock.textContent = formatTime(0);
     flagImg.hidden = true;
     countryText.textContent = '';
@@ -348,6 +418,7 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
       show(t('countdown.go'), 'go');
       run.start = performance.now();
       input.disabled = false;
+      giveUpButton.disabled = false;
       input.focus();
       showCurrent();
       tick();
@@ -420,17 +491,137 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
     showCurrent();
   }
 
-  function finish() {
+  // Fin de la partida: completada, o abandonada con "Rendirse" (gaveUp). En los dos casos se
+  // para el cronómetro y se enseñan todos los países con su respuesta.
+  function finish(gaveUp = false) {
     const time = elapsed();
-    cancelAnimationFrame(run.raf);
-    sound.play('finish');
-    $('mg-results-title').textContent = t(GAMES[game].title);
+    const done = run;
+    const key = game;
+    const missed = [...done.queue];
+    cancelAnimationFrame(done.raf);
+    sound.play(gaveUp ? 'timeout' : 'finish');
+    $('mg-results-title').textContent = `${t(GAMES[key].title)} · ${t(MODES[done.ranked ? 'ranked' : 'casual'])}`;
     $('mg-results-time').textContent = formatTime(time);
-    $('mg-results-detail').textContent = t('mini.detail', { total: run.total, skips: run.skips });
+    $('mg-results-detail').textContent = gaveUp
+      ? t('mini.gaveUp', { done: done.total - missed.length, total: done.total })
+      : t('mini.detail', { total: done.total, skips: done.skips });
+    renderReview(done.all, new Set(missed));
     run = null;
+    disarmGiveUp();
     input.blur();
     if (usesGlobe()) restoreGlobe();
+
+    // Ranked: solo las partidas completadas entran en la clasificación
+    const rank = $('mg-results-rank');
+    rank.hidden = true;
+    $('mg-results-board').hidden = !done.ranked || !leaderboardAvailable;
     showScreen('minigameResults');
+    if (done.ranked && !gaveUp) sendRanked(key, time, done);
+  }
+
+  async function sendRanked(key, timeMs, done) {
+    const rank = $('mg-results-rank');
+    rank.hidden = false;
+    if (!leaderboardAvailable) {
+      rank.textContent = t('board.unavailable');
+      return;
+    }
+    if (getPlayerName().length < 2) {
+      rank.textContent = t('board.noName');
+      return;
+    }
+    rank.textContent = t('daily.saving');
+    const token = resultToken;
+    const result = await submitMinigame({ game: key, timeMs, total: done.total, skips: done.skips });
+    if (token !== resultToken) return; // ya se empezó otra partida
+    if (!result) rank.textContent = t('mini.rankError');
+    else if (result.improved) rank.textContent = t('mini.rankNew', result);
+    else rank.textContent = t('mini.rankKept', { ...result, best: formatTime(result.bestMs) });
+  }
+
+  // --- Rendirse: pide confirmación (un segundo clic) para no perder la partida por error ---
+  let giveUpTimer = 0;
+  function disarmGiveUp() {
+    clearTimeout(giveUpTimer);
+    giveUpButton.classList.remove('is-armed');
+    giveUpButton.textContent = t('mini.giveUp');
+  }
+  function giveUp() {
+    if (!run?.start || isPaused()) return;
+    if (!giveUpButton.classList.contains('is-armed')) {
+      sound.play('click');
+      giveUpButton.classList.add('is-armed');
+      giveUpButton.textContent = t('mini.giveUpConfirm');
+      giveUpTimer = setTimeout(disarmGiveUp, GIVE_UP_CONFIRM_MS);
+      input.focus();
+      return;
+    }
+    finish(true);
+  }
+
+  // --- Repaso: todos los países de la partida con su nombre y su respuesta ---
+  // Si se abandonó, primero los que faltaban. Al pulsar uno se ve en el globo.
+  function renderReview(all, missed) {
+    const g = GAMES[game];
+    const countryName = (c) => c[`name_${getLanguage()}`] ?? c.name_en;
+    const row = (c, wrong) => {
+      const li = el('li', wrong ? 'is-wrong' : 'is-correct');
+      let flag = el('span', 'no-flag');
+      if (c.flag) {
+        flag = el('img');
+        flag.src = c.flag;
+        flag.alt = '';
+        flag.loading = 'lazy';
+      }
+      // Capitales: país y, a la derecha, su capital (la respuesta). En los otros, el país.
+      li.append(flag, el('span', 'name', countryName(c)), el('span', 'answer', g.showCountry ? g.shown(c) : ''), el('span', 'dot'));
+      if (c.polygons?.length) {
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        li.title = t('mini.showOnGlobe');
+        const focus = () => focusReview(c, li);
+        li.addEventListener('click', focus);
+        li.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            focus();
+          }
+        });
+      }
+      return li;
+    };
+    const head = (text) => {
+      const li = el('li', 'mg-review-head');
+      li.append(el('span', 'k', text));
+      return li;
+    };
+    const pending = all.filter((c) => missed.has(c));
+    const guessed = all.filter((c) => !missed.has(c));
+    review.replaceChildren(
+      ...(pending.length ? [head(t('mini.missed', { n: pending.length })), ...pending.map((c) => row(c, true))] : []),
+      ...(guessed.length ? [head(t('mini.guessed', { n: guessed.length })), ...guessed.map((c) => row(c, false))] : [])
+    );
+    review.scrollTop = 0;
+  }
+
+  function focusReview(c, li) {
+    sound.play('click');
+    reviewOnGlobe = true;
+    globe.setAutoRotate(false);
+    globe.removePin();
+    globe.setHighlights({ correct: c });
+    const { lon, lat } = countryCenter(c);
+    globe.flyTo(lon, lat, 1.4, (countrySizeKm(c) / EARTH_RADIUS_KM) * 3);
+    for (const item of review.children) item.classList.toggle('is-selected', item === li);
+  }
+
+  // Al salir del resultado: quita el país resaltado y deja el globo como en los menús
+  function clearReview() {
+    if (!reviewOnGlobe) return;
+    reviewOnGlobe = false;
+    clearGlobe();
+    globe.setAutoRotate(true);
   }
 
   // --- Pausa: el cronómetro se para y se tapan la bandera y el país ---
@@ -474,6 +665,7 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
     pauseOverlay.hidden = true;
     card.classList.remove('is-paused');
     if (!run) return;
+    disarmGiveUp();
     if (usesGlobe()) restoreGlobe();
     run.timeouts.forEach(clearTimeout);
     cancelAnimationFrame(run.raf);
@@ -500,6 +692,17 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
     }
   });
   $('mg-skip').addEventListener('click', skip);
+  giveUpButton.addEventListener('click', giveUp);
+  nameInput.addEventListener('input', refresh);
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !startButton.disabled) startButton.click();
+  });
+  for (const id of ['minigame-board', 'mg-results-board']) {
+    $(id).addEventListener('click', () => {
+      sound.play('click');
+      openBoard(game);
+    });
+  }
 
   // Durante la partida el foco no sale del cuadro de texto: clicar en cualquier sitio de la
   // pantalla (salvo un botón) lo devuelve, y escribir con el foco fuera también lo recupera
@@ -553,6 +756,7 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
 
   return {
     stop,
+    clearReview,
     // Esc durante la partida: pausa / reanuda (true si lo ha gestionado)
     togglePause() {
       if (!run) return false;
@@ -567,7 +771,10 @@ export function createMinigames({ settings, sound, showScreen, globe, continents
         $('minigame-setup-title').textContent = t(GAMES[game].title);
         buildForm();
       }
-      if (run && game) input.placeholder = t(GAMES[game].placeholder);
+      if (run && game) {
+        input.placeholder = t(GAMES[game].placeholder);
+        disarmGiveUp();
+      }
     },
   };
 }

@@ -82,6 +82,37 @@ export function watchLeaderboard(mode, difficulty, onChange) {
   });
 }
 
+// --- Minijuegos (ranked) -------------------------------------------------------------
+// Envía una partida ranked completada. Devuelve { improved, position, total, bestMs } o null.
+export async function submitMinigame({ game, timeMs, total, skips }) {
+  const name = getPlayerName();
+  if (!client || name.length < 2) return null;
+  try {
+    const country = await getPlayerCountry();
+    return await client.mutation(api.minigames.submit, {
+      token: playerToken(),
+      name,
+      country,
+      game,
+      timeMs: Math.round(timeMs),
+      total,
+      skips,
+    });
+  } catch (err) {
+    console.warn('No se pudo enviar el tiempo:', err);
+    return null;
+  }
+}
+
+// Se suscribe a la tabla de un minijuego: onChange(filas) al cargar y en cada cambio
+export function watchMinigame(game, onChange) {
+  if (!client) return () => {};
+  return client.onUpdate(api.minigames.top, { game, limit: 20 }, onChange, (err) => {
+    console.warn('No se pudo cargar la clasificación:', err);
+    onChange(null);
+  });
+}
+
 // --- Modo Diario ---------------------------------------------------------------------
 // El día va en UTC (el mismo para todo el mundo): cambia a las 00:00 UTC
 export const utcDay = (ms = Date.now()) => new Date(ms).toISOString().slice(0, 10);
@@ -127,7 +158,7 @@ export async function startDaily() {
 }
 
 // Termina el intento. Devuelve { position, total, day } o null si no se pudo guardar.
-export async function finishDaily(attemptId, score, points, timeMs) {
+export async function finishDaily(attemptId, score, points, timeMs, rounds) {
   if (!client) return null;
   try {
     return await client.mutation(api.daily.finish, {
@@ -136,9 +167,21 @@ export async function finishDaily(attemptId, score, points, timeMs) {
       score,
       points: Math.round(points),
       timeMs: Math.round(timeMs),
+      rounds,
     });
   } catch (err) {
     console.warn('No se pudo guardar el Diario:', err);
+    return null;
+  }
+}
+
+// Primer día con partidas del Diario ('AAAA-MM-DD'), o null si no hay o no se pudo cargar
+export async function fetchDailyFirstDay() {
+  if (!client) return null;
+  try {
+    return await client.query(api.daily.firstDay, {});
+  } catch (err) {
+    console.warn('No se pudo cargar el histórico del Diario:', err);
     return null;
   }
 }

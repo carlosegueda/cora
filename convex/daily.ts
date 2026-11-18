@@ -8,6 +8,7 @@ import { ConvexError, v } from 'convex/values';
 import { DAILY_COUNTRIES } from './dailyCountries';
 import { findPlayer, upsertPlayer } from './players';
 import { dailyRanking } from './rankings';
+import { dailyRound } from './schema';
 
 const DAY_MS = 86_400_000;
 const PER_DAY = 10;
@@ -73,6 +74,9 @@ export const start = mutation({
         timeMs: existing.timeMs ?? 0,
         position,
         total,
+        // Para repasar el intento: los países del día y qué pasó con cada uno
+        countries: countriesForDay(day),
+        rounds: existing.rounds ?? null,
       };
     }
 
@@ -97,6 +101,7 @@ export const finish = mutation({
     score: v.number(),
     points: v.number(),
     timeMs: v.number(),
+    rounds: v.optional(v.array(dailyRound)), // detalle país a país, para repasarlo después
   },
   handler: async (ctx, args) => {
     const player = await findPlayer(ctx, args.token);
@@ -120,8 +125,32 @@ export const finish = mutation({
       throw new ConvexError('Tiempo no válido');
     }
 
+    // El detalle tiene que cuadrar con el resultado: los países del día, sin repetir, y la
+    // suma de sus puntos y aciertos igual a los totales
+    const rounds = args.rounds;
+    if (rounds) {
+      const expected = new Set(countriesForDay(attempt.day));
+      const seen = new Set(rounds.map((r) => r.iso3));
+      const valid =
+        rounds.length <= PER_DAY &&
+        seen.size === rounds.length &&
+        rounds.every(
+          (r) =>
+            expected.has(r.iso3) &&
+            Number.isInteger(r.points) &&
+            r.points >= 0 &&
+            r.points <= MAX_POINTS_PER_COUNTRY &&
+            (r.distanceKm === null || (Number.isFinite(r.distanceKm) && r.distanceKm >= 0)) &&
+            (r.clicked === null || r.clicked.length <= 8)
+        ) &&
+        rounds.reduce((sum, r) => sum + r.points, 0) === args.points &&
+        rounds.filter((r) => r.correct).length === args.score;
+      if (!valid) throw new ConvexError('Detalle no válido');
+    }
+
     const timeMs = Math.round(args.timeMs);
     await ctx.db.patch(attempt._id, {
+      ...(rounds ? { rounds } : {}),
       finished: true,
       score: args.score,
       points: args.points,
@@ -133,6 +162,15 @@ export const finish = mutation({
     const position = (await dailyRanking.indexOfDoc(ctx, done)) + 1;
     const total = await dailyRanking.count(ctx, { namespace: attempt.day });
     return { day: attempt.day, position, total };
+  },
+});
+
+// Primer día con algún intento (null si nadie ha jugado nunca): hasta ahí llega el histórico
+export const firstDay = query({
+  args: {},
+  handler: async (ctx) => {
+    const first = await ctx.db.query('dailyAttempts').withIndex('by_day_and_player').first();
+    return first?.day ?? null;
   },
 });
 

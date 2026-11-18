@@ -746,6 +746,44 @@ button:disabled {
   outline-offset: 2px;
 }
 
+/* Diario: ‹ día › para ver las tablas de días anteriores */
+.board-day {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.board-day[hidden] {
+  display: none;
+}
+
+.board-day button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--faint);
+  border-radius: 999px;
+  background: none;
+  color: var(--paper);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.board-day button:hover:not(:disabled) {
+  border-color: var(--sun);
+  color: var(--sun);
+}
+
+.board-day button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 #board-difficulty[hidden],
 .podium[hidden],
 .board-table[hidden] {
@@ -1990,4 +2028,130 @@ button:disabled {
 .field .foot-link {
   margin-top: 0;
   font-size: 14px;
+}
+
+/* --- Minijuegos: casual / ranked, rendirse y repaso ------------------------------- */
+/* Con muchas pestañas (clasificación) el control segmentado se desliza en vez de apretarse */
+.seg {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.seg::-webkit-scrollbar {
+  display: none;
+}
+
+.seg label {
+  flex: 1 0 auto;
+  white-space: nowrap;
+}
+
+#minigame-form[hidden],
+.mg-ranked[hidden] {
+  display: none;
+}
+
+.mg-ranked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.mg-ranked .info-text {
+  margin: 0;
+}
+
+.mg-ranked .field {
+  width: 100%;
+}
+
+.mg-giveup {
+  margin-left: auto;
+}
+
+.mg-giveup + .mg-skip {
+  margin-left: 0;
+}
+
+.mg-giveup.is-armed {
+  border-color: var(--wrong, #e5484d);
+  color: var(--wrong, #e5484d);
+}
+
+.mg-results-rank {
+  margin: 14px 0 0;
+  color: var(--sun);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+#mg-results-board {
+  margin-top: 8px;
+}
+
+.mg-review {
+  margin: 14px 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.mg-review li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto 8px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--faint);
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.mg-review li.mg-review-head {
+  display: block;
+  padding: 14px 0 6px;
+}
+
+.mg-review li.mg-review-head:first-child {
+  padding-top: 0;
+}
+
+.mg-review li[role='button'] {
+  cursor: pointer;
+}
+
+.mg-review li[role='button']:hover,
+.mg-review li[role='button']:focus-visible {
+  background: rgba(236, 230, 217, 0.05);
+  outline: none;
+}
+
+.mg-review li.is-selected {
+  background: rgba(127, 207, 138, 0.12);
+  box-shadow: inset 2px 0 0 var(--correct);
+}
+
+.mg-review img,
+.mg-review .no-flag {
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 1px;
+}
+
+.mg-review .answer {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: right;
+}
+
+.mg-review .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--correct);
+}
+
+.mg-review .is-wrong .dot {
+  background: var(--wrong, #e5484d);
 }

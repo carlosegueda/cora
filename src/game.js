@@ -17,11 +17,13 @@ import {
   leaderboardAvailable,
   submitScore,
   watchLeaderboard,
+  watchMinigame,
   getPlayerName,
   setPlayerName,
   startDaily,
   finishDaily,
   watchDaily,
+  fetchDailyFirstDay,
   utcDay,
 } from './leaderboard.js';
 
@@ -364,6 +366,7 @@ export function createGame(globe) {
     settingsButton.classList.toggle('is-active', name === 'settings');
     boardButton.classList.toggle('is-active', name === 'leaderboard');
     if (screen === 'minigamePlay' && name !== 'minigamePlay') minigames?.stop();
+    if (screen === 'minigameResults' && name !== 'minigameResults') minigames?.clearReview();
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
     if (name === 'menu') watchDailyTop();
     screen = name;
@@ -597,9 +600,11 @@ export function createGame(globe) {
     return img;
   };
 
-  function finish() {
+  // `review` (solo Diario): se está repasando un intento ya guardado, { position, total };
+  // no suena ni se vuelve a enviar.
+  function finish(review = null) {
     state = 'results';
-    sound.play('finish');
+    if (!review) sound.play('finish');
     hud.hidden = true;
     resetGlobe();
     globe.setAutoRotate(true);
@@ -629,7 +634,10 @@ export function createGame(globe) {
     // El Diario no se repite: en lugar de "Jugar otra vez", ver la tabla del día
     $('results-replay').hidden = isDaily();
     $('results-daily-board').hidden = !isDaily();
-    if (isDaily()) sendDaily();
+    if (review) {
+      $('results-rank').hidden = false;
+      $('results-rank').textContent = t('daily.position', review);
+    } else if (isDaily()) sendDaily();
     else sendToLeaderboard();
 
     const list = $('results-list');
@@ -648,19 +656,21 @@ export function createGame(globe) {
       flags.lastChild.append(...answers.filter((a) => a.correct).map((a) => flagImg(a.country)));
     } else {
       list.replaceChildren(
-        ...answers.map(({ country, correct, points: earned }) => {
+        ...answers.map(({ country, correct, clicked, distanceKm, points: earned }) => {
           const li = el('li', correct ? 'is-correct' : 'is-wrong');
+          // Diario: puntos del país y, si se falló, a cuánto quedó el clic
+          const missedBy = !correct && Number.isFinite(distanceKm) ? `${formatKm(distanceKm)} · ` : '';
           li.append(
             flagImg(country),
             el('span', 'name', nameOf(country)),
-            el('span', 'pts', isDaily() ? `+${earned}` : ''),
+            el('span', 'pts', isDaily() ? `${missedBy}+${earned}` : ''),
             el('span', 'dot')
           );
           // Al pulsar un país de la lista se pinta de verde y la cámara va hasta él
           li.tabIndex = 0;
           li.setAttribute('role', 'button');
           li.title = t(correct ? 'results.showHit' : 'results.showMiss');
-          const focus = () => focusResultCountry(country, li);
+          const focus = () => focusResultCountry(country, li, correct ? null : clicked);
           li.addEventListener('click', focus);
           li.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -676,12 +686,13 @@ export function createGame(globe) {
     showScreen('results');
   }
 
-  // Resultado: muestra un país de la lista en el globo (verde) y lleva la cámara hasta él
-  function focusResultCountry(country, li) {
+  // Resultado: muestra un país de la lista en el globo (verde) y lleva la cámara hasta él.
+  // Si se falló, en rojo el país donde se hizo clic.
+  function focusResultCountry(country, li, clicked = null) {
     sound.play('click');
     globe.setAutoRotate(false);
     globe.removePin();
-    globe.setHighlights({ correct: country });
+    globe.setHighlights({ correct: country, wrong: clicked });
     const { lon, lat } = countryCenter(country);
     // Altura para que el país ocupe buena parte de la vista: unas 3 veces su tamaño
     // (los límites de zoom la acotan; los países diminutos se ven desde el zoom máximo)
@@ -819,9 +830,24 @@ export function createGame(globe) {
 
   // --- Clasificación online (Convex) ---
   // Pestañas de la clasificación (claves de traducción)
-  const BOARD_MODES = { daily: 'board.daily', clasico: 'menu.marathon', supervivencia: 'menu.survival' };
-  const BOARD_LIMIT = { daily: 100, clasico: 20, supervivencia: 20 };
-  const board = { mode: 'daily', difficulty: 'facil', stop: null };
+  const BOARD_MODES = {
+    daily: 'board.daily',
+    clasico: 'menu.marathon',
+    supervivencia: 'menu.survival',
+    // Minijuegos en modo ranked (una tabla por minijuego, sin dificultades)
+    flags: 'board.flags',
+    map: 'board.map',
+    capitals: 'board.capitals',
+  };
+  const BOARD_LIMIT = { daily: 100, clasico: 20, supervivencia: 20, flags: 20, map: 20, capitals: 20 };
+  const MINIGAME_BOARDS = ['flags', 'map', 'capitals'];
+  const isMinigameBoard = () => MINIGAME_BOARDS.includes(board.mode);
+  // day: día del Diario que se está viendo (null = hoy); firstDay: primer día con partidas
+  const board = { mode: 'daily', difficulty: 'facil', day: null, firstDay: null, stop: null };
+  const shiftDay = (day, n) => utcDay(Date.parse(`${day}T00:00:00Z`) + n * 86_400_000);
+  // El día que se ve en la tabla del Diario (nunca posterior a hoy)
+  const boardDay = () => (board.day && board.day < utcDay() ? board.day : utcDay());
+  const formatDay = (day, options) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), options);
   const boardList = $('board-list');
   const boardStatus = $('board-status');
 
@@ -861,13 +887,13 @@ export function createGame(globe) {
       daily: ['board.colPoints', 'board.colTime'],
       clasico: ['board.colTime', 'board.colMisses'],
       supervivencia: ['board.colHits', 'board.colTime'],
-    })[board.mode];
+    })[board.mode] ?? ['board.colTime', 'board.colSkips'];
   const boardValues = (row) =>
     ({
       daily: () => [`${row.points ?? 0}`, formatTime(row.timeMs)],
       clasico: () => [formatTime(row.timeMs), String(row.fails ?? 0)],
       supervivencia: () => [`${row.score}/${row.total}`, formatTime(row.timeMs)],
-    })[board.mode]();
+    })[board.mode]?.() ?? [formatTime(row.timeMs), String(row.skips ?? 0)];
 
   // Podio con los tres primeros (en pantalla: 2.º, 1.º, 3.º) y tabla con el resto
   function renderBoard(rows) {
@@ -877,7 +903,13 @@ export function createGame(globe) {
       ...rows.slice(0, 3).map((row, i) => {
         const [main, value] = boardValues(row);
         // En el podio, los fallos de Maratón con su palabra ("4 fallos"), que aquí no hay cabecera
-        const extra = board.mode === 'clasico' ? t('board.fails', { fails: row.fails ?? 0 }) : value;
+        // (y lo mismo los saltos de los minijuegos)
+        const extra =
+          board.mode === 'clasico'
+            ? t('board.fails', { fails: row.fails ?? 0 })
+            : isMinigameBoard()
+              ? t('board.skips', { n: row.skips ?? 0 })
+              : value;
         const card = el('div', `podium-card place-${i + 1}${row.name === me ? ' is-me' : ''}`);
         const flag = countryFlag(row.country);
         flag.classList.add('podium-flag');
@@ -914,15 +946,22 @@ export function createGame(globe) {
   function loadBoard() {
     stopBoard();
     const daily = board.mode === 'daily';
-    $('board-difficulty').hidden = daily;
+    $('board-difficulty').hidden = daily || isMinigameBoard();
     const [a, b] = boardColumns();
     $('board-col-a').textContent = t(a);
     $('board-col-b').textContent = t(b);
     renderBoard([]);
     const sub = $('board-sub');
-    sub.textContent = daily
-      ? new Date(`${utcDay()}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
-      : '';
+    sub.textContent = '';
+    const day = boardDay();
+    const isToday = day === utcDay();
+    $('board-day').hidden = !daily;
+    if (daily) {
+      const date = formatDay(day, { day: 'numeric', month: 'long', year: 'numeric' });
+      $('board-day-label').textContent = isToday ? `${t('board.today')} · ${date}` : date;
+      $('board-day-prev').disabled = !board.firstDay || day <= board.firstDay;
+      $('board-day-next').disabled = isToday;
+    }
     if (!leaderboardAvailable) {
       boardStatus.textContent = t('board.unavailable');
       return;
@@ -933,28 +972,52 @@ export function createGame(globe) {
         boardStatus.textContent = t('board.loadError');
         return;
       }
-      boardStatus.textContent = rows.length ? '' : daily ? t('daily.nobody') : t('board.empty');
+      boardStatus.textContent = rows.length
+        ? ''
+        : daily
+          ? t(isToday ? 'daily.nobody' : 'daily.nobodyDay')
+          : t('board.empty');
       if (rows.length) {
         sub.textContent = daily
-          ? `${new Date(`${utcDay()}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })} · ${t('board.players', { n: rows.length })}`
+          ? t('board.players', { n: rows.length })
           : t('board.top', { n: BOARD_LIMIT[board.mode] });
       }
       renderBoard(rows);
     };
     board.stop = daily
-      ? watchDaily(utcDay(), BOARD_LIMIT.daily, onRows)
-      : watchLeaderboard(board.mode, board.difficulty, onRows);
+      ? watchDaily(day, BOARD_LIMIT.daily, onRows)
+      : isMinigameBoard()
+        ? watchMinigame(board.mode, onRows)
+        : watchLeaderboard(board.mode, board.difficulty, onRows);
   }
 
-  // `mode` (opcional) abre directamente una pestaña: 'daily' | 'clasico' | 'supervivencia'
+  // `mode` (opcional) abre directamente una pestaña (una clave de BOARD_MODES)
   function openBoard(mode) {
     if (mode) {
       board.mode = mode;
       setupBoard();
     }
+    board.day = null; // siempre se abre en hoy
     showScreen('leaderboard');
     loadBoard();
+    // Hasta dónde se puede retroceder en el Diario
+    fetchDailyFirstDay().then((first) => {
+      if (!first) return;
+      board.firstDay = first;
+      if (screen === 'leaderboard' && board.mode === 'daily') {
+        $('board-day-prev').disabled = boardDay() <= first;
+      }
+    });
   }
+
+  // Diario: día anterior / siguiente
+  const stepBoardDay = (n) => {
+    board.day = shiftDay(boardDay(), n);
+    sound.play('click');
+    loadBoard();
+  };
+  $('board-day-prev').addEventListener('click', () => stepBoardDay(-1));
+  $('board-day-next').addEventListener('click', () => stepBoardDay(1));
 
   // Pestañas de modo y dificultad
   // Pestañas de modo y dificultad (se reconstruyen al cambiar de idioma)
@@ -1025,6 +1088,9 @@ export function createGame(globe) {
     if (screen !== 'dailyInfo') return; // salió mientras cargaba
     if (res.status === 'error') return showDailyInfo(t('daily.startError'));
     if (res.status === 'played') {
+      // Ya jugó hoy: se le enseña su resultado completo (los intentos antiguos, sin detalle
+      // país a país, solo el resumen)
+      if (res.finished && res.rounds?.length) return showDailyReview(res);
       return showDailyInfo(
         res.finished
           ? t('daily.played', {
@@ -1040,13 +1106,46 @@ export function createGame(globe) {
     startGame(dailyRules(res.countries, res.attemptId, settings.language));
   }
 
+  // Repaso del intento de hoy: la misma pantalla de resultado que al terminar, reconstruida
+  // con lo que guardó el servidor (puntos, tiempo, puesto y qué pasó con cada país)
+  async function showDailyReview(res) {
+    const countries = await globe.countriesReady;
+    if (screen !== 'dailyInfo') return; // salió mientras cargaba
+    const byIso3 = new Map(countries.map((c) => [c.iso3, c]));
+    rules = dailyRules(res.countries, null, settings.language);
+    answers = res.rounds
+      .map((r) => ({
+        country: byIso3.get(r.iso3),
+        correct: r.correct,
+        clicked: (r.clicked && byIso3.get(r.clicked)) || null,
+        distanceKm: r.distanceKm,
+        points: r.points,
+      }))
+      .filter((a) => a.country);
+    score = res.score;
+    points = res.points;
+    total = res.countries.length;
+    elapsedMs = res.timeMs;
+    finish({ position: res.position, total: res.total });
+  }
+
+  // Detalle país a país del intento, para poder repasarlo después
+  const dailyRounds = () =>
+    answers.map((a) => ({
+      iso3: a.country.iso3,
+      correct: a.correct,
+      points: a.points,
+      distanceKm: Number.isFinite(a.distanceKm) ? Math.round(a.distanceKm) : null,
+      clicked: a.clicked?.iso3 ?? null,
+    }));
+
   // Guarda el intento y muestra el puesto en la tabla general del día
   async function sendDaily() {
     const rank = $('results-rank');
     rank.hidden = false;
     rank.textContent = t('daily.saving');
     const sentRules = rules;
-    const result = await finishDaily(rules.attemptId, score, points, elapsedMs);
+    const result = await finishDaily(rules.attemptId, score, points, elapsedMs, dailyRounds());
     if (state !== 'results' || rules !== sentRules) return;
     rank.textContent = result ? t('daily.position', result) : t('daily.saveError');
   }
@@ -1180,6 +1279,7 @@ export function createGame(globe) {
     settings,
     sound,
     showScreen,
+    openBoard,
     globe,
     continents: CONTINENTS,
     types: TYPES,

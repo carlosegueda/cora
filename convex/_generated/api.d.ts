@@ -10,6 +10,7 @@
 
 import type * as daily from "../daily.js";
 import type * as dailyCountries from "../dailyCountries.js";
+import type * as minigames from "../minigames.js";
 import type * as players from "../players.js";
 import type * as rankings from "../rankings.js";
 import type * as scores from "../scores.js";
@@ -23,6 +24,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   daily: typeof daily;
   dailyCountries: typeof dailyCountries;
+  minigames: typeof minigames;
   players: typeof players;
   rankings: typeof rankings;
   scores: typeof scores;
@@ -57,4 +59,5 @@ export declare const internal: FilterApi<
 export declare const components: {
   boardRanking: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"boardRanking">;
   dailyRanking: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"dailyRanking">;
+  minigameRanking: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"minigameRanking">;
 };

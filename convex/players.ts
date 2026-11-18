@@ -14,7 +14,7 @@ function checkToken(token: string) {
 }
 
 // Busca al jugador por su token; lo crea si no existe y actualiza su nombre si cambió
-// (también en sus marcas de Jugar/Supervivencia, como mucho 8: una por tabla)
+// (también en sus marcas de Jugar/Supervivencia y de los minijuegos: una por tabla)
 export async function upsertPlayer(ctx: MutationCtx, token: string, rawName: string): Promise<Doc<'players'>> {
   checkToken(token);
   const name = cleanName(rawName);
@@ -33,6 +33,11 @@ export async function upsertPlayer(ctx: MutationCtx, token: string, rawName: str
       .withIndex('by_player_and_mode_and_difficulty', (q) => q.eq('playerId', player._id))
       .take(20);
     for (const row of own) await ctx.db.patch(row._id, { name });
+    const ownMinigames = await ctx.db
+      .query('minigameScores')
+      .withIndex('by_player_and_game', (q) => q.eq('playerId', player._id))
+      .take(10);
+    for (const row of ownMinigames) await ctx.db.patch(row._id, { name });
   }
   return { ...player, name };
 }
