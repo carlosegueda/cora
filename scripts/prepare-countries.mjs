@@ -227,6 +227,16 @@ writeFileSync(
     `export const DAILY_COUNTRIES: readonly string[] = ${JSON.stringify(dailyCodes)};\n`
 );
 
+// Países del modo Desafío (salas multijugador): el servidor elige el país de cada turno
+const states = countries.filter((c) => c.type === 'estado');
+writeFileSync(
+  join(root, 'convex/challengeCountries.ts'),
+  `// Generado por scripts/prepare-countries.mjs: estados (ISO3) que pueden salir en el modo Desafío.\n` +
+    `// En el de países salen todos los estados (DAILY_COUNTRIES); aquí, los que tienen bandera y capital.\n` +
+    `export const FLAG_COUNTRIES: readonly string[] = ${JSON.stringify(states.filter((c) => c.flag).map((c) => c.iso3))};\n` +
+    `export const CAPITAL_COUNTRIES: readonly string[] = ${JSON.stringify(states.filter((c) => c.flag && c.capital).map((c) => c.iso3))};\n`
+);
+
 const count = (fn) => countries.filter(fn).length;
 console.log(`${countries.length} países y territorios`);
 console.log(`  estados: ${count((c) => c.type === 'estado')}`);

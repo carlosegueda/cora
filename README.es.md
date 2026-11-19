@@ -111,6 +111,16 @@ Desde el menú principal, *Supervivencia* lleva a la misma pantalla de dificulta
 - **Resultado**: aciertos sobre el total, tiempo jugado, número de fallos y las banderas de los países acertados.
 - Tiene su propio **récord** por dificultad (más aciertos; a igualdad, menos tiempo), que se ve en la pantalla de dificultad al entrar desde *Supervivencia*.
 
+### Desafío (multijugador)
+
+Está en *Arcade → Desafío*. Es por turnos, de **2 a 10 jugadores**, estilo "papa caliente":
+
+- Uno **crea una sala** y los demás se unen con su **código de 5 letras** o con el enlace de invitación (`?room=CÓDIGO`). Quien entra con la partida empezada, o con la sala llena, solo mira.
+- El **anfitrión** elige el juego: **Países** (hay que hacer clic en el país en el globo), **Banderas** (se ve la bandera y se escribe el país) o **Capitales** (se ve el país y se escribe su capital), y empieza.
+- Cada jugador tiene un **reloj de 15 s** que solo corre **durante su turno**. En cada turno le toca un país al azar: **acierto +5 s**, **fallo −3 s**, y si pasan **10 s sin responder, −5 s**. En los tres casos pasa el turno.
+- Quien se queda **sin tiempo queda eliminado** y sigue mirando. **Gana el último en pie.** Al terminar, el anfitrión puede devolver a todos a la sala para jugar otra.
+- El reloj lo lleva el servidor (`convex/challenge.ts`); la interfaz está en `src/challenge.js`. Las reglas (segundos, límite del turno, jugadores) son las constantes del principio de `convex/challenge.ts`.
+
 ### Entrenamiento
 
 Para practicar con reglas a medida. Desde el menú principal, *Entrenamiento* abre una pantalla con:

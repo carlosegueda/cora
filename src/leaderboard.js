@@ -113,6 +113,38 @@ export function watchMinigame(game, onChange) {
   });
 }
 
+// --- Desafío (salas multijugador) -------------------------------------------------------
+// Llama a una mutación de convex/challenge.ts con el token del jugador. Lanza si falla
+// (el error del servidor trae un código en `err.data`: ROOM_NOT_FOUND, ROOM_FULL…).
+export async function challengeCall(fn, args = {}) {
+  if (!client) throw new Error('sin conexión');
+  return await client.mutation(api.challenge[fn], { token: playerToken(), ...args });
+}
+
+// Se suscribe a una sala: onChange(sala) al cargar y en cada cambio (null si no existe;
+// undefined si falla la conexión)
+export function watchChallengeRoom(code, onChange) {
+  if (!client) return () => {};
+  return client.onUpdate(api.challenge.room, { code, token: playerToken() }, onChange, (err) => {
+    console.warn('No se pudo cargar la sala:', err);
+    onChange(undefined);
+  });
+}
+
+// Desfase entre el reloj del servidor y el de este dispositivo (ms). Se mide tres veces y se
+// queda con la más rápida, que es la que menos error de red tiene.
+export async function serverClockOffset() {
+  if (!client) return 0;
+  let best = null;
+  for (let i = 0; i < 3; i++) {
+    const sent = Date.now();
+    const server = await client.mutation(api.challenge.clock, {});
+    const received = Date.now();
+    if (!best || received - sent < best.trip) best = { trip: received - sent, offset: server - (sent + received) / 2 };
+  }
+  return best.offset;
+}
+
 // --- Modo Diario ---------------------------------------------------------------------
 // El día del Diario es el mismo para todo el mundo y cambia a las 00:00 de UTC−6 (06:00 UTC).
 // Debe coincidir con RESET_OFFSET_MS de convex/daily.ts

@@ -104,8 +104,8 @@ export function matches(input, accepted, others, exact = false) {
 }
 
 const unique = (list) => [...new Set(list.filter(Boolean))];
-const countryNames = (c) => unique([c.name_en, c.name_es, c.name_pt, ...(c.aliases ?? [])]);
-const capitalNames = (c) => unique([c.capital.en, c.capital.es, c.capital.pt, ...c.capital.names]);
+export const countryNames = (c) => unique([c.name_en, c.name_es, c.name_pt, ...(c.aliases ?? [])]);
+export const capitalNames = (c) => unique([c.capital.en, c.capital.es, c.capital.pt, ...c.capital.names]);
 
 const GAMES = {
   flags: {

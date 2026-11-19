@@ -22,6 +22,20 @@ export const dailyRound = v.object({
   clicked: v.union(v.string(), v.null()), // ISO3 del país donde hizo clic (null = mar o ninguno)
 });
 
+// Desafío (salas de 2 a 10 jugadores): a qué se juega
+export const challengeGame = v.union(v.literal('map'), v.literal('flags'), v.literal('capitals'));
+
+// Desafío: un jugador dentro de una sala
+export const challengePlayer = v.object({
+  playerId: v.id('players'),
+  name: v.string(),
+  country: v.union(v.string(), v.null()), // país del jugador (ISO alfa-2), para su bandera
+  timeMs: v.number(), // segundos que le quedan en su reloj (en ms)
+  alive: v.boolean(), // false = eliminado (solo mira)
+  place: v.optional(v.number()), // puesto final (1 = ganador), al ser eliminado o ganar
+  left: v.optional(v.boolean()), // se fue de la sala durante la partida
+});
+
 export default defineSchema({
   // Jugador identificado por un token secreto que guarda su navegador (sin cuentas ni contraseñas)
   players: defineTable({
@@ -63,6 +77,38 @@ export default defineSchema({
   })
     .index('by_day_and_player', ['day', 'playerId'])
     .index('by_day_and_finished_and_rank', ['day', 'finished', 'rank']),
+
+  // Desafío: una sala. Todo su estado va en un solo documento (como mucho 10 jugadores), así
+  // cada jugador se suscribe a una sola consulta y los turnos se resuelven de forma atómica.
+  rooms: defineTable({
+    code: v.string(), // código para invitar (5 letras)
+    hostId: v.id('players'), // quien elige el juego y empieza
+    game: challengeGame,
+    status: v.union(v.literal('lobby'), v.literal('playing'), v.literal('finished')),
+    players: v.array(challengePlayer), // en orden de turno
+    turn: v.number(), // número de turno (sube en cada uno; descarta respuestas y avisos viejos)
+    // Turno en curso: a quién le toca, qué país, cuándo empieza a correr su reloj (hora del
+    // servidor) y cuánto dura como mucho
+    current: v.optional(
+      v.object({ playerId: v.id('players'), iso3: v.string(), startsAt: v.number(), limitMs: v.number() })
+    ),
+    // Qué pasó en el turno anterior (para enseñárselo a todos)
+    last: v.optional(
+      v.object({
+        turn: v.number(),
+        playerId: v.id('players'),
+        iso3: v.string(),
+        outcome: v.union(v.literal('correct'), v.literal('wrong'), v.literal('timeout'), v.literal('left')),
+        clicked: v.union(v.string(), v.null()), // país donde hizo clic (solo en el de países)
+        eliminated: v.boolean(),
+      })
+    ),
+    used: v.array(v.string()), // países que ya salieron (no se repiten hasta agotarlos)
+    winnerId: v.optional(v.id('players')),
+    updatedAt: v.number(),
+  })
+    .index('by_code', ['code'])
+    .index('by_updatedAt', ['updatedAt']),
 
   // Minijuegos en modo ranked (todos los continentes, solo estados, todos los países): mejor
   // tiempo de cada jugador en cada minijuego. Menos tiempo = mejor puesto.

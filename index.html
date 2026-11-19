@@ -138,6 +138,89 @@
             <span class="row-title" data-i18n="menu.survival">Survival</span>
             <span class="row-desc" data-i18n="mini.survivalDesc">Beat the clock: every hit adds time</span>
           </button>
+          <button class="row" data-action="challenge">
+            <span class="row-title"><span data-i18n="menu.challenge">Challenge</span><span class="beta-tag">Beta</span></span>
+            <span class="row-desc" data-i18n="ch.desc">2–10 players take turns: last one standing wins</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Desafío (2–10 jugadores, por turnos): crear una sala o unirse con un código -->
+    <section id="screen-challenge" class="screen" hidden>
+      <div class="sheet">
+        <button data-action="arcade" class="back" data-i18n="arcade.back">← Arcade</button>
+        <h2 class="title"><span data-i18n="menu.challenge">Challenge</span><span class="beta-tag">Beta</span></h2>
+        <label class="field">
+          <span class="field-label" data-i18n="name.title">Your name</span>
+          <input type="text" id="ch-name" class="text-input" maxlength="20" minlength="2" autocomplete="nickname" spellcheck="false" />
+        </label>
+        <button id="ch-create" class="primary" type="button" data-i18n="ch.create">Create room</button>
+        <div class="field">
+          <span class="field-label" data-i18n="ch.joinLabel">Or join with a code</span>
+          <form id="ch-join-form" class="ch-join" autocomplete="off">
+            <input type="text" id="ch-code" class="text-input ch-code-input" maxlength="5" placeholder="ABCDE"
+              autocapitalize="characters" autocorrect="off" spellcheck="false" data-i18n-attr="aria-label:ch.joinLabel" />
+            <button id="ch-join" class="ghost" type="submit" data-i18n="ch.join">Join</button>
+          </form>
+        </div>
+        <p id="ch-home-status" class="info-text" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- Desafío: sala de espera (lo rellena challenge.js) -->
+    <section id="screen-challenge-lobby" class="screen" hidden>
+      <div class="sheet">
+        <button id="ch-leave" class="back" type="button" data-i18n="ch.leave">← Leave room</button>
+        <h2 class="title" data-i18n="ch.room">Room</h2>
+        <div class="ch-code-row">
+          <strong id="ch-room-code" class="ch-room-code"></strong>
+          <button id="ch-copy" class="link-button" type="button" data-i18n="ch.copy">Copy invite link</button>
+        </div>
+        <div class="field">
+          <span class="field-label" data-i18n="ch.game">Game</span>
+          <div id="ch-game" class="seg"></div>
+          <p id="ch-game-desc" class="info-text"></p>
+          <p class="ch-rules" data-i18n="ch.rules">Everyone starts with 15 s. Right: +5 s · wrong: −3 s · no answer in 10 s: −5 s.</p>
+        </div>
+        <div class="field">
+          <span class="field-label" id="ch-players-label"></span>
+          <ol id="ch-lobby-players" class="ch-players"></ol>
+        </div>
+        <div class="sheet-footer">
+          <p id="ch-lobby-status" aria-live="polite"></p>
+          <button id="ch-start" class="primary" type="button" data-i18n="practice.start">Start</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Desafío: partida. Arriba los jugadores con su reloj; la tarjeta con el turno y el país -->
+    <section id="screen-challenge-play" class="screen" hidden>
+      <ol id="ch-seats" class="ch-seats"></ol>
+      <button id="ch-quit" class="ghost ch-quit" type="button" data-i18n="ch.quit">Leave</button>
+      <div id="ch-card" class="ch-card">
+        <p id="ch-turn" class="ch-turn" aria-live="polite"></p>
+        <div class="ch-prompt">
+          <img id="ch-flag" class="ch-flag" alt="" hidden />
+          <span id="ch-prompt-text" class="ch-prompt-text"></span>
+        </div>
+        <input id="ch-input" class="text-input text-input-big ch-input" type="text" autocomplete="off"
+          autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" hidden />
+        <div class="ch-bar"><div id="ch-bar-fill"></div></div>
+        <p id="ch-feedback" class="ch-feedback" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- Desafío: resultado -->
+    <section id="screen-challenge-results" class="screen" hidden>
+      <div class="sheet">
+        <h2 class="title" data-i18n="menu.challenge">Challenge</h2>
+        <p id="ch-winner" class="ch-winner"></p>
+        <ol id="ch-ranking" class="ch-players"></ol>
+        <p id="ch-results-wait" class="info-text"></p>
+        <div class="actions">
+          <button id="ch-again" class="primary" type="button" data-i18n="ch.again">Back to the room</button>
+          <button id="ch-results-leave" class="ghost" type="button" data-i18n="ch.leaveRoom">Leave room</button>
         </div>
       </div>
     </section>

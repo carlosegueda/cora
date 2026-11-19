@@ -12,6 +12,7 @@ import { loadSettings, saveSettings, LANGUAGES, DEFAULT_PRACTICE } from './setti
 import { createSound } from './sound.js';
 import { t, setLanguage, locale } from './i18n.js';
 import { createMinigames } from './minigames.js';
+import { createChallenge } from './challenge.js';
 import { countryCenter, countrySizeKm, distanceToCountryKm } from './countries.js';
 import {
   leaderboardAvailable,
@@ -268,6 +269,10 @@ export function createGame(globe) {
     minigameSetup: $('screen-minigame-setup'),
     minigamePlay: $('screen-minigame-play'),
     minigameResults: $('screen-minigame-results'),
+    challenge: $('screen-challenge'),
+    challengeLobby: $('screen-challenge-lobby'),
+    challengePlay: $('screen-challenge-play'),
+    challengeResults: $('screen-challenge-results'),
   };
   const isMinigameScreen = (name) => name?.startsWith('minigame');
   const hud = $('hud');
@@ -353,7 +358,7 @@ export function createGame(globe) {
   // En el menú principal de pantallas anchas, el top 5 del Diario ocupa la derecha: el planeta
   // va casi al centro, entre el menú y esa columna. En el resto de menús, a la derecha.
   const viewShiftFor = (name) => {
-    if (!name || name === 'minigamePlay' || !wideScreen()) return 0;
+    if (!name || name === 'minigamePlay' || name === 'challengePlay' || !wideScreen()) return 0;
     if (name === 'menu' && leaderboardAvailable && window.innerWidth >= 1100) return 0.02;
     return MENU_VIEW_SHIFT;
   };
@@ -362,6 +367,7 @@ export function createGame(globe) {
   const settingsButton = $('settings-button');
   const boardButton = $('board-button');
   let minigames = null;
+  let challenge = null;
   const OVERLAYS = ['settings', 'leaderboard'];
   let overlayFrom = 'menu';
   // Botones de la esquina: un clic abre; otro clic en el mismo botón cierra
@@ -372,12 +378,14 @@ export function createGame(globe) {
   }
   function showScreen(name) {
     // Durante la partida (sin pantalla de menú) y en un minijuego no se ven
-    settingsButton.hidden = boardButton.hidden = !name || name === 'minigamePlay';
+    settingsButton.hidden = boardButton.hidden = !name || name === 'minigamePlay' || name === 'challengePlay';
     settingsButton.classList.toggle('is-active', name === 'settings');
     boardButton.classList.toggle('is-active', name === 'leaderboard');
     if (screen === 'minigamePlay' && name !== 'minigamePlay') minigames?.stop();
     if (screen === 'minigameResults' && name !== 'minigameResults') minigames?.clearReview();
     if (screen === 'leaderboard' && name !== 'leaderboard') stopBoard();
+    // Desafío: salir de sus pantallas (salvo a Configuración o Clasificación) es salir de la sala
+    if (challenge?.inRoom() && !name?.startsWith('challenge') && !OVERLAYS.includes(name)) challenge.leave();
     if (name === 'menu') watchDailyTop();
     // Clasificación y Configuración se cierran volviendo a la pantalla desde la que se abrieron
     if (OVERLAYS.includes(name) && !OVERLAYS.includes(screen)) overlayFrom = screen ?? 'menu';
@@ -487,18 +495,22 @@ export function createGame(globe) {
     updateHud();
   }
 
-  function isCorrect(info) {
-    const target = current();
-    const clicked = info.country;
-    if (clicked === target) return true;
-    // Con pista solo de bandera, vale cualquier país con la misma bandera
-    // (p. ej. los territorios australianos usan la de Australia)
-    if (!rules.showName && clicked?.flag && clicked.flag === target.flag) return true;
-    // Países diminutos: vale un clic cerca de ellos
+  // ¿El clic cae en el país? En los países diminutos vale un clic cerca de ellos
+  function isHit(target, info) {
+    if (info.country === target) return true;
     const sizePx = countrySizeKm(target) / info.kmPerPixel;
     return (
       sizePx < SMALL_COUNTRY_PX && distanceToCountryKm(target, info.lon, info.lat) <= CLICK_TOLERANCE_PX * info.kmPerPixel
     );
+  }
+
+  function isCorrect(info) {
+    const target = current();
+    const clicked = info.country;
+    // Con pista solo de bandera, vale cualquier país con la misma bandera
+    // (p. ej. los territorios australianos usan la de Australia)
+    if (!rules.showName && clicked?.flag && clicked.flag === target.flag) return true;
+    return isHit(target, info);
   }
 
   // Mensaje bajo la pista: punto de color + texto (los nombres en <b>)
@@ -511,9 +523,10 @@ export function createGame(globe) {
   }
 
   // Solo se puede elegir país mientras se busca (no en la cuenta atrás, la respuesta ni la pausa)
-  globe.canSelect = () => state === 'playing' && !paused;
+  globe.canSelect = () => (state === 'playing' && !paused) || Boolean(challenge?.canSelect());
 
   globe.onEarthClick = (info) => {
+    if (challenge?.canSelect()) return challenge.onEarthClick(info);
     if (state !== 'playing' || paused) return;
     const correct = isCorrect(info);
     if (!correct && !info.country && !isDaily()) {
@@ -1242,6 +1255,7 @@ export function createGame(globe) {
       setupBoard();
       rebuildPractice();
       minigames.rebuild();
+      challenge.rebuild();
     });
     option.append(input, label);
     languageList.append(option);
@@ -1266,6 +1280,7 @@ export function createGame(globe) {
     else if (action === 'settings' || action === 'leaderboard') toggleOverlay(action);
     else if (action === 'minigames') showScreen('minigames');
     else if (action === 'arcade') showScreen('arcade');
+    else if (action === 'challenge') challenge.open();
     else if (action === 'practice') showScreen('practice');
     else if (action === 'start-practice') startGame(rulesFromPractice(settings.practice));
     else if (action === 'menu') goToMenu();
@@ -1291,6 +1306,13 @@ export function createGame(globe) {
         e.preventDefault();
         sound.play('click');
         showScreen('arcade');
+      } else if (state === 'menu' && screen?.startsWith('challenge')) {
+        // Desafío: en la partida Esc no hace nada (se sale con su botón); en el resto, a Arcade
+        e.preventDefault();
+        if (screen !== 'challengePlay') {
+          sound.play('click');
+          showScreen('arcade');
+        }
       } else if (state === 'menu' && isMinigameScreen(screen)) {
         // En un minijuego en marcha, Esc pausa / reanuda; en el resto, vuelve a la lista
         e.preventDefault();
@@ -1331,8 +1353,10 @@ export function createGame(globe) {
     continents: CONTINENTS,
     types: TYPES,
   });
+  challenge = createChallenge({ sound, showScreen, getScreen: () => screen, globe, isHit });
   setupBoard();
   goToMenu();
+  challenge.checkInvite(); // enlace de invitación a una sala (?room=CÓDIGO)
 
   // --- Pantalla del entrenamiento ---
   // Construye el formulario a partir de CONTINENTS, TYPES, LANGUAGES, TIME_OPTIONS y

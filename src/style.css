@@ -2035,6 +2035,13 @@ button:disabled {
   padding-bottom: 72px;
 }
 
+/* Cuando la tabla es más alta que la pantalla, el panel hace scroll: nada se encoge para caber.
+   Sin esto las pestañas (que tienen scroll horizontal y por eso pueden encogerse en vertical)
+   quedaban aplastadas y recortadas */
+#screen-leaderboard .sheet > * {
+  flex-shrink: 0;
+}
+
 /* Enlace a la lista de países dentro de Configuración */
 .field .foot-link {
   margin-top: 0;
@@ -2184,4 +2191,411 @@ button:disabled {
 
 .mg-review .is-wrong .dot {
   background: var(--wrong, #e5484d);
+}
+
+/* --- Desafío (salas multijugador) -------------------------------------------------- */
+.ch-join {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.ch-code-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.ch-code-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  margin-bottom: 20px;
+}
+
+.ch-room-code {
+  font-family: var(--mono);
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--sun);
+  user-select: all;
+}
+
+.ch-rules {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* El juego lo elige el anfitrión: los demás lo ven sin poder cambiarlo */
+.seg.is-readonly label {
+  cursor: default;
+}
+
+.seg.is-readonly label:not(:has(input:checked)) {
+  opacity: 0.5;
+}
+
+.ch-players {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ch-players li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--faint);
+  font-size: 15px;
+}
+
+.ch-players li.is-me .ch-name {
+  color: var(--sun);
+}
+
+.ch-players .country-flag,
+.ch-players .no-flag,
+.ch-seat .country-flag,
+.ch-seat .no-flag {
+  flex: none;
+  width: 22px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 1px;
+}
+
+.ch-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ch-place {
+  width: 22px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.ch-host {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.ch-winner {
+  margin: 0 0 16px;
+  color: var(--sun);
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+}
+
+#screen-challenge-results .ch-players {
+  margin-bottom: 20px;
+}
+
+/* Partida: no tapa el globo (en el de países hay que poder girarlo y hacer clic) */
+#screen-challenge-play {
+  pointer-events: none;
+}
+
+#screen-challenge-play::before {
+  display: none;
+}
+
+/* Jugadores con su reloj, arriba a la izquierda */
+.ch-seats {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: min(230px, calc(100% - 32px));
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--faint);
+  border-radius: 12px;
+  background: rgba(7, 9, 15, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  list-style: none;
+  pointer-events: auto;
+}
+
+.ch-seat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.ch-seat.is-active {
+  background: var(--sun-soft);
+  box-shadow: inset 2px 0 0 var(--sun);
+}
+
+.ch-seat.is-me .ch-name {
+  color: var(--sun);
+}
+
+.ch-seat.is-out {
+  opacity: 0.4;
+}
+
+.ch-seat.is-out .ch-name {
+  text-decoration: line-through;
+}
+
+.ch-clock {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ch-quit {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  pointer-events: auto;
+}
+
+.ch-quit.is-armed {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+/* Tarjeta del turno: centrada en banderas y capitales; abajo en el de países */
+.ch-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(520px, calc(100% - 32px));
+  padding: 20px clamp(16px, 4vw, 32px) 22px;
+  border: 1px solid var(--faint);
+  border-radius: 14px;
+  background: rgba(7, 9, 15, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  transition: border-color 0.2s;
+}
+
+.ch-card.is-mine {
+  border-color: var(--sun);
+}
+
+.is-map .ch-card {
+  top: auto;
+  bottom: 24px;
+  gap: 10px;
+  padding: 14px clamp(16px, 4vw, 28px) 16px;
+  transform: translateX(-50%);
+}
+
+.ch-turn {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ch-card.is-mine .ch-turn {
+  color: var(--sun);
+}
+
+.ch-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ch-prompt:has(.ch-flag[hidden]):has(.ch-prompt-text:empty) {
+  display: none;
+}
+
+.ch-flag {
+  width: min(280px, 70%);
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.5));
+}
+
+.ch-flag[hidden] {
+  display: none;
+}
+
+.ch-prompt-text {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ch-prompt-text:empty {
+  display: none;
+}
+
+/* Países: bandera pequeña junto al nombre, en una línea */
+.is-map .ch-prompt {
+  flex-direction: row;
+}
+
+.is-map .ch-flag {
+  width: 40px;
+}
+
+.is-map .ch-prompt-text {
+  font-size: 24px;
+}
+
+.ch-input {
+  text-align: center;
+  font-size: clamp(22px, 5vw, 30px);
+}
+
+.ch-input[hidden] {
+  display: none;
+}
+
+.ch-input:disabled {
+  opacity: 0.4;
+}
+
+/* Lo que queda del turno */
+.ch-bar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--faint);
+  overflow: hidden;
+}
+
+#ch-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--sun);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.ch-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+  min-height: 20px;
+  margin: 0;
+  font-size: 15px;
+  text-align: center;
+}
+
+.ch-feedback:empty {
+  display: none;
+}
+
+.ch-feedback .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--correct);
+}
+
+.ch-feedback.is-wrong .dot {
+  background: var(--wrong);
+}
+
+.ch-feedback b {
+  font-family: var(--mono);
+  color: var(--correct);
+}
+
+.ch-feedback.is-wrong b,
+.ch-out {
+  color: var(--wrong);
+}
+
+.ch-out {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Pantallas estrechas: los jugadores en una fila deslizable arriba, bajo el botón de salir */
+@media (max-width: 720px) {
+  .ch-seats {
+    top: 60px;
+    right: 16px;
+    flex-direction: row;
+    width: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .ch-seat {
+    flex: none;
+  }
+
+  .ch-clock {
+    margin-left: 4px;
+  }
+
+  .ch-quit {
+    top: 12px;
+  }
+}
+
+#ch-game-desc,
+#ch-home-status,
+#ch-results-wait {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+#ch-create {
+  align-self: flex-start;
+  margin-bottom: 8px;
+}
+
+/* Etiqueta "Beta" junto al nombre de un modo todavía en pruebas */
+.beta-tag {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--sun);
+  border-radius: 999px;
+  color: var(--sun);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.row-title .beta-tag {
+  margin-left: 0; /* la fila ya separa sus elementos */
 }
