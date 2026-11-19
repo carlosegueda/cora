@@ -705,8 +705,24 @@ function updateFlight(dt) {
   camera.position.copy(dir.multiplyScalar(SPHERE_RADIUS + altitude));
   if (flight.t >= 1) {
     flight = null;
-    controls.enabled = !controlsLocked;
+    controls.enabled = !controlsLocked && !follow;
   }
+}
+
+// --- Seguir la vista de otro jugador (Desafío) -------------------------------
+// La cámara se acerca de forma suave al punto y la altura que va enviando el jugador al que
+// le toca, para que los demás vean hacia dónde se mueve y cuánto zoom hace.
+let follow = null; // { dir: Vector3 unitario, altitude }
+const followRotation = new THREE.Quaternion();
+function updateFollow(dt) {
+  if (!follow || flight) return;
+  const t = 1 - Math.exp(-dt * 6);
+  const from = camera.position.clone().normalize();
+  followRotation.setFromUnitVectors(from, follow.dir);
+  const dir = from.applyQuaternion(identity.clone().slerp(followRotation, t));
+  const altitude = camera.position.length() - SPHERE_RADIUS;
+  const next = Math.exp(THREE.MathUtils.lerp(Math.log(altitude), Math.log(follow.altitude), t));
+  camera.position.copy(dir.multiplyScalar(SPHERE_RADIUS + next));
 }
 
 // --- API del globo para el juego ----------------------------------------------
@@ -734,6 +750,22 @@ const globe = {
   },
   // Punto de la Tierra que queda bajo la cámara: { lon, lat }
   getViewCenter: () => vector3ToLonLat(camera.position),
+  // Vista actual: punto bajo la cámara y altura (en radios terrestres)
+  getView: () => ({ ...vector3ToLonLat(camera.position), alt: camera.position.length() - SPHERE_RADIUS }),
+  // Sigue la vista de otro jugador (mientras tanto no se puede mover el globo); null = deja de seguir
+  followView(view) {
+    if (!view) {
+      if (follow) controls.enabled = !controlsLocked && !flight;
+      follow = null;
+      return;
+    }
+    follow = {
+      dir: lonLatToVector3(view.lon, view.lat, 1),
+      altitude: THREE.MathUtils.clamp(view.alt, MIN_ALTITUDE, MAX_ALTITUDE),
+    };
+    controls.enabled = false;
+    zooming = false;
+  },
   setAutoRotate(enabled) {
     controls.autoRotate = enabled;
     controls.autoRotateSpeed = 0.4;
@@ -792,6 +824,7 @@ renderer.setAnimationLoop((time) => {
 
   updateZoom(dt);
   updateFlight(dt);
+  updateFollow(dt);
   updateViewShift(dt);
   if (!zooming) targetAltitude = camera.position.length() - SPHERE_RADIUS; // p. ej. tras un pellizco
   const altitude = camera.position.length() - SPHERE_RADIUS;

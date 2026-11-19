@@ -117,7 +117,9 @@ Está en *Arcade → Desafío*. Es por turnos, de **2 a 10 jugadores**, estilo "
 
 - Uno **crea una sala** y los demás se unen con su **código de 5 letras** o con el enlace de invitación (`?room=CÓDIGO`). Quien entra con la partida empezada, o con la sala llena, solo mira.
 - El **anfitrión** elige el juego: **Países** (hay que hacer clic en el país en el globo), **Banderas** (se ve la bandera y se escribe el país) o **Capitales** (se ve el país y se escribe su capital), y empieza.
-- Cada jugador tiene un **reloj de 15 s** que solo corre **durante su turno**. En cada turno le toca un país al azar: **acierto +5 s**, **fallo −3 s**, y si pasan **10 s sin responder, −5 s**. En los tres casos pasa el turno.
+- Cada jugador tiene un **reloj de 30 s** que solo corre **durante su turno**. En cada turno le toca un país al azar: **acierto +5 s**, **fallo −3 s**, y si pasan **10 s sin responder, −5 s**. En los tres casos pasa el turno.
+- En la sala de espera cada jugador pulsa **Listo** (el anfitrión solo puede empezar cuando lo están todos) y puede **sugerir un juego** al anfitrión, que lo acepta con un clic.
+- Lo que hace el jugador al que le toca **se ve en directo**: lo que va escribiendo y, en el globo, hacia dónde se mueve y cuánto zoom hace (la cámara de los demás sigue a la suya).
 - Quien se queda **sin tiempo queda eliminado** y sigue mirando. **Gana el último en pie.** Al terminar, el anfitrión puede devolver a todos a la sala para jugar otra.
 - El reloj lo lleva el servidor (`convex/challenge.ts`); la interfaz está en `src/challenge.js`. Las reglas (segundos, límite del turno, jugadores) son las constantes del principio de `convex/challenge.ts`.
 

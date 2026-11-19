@@ -181,7 +181,8 @@
           <span class="field-label" data-i18n="ch.game">Game</span>
           <div id="ch-game" class="seg"></div>
           <p id="ch-game-desc" class="info-text"></p>
-          <p class="ch-rules" data-i18n="ch.rules">Everyone starts with 15 s. Right: +5 s · wrong: −3 s · no answer in 10 s: −5 s.</p>
+          <div id="ch-suggestions" class="ch-suggestions" aria-live="polite"></div>
+          <div id="ch-suggest" class="ch-suggest" hidden></div>
         </div>
         <div class="field">
           <span class="field-label" id="ch-players-label"></span>
@@ -189,6 +190,7 @@
         </div>
         <div class="sheet-footer">
           <p id="ch-lobby-status" aria-live="polite"></p>
+          <button id="ch-ready" class="primary" type="button" hidden></button>
           <button id="ch-start" class="primary" type="button" data-i18n="practice.start">Start</button>
         </div>
       </div>

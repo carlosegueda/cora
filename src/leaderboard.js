@@ -131,6 +131,13 @@ export function watchChallengeRoom(code, onChange) {
   });
 }
 
+// Se suscribe a lo que hace en directo el jugador al que le toca (lo que escribe o hacia dónde
+// mira en el globo): onChange({ turn, playerId, text, view }) o null
+export function watchChallengeLive(code, onChange) {
+  if (!client) return () => {};
+  return client.onUpdate(api.challenge.watchLive, { code }, onChange, () => {});
+}
+
 // Desfase entre el reloj del servidor y el de este dispositivo (ms). Se mide tres veces y se
 // queda con la más rápida, que es la que menos error de red tiene.
 export async function serverClockOffset() {

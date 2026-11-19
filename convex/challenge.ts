@@ -2,7 +2,7 @@
 //
 //  - Se crea una sala y se invita con su código. El anfitrión elige el juego (países en el
 //    mapa, banderas o capitales) y empieza.
-//  - Cada jugador tiene un reloj que empieza en 15 s y solo corre durante su turno. En cada
+//  - Cada jugador tiene un reloj que empieza en 30 s y solo corre durante su turno. En cada
 //    turno le toca un país al azar: si acierta, +5 s; si falla, −3 s; si en 10 s no responde,
 //    −5 s. En los tres casos pasa el turno al siguiente.
 //  - Quien se queda sin tiempo queda eliminado y solo mira. Gana el último en pie.
@@ -22,7 +22,7 @@ import { challengeGame } from './schema';
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 10;
-const START_MS = 15_000; // reloj inicial de cada jugador
+const START_MS = 30_000; // reloj inicial de cada jugador
 const BONUS_MS = 5_000; // acierto
 const WRONG_MS = 3_000; // fallo
 const IDLE_MS = 5_000; // no responder
@@ -224,7 +224,37 @@ export const setGame = mutation({
     const room = await requireRoom(ctx, args.code);
     if (!player || room.hostId !== player._id) throw new ConvexError('NOT_HOST');
     if (room.status !== 'lobby') return null;
-    await ctx.db.patch(room._id, { game: args.game, updatedAt: Date.now() });
+    // Las sugerencias que pedían justo este juego ya están atendidas
+    const players = room.players.map((p) => (p.suggest === args.game ? { ...p, suggest: undefined } : p));
+    await ctx.db.patch(room._id, { game: args.game, players, updatedAt: Date.now() });
+    return null;
+  },
+});
+
+// Cambia un dato propio de un jugador en la sala de espera
+async function patchOwnPlayer(ctx: MutationCtx, token: string, code: string, change: Partial<RoomPlayer>) {
+  const player = await findPlayer(ctx, token);
+  const room = await roomByCode(ctx, code);
+  if (!player || !room || room.status !== 'lobby') return;
+  if (!room.players.some((p) => p.playerId === player._id)) return;
+  const players = room.players.map((p) => (p.playerId === player._id ? { ...p, ...change } : p));
+  await ctx.db.patch(room._id, { players, updatedAt: Date.now() });
+}
+
+// "Listo": el anfitrión solo puede empezar cuando todos los demás lo han pulsado
+export const setReady = mutation({
+  args: { token: v.string(), code: v.string(), ready: v.boolean() },
+  handler: async (ctx, args) => {
+    await patchOwnPlayer(ctx, args.token, args.code, { ready: args.ready });
+    return null;
+  },
+});
+
+// Un jugador le propone un juego al anfitrión (null = retira la propuesta)
+export const suggest = mutation({
+  args: { token: v.string(), code: v.string(), game: v.union(challengeGame, v.null()) },
+  handler: async (ctx, args) => {
+    await patchOwnPlayer(ctx, args.token, args.code, { suggest: args.game ?? undefined });
     return null;
   },
 });
@@ -238,6 +268,7 @@ export const start = mutation({
     if (!player || room.hostId !== player._id) throw new ConvexError('NOT_HOST');
     if (room.status !== 'lobby') return null;
     if (room.players.length < MIN_PLAYERS) throw new ConvexError('NEED_PLAYERS');
+    if (room.players.some((p) => p.playerId !== room.hostId && !p.ready)) throw new ConvexError('NOT_READY');
     const players: RoomPlayer[] = room.players.map((p) => ({
       playerId: p.playerId,
       name: p.name,
@@ -340,6 +371,7 @@ export const leave = mutation({
     }
     const players = room.players.filter((p) => p.playerId !== player._id);
     if (!players.length) {
+      await deleteLive(ctx, room.code);
       await ctx.db.delete(room._id);
       return null;
     }
@@ -407,6 +439,52 @@ export const room = query({
   },
 });
 
+// En directo: lo que va escribiendo, o hacia dónde mira en el globo, el jugador al que le toca.
+// Lo envía su navegador varias veces por segundo durante su turno.
+export const live = mutation({
+  args: {
+    token: v.string(),
+    code: v.string(),
+    turn: v.number(),
+    text: v.string(),
+    view: v.optional(v.object({ lon: v.number(), lat: v.number(), alt: v.number() })),
+  },
+  handler: async (ctx, args) => {
+    const player = await findPlayer(ctx, args.token);
+    const room = await roomByCode(ctx, args.code);
+    if (!player || !room || room.status !== 'playing' || room.turn !== args.turn) return null;
+    if (room.current?.playerId !== player._id) return null;
+    const doc = { code: room.code, turn: args.turn, playerId: player._id, text: args.text.slice(0, 60), view: args.view };
+    const existing = await ctx.db
+      .query('roomLive')
+      .withIndex('by_code', (q) => q.eq('code', room.code))
+      .unique();
+    if (existing) await ctx.db.replace(existing._id, doc);
+    else await ctx.db.insert('roomLive', doc);
+    return null;
+  },
+});
+
+// A esto se suscriben los demás jugadores para verlo (null si aún no hay nada)
+export const watchLive = query({
+  args: { code: v.string() },
+  handler: async (ctx, args) => {
+    const doc = await ctx.db
+      .query('roomLive')
+      .withIndex('by_code', (q) => q.eq('code', normalizeCode(args.code)))
+      .unique();
+    return doc ? { turn: doc.turn, playerId: doc.playerId, text: doc.text, view: doc.view ?? null } : null;
+  },
+});
+
+async function deleteLive(ctx: MutationCtx, code: string) {
+  const doc = await ctx.db
+    .query('roomLive')
+    .withIndex('by_code', (q) => q.eq('code', code))
+    .unique();
+  if (doc) await ctx.db.delete(doc._id);
+}
+
 // Limpieza diaria (cron): borra las salas que llevan un día sin actividad
 export const cleanup = internalMutation({
   args: {},
@@ -415,7 +493,10 @@ export const cleanup = internalMutation({
       .query('rooms')
       .withIndex('by_updatedAt', (q) => q.lt('updatedAt', Date.now() - ROOM_TTL_MS))
       .take(100);
-    for (const room of stale) await ctx.db.delete(room._id);
+    for (const room of stale) {
+      await deleteLive(ctx, room.code);
+      await ctx.db.delete(room._id);
+    }
     return null;
   },
 });

@@ -4,6 +4,8 @@
 //  - Todo el estado vive en el servidor: aquí solo se pinta lo que llega por la suscripción a
 //    la sala y se envía la respuesta del jugador cuando es su turno.
 //  - El reloj que se ve se calcula con la hora del servidor (se mide el desfase al entrar).
+//  - Lo que hace el jugador al que le toca se ve en directo: lo que va escribiendo y, en el
+//    globo, hacia dónde se mueve y cuánto zoom hace (la cámara de los demás le sigue).
 //  - Países: se hace clic en el globo. Banderas y capitales: se escribe, con la misma
 //    tolerancia que en los minijuegos.
 import { t, getLanguage } from './i18n.js';
@@ -16,6 +18,7 @@ import {
   getPlayerCountry,
   challengeCall,
   watchChallengeRoom,
+  watchChallengeLive,
   serverClockOffset,
 } from './leaderboard.js';
 
@@ -24,7 +27,9 @@ const MAX_PLAYERS = 10;
 const DELTA = { correct: '+5 s', wrong: '−3 s', timeout: '−5 s' };
 const RESULTS_DELAY_MS = 2400; // se ve el último turno antes de pasar al resultado
 const QUIT_CONFIRM_MS = 3000;
-const KNOWN_ERRORS = ['ROOM_NOT_FOUND', 'ROOM_FULL', 'NEED_PLAYERS', 'NOT_HOST'];
+const KNOWN_ERRORS = ['ROOM_NOT_FOUND', 'ROOM_FULL', 'NEED_PLAYERS', 'NOT_HOST', 'NOT_READY'];
+const LIVE_TEXT_MS = 120; // cada cuánto se envía, como mucho, lo que se va escribiendo
+const LIVE_VIEW_MS = 200; // … y hacia dónde se mira en el globo
 
 const unique = (list) => [...new Set(list.filter(Boolean))];
 const seconds = (ms) => (Math.max(0, ms) / 1000).toFixed(1);
@@ -58,6 +63,11 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
   let code = null; // sala en la que se está (null = ninguna)
   let room = null; // último estado recibido del servidor
   let stopWatch = null;
+  let stopLive = null;
+  let latestLive = null; // lo último recibido del jugador al que le toca
+  let liveTimer = 0;
+  let lastView = null; // última vista del globo enviada
+  let lastViewAt = 0;
   let clockOffset = 0; // hora del servidor − hora de este dispositivo
   let seenTurn = 0; // último turno del que ya se procesó el cambio
   let promptTurn = 0; // turno cuyo país ya se enseñó
@@ -142,6 +152,9 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     seenTurn = promptTurn = sentTurn = 0;
     setInviteUrl(code);
     stopWatch = watchChallengeRoom(code, onRoom);
+    stopLive?.();
+    latestLive = null;
+    stopLive = watchChallengeLive(code, onLive);
   }
 
   // La dirección lleva el código de la sala: sirve de enlace de invitación y para volver
@@ -218,26 +231,74 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     games.classList.toggle('is-readonly', !host);
     $('ch-game-desc').textContent = t(`${GAMES[room.game]}Desc`);
     $('ch-players-label').textContent = t('ch.players', { n: room.players.length, max: MAX_PLAYERS });
-    $('ch-lobby-players').replaceChildren(...room.players.map((p) => playerRow(p)));
+    $('ch-lobby-players').replaceChildren(...room.players.map((p) => playerRow(p, null, true)));
+    const me = playerOf(room.you);
+
+    // Sugerencias de juego: las ve todo el mundo; el anfitrión las acepta con un clic
+    $('ch-suggestions').replaceChildren(
+      ...room.players
+        .filter((p) => p.suggest && p.playerId !== room.hostId)
+        .map((p) => {
+          const text = t('ch.suggests', { name: p.name, game: t(GAMES[p.suggest]) });
+          if (!host) return el('span', 'ch-suggestion', text);
+          const button = el('button', 'ch-suggestion', text);
+          button.type = 'button';
+          button.title = t('ch.acceptSuggestion');
+          button.addEventListener('click', () => {
+            sound.play('click');
+            challengeCall('setGame', { code, game: p.suggest }).catch(() => {});
+          });
+          return button;
+        })
+    );
+    // Los demás jugadores proponen un juego (otro clic en el mismo retira la propuesta)
+    const suggestBox = $('ch-suggest');
+    suggestBox.hidden = host || !me;
+    suggestBox.replaceChildren(
+      el('span', 'ch-suggest-label', t('ch.suggestLabel')),
+      ...Object.entries(GAMES).map(([value, label]) => {
+        const button = el('button', `link-button${me?.suggest === value ? ' is-on' : ''}`, t(label));
+        button.type = 'button';
+        button.addEventListener('click', () => {
+          sound.play('click');
+          challengeCall('suggest', { code, game: me?.suggest === value ? null : value }).catch(() => {});
+        });
+        return button;
+      })
+    );
+
+    // "Listo": cada jugador lo marca; el anfitrión empieza cuando lo están todos
+    const waiting = room.players.filter((p) => p.playerId !== room.hostId && !p.ready).length;
+    const ready = $('ch-ready');
+    ready.hidden = host || !me;
+    ready.className = me?.ready ? 'ghost' : 'primary';
+    ready.textContent = me?.ready ? t('ch.readyOn') : t('ch.ready');
     const start = $('ch-start');
     start.hidden = !host;
-    start.disabled = room.players.length < 2;
-    $('ch-lobby-status').textContent = !room.you
+    start.disabled = room.players.length < 2 || waiting > 0;
+    $('ch-lobby-status').textContent = !me
       ? t('ch.spectating')
       : !host
-        ? t('ch.waitingHost')
+        ? t(me.ready ? 'ch.waitingHost' : 'ch.pressReady')
         : room.players.length < 2
           ? t('ch.needPlayers')
-          : '';
+          : waiting > 0
+            ? t('ch.waitingReady', { n: waiting })
+            : '';
   }
 
-  // Fila de un jugador: [puesto], bandera, nombre, etiquetas (tú, anfitrión)
-  function playerRow(p, place = null) {
+  // Fila de un jugador: [puesto], bandera, nombre, etiquetas (tú, anfitrión) y, en la sala de
+  // espera, la marca de "listo"
+  function playerRow(p, place = null, lobby = false) {
     const li = el('li', p.playerId === room.you ? 'is-me' : '');
     if (place != null) li.append(el('span', 'ch-place', String(place)));
     li.append(playerFlag(p.country), el('span', 'ch-name', p.name));
     if (p.playerId === room.you) li.append(el('span', 'you-tag', t('board.you')));
     if (p.playerId === room.hostId) li.append(el('span', 'ch-host', t('ch.host')));
+    else if (lobby) {
+      const mark = el('span', `ch-ready-mark${p.ready ? ' is-ready' : ''}`, p.ready ? `✓ ${t('ch.ready')}` : t('ch.notReady'));
+      li.append(mark);
+    }
     return li;
   }
 
@@ -268,6 +329,9 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     raf = 0;
     clearTimeout(resultsTimer);
     clearTimeout(goTimer);
+    clearTimeout(liveTimer);
+    liveTimer = 0;
+    globe.followView(null);
     countdown.hidden = true;
     if (!onScreen('challengePlay')) return;
     globe.setHighlights();
@@ -318,6 +382,44 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     const clock = clocks.get(current.playerId);
     if (clock && player) clock.textContent = seconds(player.timeMs - sinceStart);
     barFill.style.transform = `scaleX(${Math.max(0, 1 - sinceStart / current.limitMs)})`;
+
+    // Países, en su turno: envía hacia dónde mira en el globo cuando cambia, para los demás
+    if (room.game === 'map' && canAnswer() && performance.now() - lastViewAt > LIVE_VIEW_MS) {
+      const view = globe.getView();
+      const moved =
+        !lastView ||
+        Math.abs(view.lon - lastView.lon) > 0.2 ||
+        Math.abs(view.lat - lastView.lat) > 0.2 ||
+        Math.abs(view.alt / lastView.alt - 1) > 0.02;
+      if (moved) {
+        lastView = view;
+        lastViewAt = performance.now();
+        const round = (n, digits) => Number(n.toFixed(digits));
+        sendLive('', { lon: round(view.lon, 2), lat: round(view.lat, 2), alt: round(view.alt, 4) });
+      }
+    }
+  }
+
+  // --- En directo ---
+  function sendLive(text, view) {
+    challengeCall('live', { code, turn: room.turn, text, ...(view ? { view } : {}) }).catch(() => {});
+  }
+
+  // Lo que hace el jugador al que le toca: su texto aparece en el cuadro (bloqueado) de los
+  // demás, y en el globo la cámara de los demás sigue a la suya
+  function onLive(live) {
+    latestLive = live ?? null;
+    applyLive();
+  }
+  function applyLive() {
+    const live = latestLive;
+    if (!live || room?.status !== 'playing' || !onScreen('challengePlay')) return;
+    if (live.turn !== room.turn || promptTurn !== room.turn || live.playerId === room.you) return;
+    if (room.game === 'map') {
+      if (live.view) globe.followView(live.view);
+    } else {
+      input.value = live.text;
+    }
   }
 
   function popCountdown(text, soundName) {
@@ -362,6 +464,8 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     if (game === 'map') {
       globe.setHighlights();
       globe.removePin();
+      globe.followView(null); // si le toca, vuelve a mover él el globo
+      lastView = null;
     } else {
       input.hidden = false;
       input.disabled = !mine;
@@ -371,6 +475,7 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
       if (mine) input.focus();
     }
     if (mine) sound.play('tick');
+    else applyLive();
   }
 
   // Claves aceptadas para el país del turno, y las de los demás (para no dar por buena la de otro)
@@ -411,6 +516,7 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     const country = byIso3.get(last.iso3);
     const name = player?.name ?? '';
     const answer = answerOf(country);
+    globe.followView(null);
     hidePrompt();
     const text = {
       correct: () => `${name}: ${answer}`,
@@ -472,6 +578,9 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     endPlay();
     stopWatch?.();
     stopWatch = null;
+    stopLive?.();
+    stopLive = null;
+    latestLive = null;
     code = null;
     room = null;
     setInviteUrl(null);
@@ -523,6 +632,10 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
       $('ch-lobby-status').textContent = errorText(err);
     }
   });
+  $('ch-ready').addEventListener('click', () => {
+    sound.play('click');
+    challengeCall('setReady', { code, ready: !playerOf(room?.you)?.ready }).catch(() => {});
+  });
   for (const id of ['ch-leave', 'ch-results-leave']) {
     $(id).addEventListener('click', () => {
       sound.play('click');
@@ -550,7 +663,15 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
   // Banderas y capitales: en cuanto lo escrito coincide exactamente se da por bueno; con Enter
   // se responde (con tolerancia a erratas) y, si no vale, es un fallo
   input.addEventListener('input', () => {
-    if (canAnswer() && typing && matches(input.value, typing.accepted, typing.others, true)) send(true);
+    if (!canAnswer()) return;
+    // Los demás ven lo que va escribiendo
+    if (!liveTimer) {
+      liveTimer = setTimeout(() => {
+        liveTimer = 0;
+        if (room?.status === 'playing' && myTurn()) sendLive(input.value);
+      }, LIVE_TEXT_MS);
+    }
+    if (typing && matches(input.value, typing.accepted, typing.others, true)) send(true);
   });
   input.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
@@ -564,6 +685,9 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     e.preventDefault();
     input.focus();
   });
+
+  // Solo en desarrollo: para comprobar desde la consola (o una prueba) hacia dónde mira el globo
+  if (import.meta.env.DEV) window.__challengeView = () => globe.getView();
 
   globe.countriesReady.then((data) => {
     countries = data;

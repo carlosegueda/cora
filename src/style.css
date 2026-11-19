@@ -2225,12 +2225,6 @@ button:disabled {
   user-select: all;
 }
 
-.ch-rules {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
 /* El juego lo elige el anfitrión: los demás lo ven sin poder cambiarlo */
 .seg.is-readonly label {
   cursor: default;
@@ -2598,4 +2592,78 @@ button:disabled {
 
 .row-title .beta-tag {
   margin-left: 0; /* la fila ya separa sus elementos */
+}
+
+/* Desafío, sala de espera: "listo" de cada jugador y sugerencias de juego */
+.ch-ready-mark {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.ch-ready-mark.is-ready {
+  color: var(--correct);
+}
+
+.ch-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.ch-suggestions:empty {
+  display: none;
+}
+
+.ch-suggestion {
+  padding: 3px 10px;
+  border: 1px solid var(--sun);
+  border-radius: 999px;
+  background: var(--sun-soft);
+  color: var(--sun);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+button.ch-suggestion {
+  cursor: pointer;
+}
+
+button.ch-suggestion:hover {
+  background: var(--sun);
+  color: var(--ink);
+}
+
+.ch-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin-top: 12px;
+}
+
+.ch-suggest[hidden] {
+  display: none;
+}
+
+.ch-suggest-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ch-suggest .link-button {
+  font-size: 12px;
+}
+
+.ch-suggest .link-button.is-on {
+  color: var(--sun);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#ch-ready[hidden],
+#ch-start[hidden] {
+  display: none;
 }

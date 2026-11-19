@@ -34,6 +34,8 @@ export const challengePlayer = v.object({
   alive: v.boolean(), // false = eliminado (solo mira)
   place: v.optional(v.number()), // puesto final (1 = ganador), al ser eliminado o ganar
   left: v.optional(v.boolean()), // se fue de la sala durante la partida
+  ready: v.optional(v.boolean()), // sala de espera: ya pulsó "Listo"
+  suggest: v.optional(challengeGame), // sala de espera: juego que le propone al anfitrión
 });
 
 export default defineSchema({
@@ -109,6 +111,18 @@ export default defineSchema({
   })
     .index('by_code', ['code'])
     .index('by_updatedAt', ['updatedAt']),
+
+  // Desafío: lo que hace en directo el jugador al que le toca (lo que va escribiendo o hacia
+  // dónde mira en el globo), para que lo vean los demás. Cambia varias veces por segundo, por
+  // eso va en su propia tabla y no en el documento de la sala.
+  roomLive: defineTable({
+    code: v.string(),
+    turn: v.number(),
+    playerId: v.id('players'),
+    text: v.string(), // banderas / capitales: lo escrito hasta ahora
+    // países: punto del globo que tiene en el centro y altura de la cámara (en radios terrestres)
+    view: v.optional(v.object({ lon: v.number(), lat: v.number(), alt: v.number() })),
+  }).index('by_code', ['code']),
 
   // Minijuegos en modo ranked (todos los continentes, solo estados, todos los países): mejor
   // tiempo de cada jugador en cada minijuego. Menos tiempo = mejor puesto.
