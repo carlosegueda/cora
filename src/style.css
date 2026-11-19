@@ -2225,13 +2225,26 @@ button:disabled {
   user-select: all;
 }
 
-/* El juego lo elige el anfitrión: los demás lo ven sin poder cambiarlo */
-.seg.is-readonly label {
-  cursor: default;
+/* El juego lo elige el anfitrión. Los demás ven su elección y, al pulsar otra pestaña, se la
+   sugieren: la suya queda marcada con un borde */
+.seg.is-readonly label.is-chosen {
+  background: var(--paper);
+  color: var(--ink);
 }
 
-.seg.is-readonly label:not(:has(input:checked)) {
-  opacity: 0.5;
+.seg.is-readonly label:not(.is-chosen) {
+  opacity: 0.6;
+}
+
+.seg.is-readonly label:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 2px;
+}
+
+.seg.is-readonly label.is-suggested {
+  opacity: 1;
+  color: var(--sun);
+  box-shadow: inset 0 0 0 1px var(--sun);
 }
 
 .ch-players {
@@ -2338,7 +2351,6 @@ button:disabled {
 
 .ch-seat.is-active {
   background: var(--sun-soft);
-  box-shadow: inset 2px 0 0 var(--sun);
 }
 
 .ch-seat.is-me .ch-name {
@@ -2536,27 +2548,51 @@ button:disabled {
   text-transform: uppercase;
 }
 
-/* Pantallas estrechas: los jugadores en una fila deslizable arriba, bajo el botón de salir */
+/* Pantallas estrechas: en vez de la lista, solo el jugador al que le toca (con su reloj),
+   en una pastilla arriba a la izquierda, a la altura del botón de salir */
 @media (max-width: 720px) {
   .ch-seats {
-    top: 60px;
-    right: 16px;
-    flex-direction: row;
+    top: 12px;
+    left: 12px;
     width: auto;
-    overflow-x: auto;
-    scrollbar-width: none;
+    max-width: calc(100% - 120px);
+    padding: 4px;
+    border-radius: 999px;
   }
 
   .ch-seat {
-    flex: none;
+    display: none;
+  }
+
+  .ch-seat.is-active {
+    display: flex;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: none;
+    font-size: 15px;
+  }
+
+  .ch-seats:not(:has(.is-active)) {
+    display: none;
   }
 
   .ch-clock {
-    margin-left: 4px;
+    margin-left: 8px;
   }
 
   .ch-quit {
     top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+  }
+
+  .ch-card,
+  .is-map .ch-card {
+    width: calc(100% - 24px);
+  }
+
+  .is-map .ch-card {
+    bottom: 12px;
   }
 }
 
@@ -2634,33 +2670,6 @@ button.ch-suggestion {
 button.ch-suggestion:hover {
   background: var(--sun);
   color: var(--ink);
-}
-
-.ch-suggest {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 14px;
-  margin-top: 12px;
-}
-
-.ch-suggest[hidden] {
-  display: none;
-}
-
-.ch-suggest-label {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.ch-suggest .link-button {
-  font-size: 12px;
-}
-
-.ch-suggest .link-button.is-on {
-  color: var(--sun);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 #ch-ready[hidden],

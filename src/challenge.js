@@ -212,20 +212,44 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
   function renderLobby() {
     $('ch-room-code').textContent = room.code;
     const host = isHost();
+    const mine = playerOf(room.you);
     const games = $('ch-game');
     games.replaceChildren();
     for (const [value, label] of Object.entries(GAMES)) {
       const option = el('label');
-      const radio = el('input');
-      radio.type = 'radio';
-      radio.name = 'ch-game';
-      radio.checked = room.game === value;
-      radio.disabled = !host;
-      radio.addEventListener('change', () => {
-        sound.play('click');
-        challengeCall('setGame', { code, game: value }).catch(() => {});
-      });
-      option.append(radio, t(label));
+      if (host) {
+        const radio = el('input');
+        radio.type = 'radio';
+        radio.name = 'ch-game';
+        radio.checked = room.game === value;
+        radio.addEventListener('change', () => {
+          sound.play('click');
+          challengeCall('setGame', { code, game: value }).catch(() => {});
+        });
+        option.append(radio, t(label));
+      } else {
+        // Los demás no eligen: ven el juego elegido y, al pulsar otra pestaña, se la sugieren al
+        // anfitrión (otra vez en la misma, o en el juego ya elegido, retira la sugerencia)
+        option.textContent = t(label);
+        option.classList.toggle('is-chosen', room.game === value);
+        if (mine) {
+          option.classList.toggle('is-suggested', mine.suggest === value);
+          option.title = t('ch.suggestHint');
+          option.tabIndex = 0;
+          option.setAttribute('role', 'button');
+          const suggest = () => {
+            sound.play('click');
+            const game = mine.suggest === value || room.game === value ? null : value;
+            challengeCall('suggest', { code, game }).catch(() => {});
+          };
+          option.addEventListener('click', suggest);
+          option.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            suggest();
+          });
+        }
+      }
       games.append(option);
     }
     games.classList.toggle('is-readonly', !host);
@@ -251,28 +275,13 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
           return button;
         })
     );
-    // Los demás jugadores proponen un juego (otro clic en el mismo retira la propuesta)
-    const suggestBox = $('ch-suggest');
-    suggestBox.hidden = host || !me;
-    suggestBox.replaceChildren(
-      el('span', 'ch-suggest-label', t('ch.suggestLabel')),
-      ...Object.entries(GAMES).map(([value, label]) => {
-        const button = el('button', `link-button${me?.suggest === value ? ' is-on' : ''}`, t(label));
-        button.type = 'button';
-        button.addEventListener('click', () => {
-          sound.play('click');
-          challengeCall('suggest', { code, game: me?.suggest === value ? null : value }).catch(() => {});
-        });
-        return button;
-      })
-    );
 
     // "Listo": cada jugador lo marca; el anfitrión empieza cuando lo están todos
     const waiting = room.players.filter((p) => p.playerId !== room.hostId && !p.ready).length;
     const ready = $('ch-ready');
     ready.hidden = host || !me;
     ready.className = me?.ready ? 'ghost' : 'primary';
-    ready.textContent = me?.ready ? t('ch.readyOn') : t('ch.ready');
+    ready.textContent = me?.ready ? t('ch.unready') : t('ch.ready');
     const start = $('ch-start');
     start.hidden = !host;
     start.disabled = room.players.length < 2 || waiting > 0;
@@ -293,7 +302,6 @@ export function createChallenge({ sound, showScreen, getScreen, globe, isHit }) 
     const li = el('li', p.playerId === room.you ? 'is-me' : '');
     if (place != null) li.append(el('span', 'ch-place', String(place)));
     li.append(playerFlag(p.country), el('span', 'ch-name', p.name));
-    if (p.playerId === room.you) li.append(el('span', 'you-tag', t('board.you')));
     if (p.playerId === room.hostId) li.append(el('span', 'ch-host', t('ch.host')));
     else if (lobby) {
       const mark = el('span', `ch-ready-mark${p.ready ? ' is-ready' : ''}`, p.ready ? `✓ ${t('ch.ready')}` : t('ch.notReady'));

@@ -89,6 +89,7 @@ export default defineSchema({
     status: v.union(v.literal('lobby'), v.literal('playing'), v.literal('finished')),
     players: v.array(challengePlayer), // en orden de turno
     turn: v.number(), // número de turno (sube en cada uno; descarta respuestas y avisos viejos)
+    startTurn: v.optional(v.number()), // turno con el que empezó la partida en curso
     // Turno en curso: a quién le toca, qué país, cuándo empieza a correr su reloj (hora del
     // servidor) y cuánto dura como mucho
     current: v.optional(

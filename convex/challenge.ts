@@ -3,8 +3,9 @@
 //  - Se crea una sala y se invita con su código. El anfitrión elige el juego (países en el
 //    mapa, banderas o capitales) y empieza.
 //  - Cada jugador tiene un reloj que empieza en 30 s y solo corre durante su turno. En cada
-//    turno le toca un país al azar: si acierta, +5 s; si falla, −3 s; si en 10 s no responde,
+//    turno le toca un país al azar: si acierta, +5 s; si falla, −3 s; si no responde a tiempo,
 //    −5 s. En los tres casos pasa el turno al siguiente.
+//  - El tiempo para responder empieza en 10 s y baja 1 s en cada ronda, hasta 3 s.
 //  - Quien se queda sin tiempo queda eliminado y solo mira. Gana el último en pie.
 //
 // El reloj lo lleva el servidor (la hora de inicio de cada turno y un aviso programado para
@@ -26,7 +27,9 @@ const START_MS = 30_000; // reloj inicial de cada jugador
 const BONUS_MS = 5_000; // acierto
 const WRONG_MS = 3_000; // fallo
 const IDLE_MS = 5_000; // no responder
-const TURN_LIMIT_MS = 10_000; // lo máximo que dura un turno
+const TURN_LIMIT_MS = 10_000; // lo máximo que dura un turno al principio de la partida…
+const TURN_LIMIT_STEP_MS = 1_000; // … y lo que se acorta en cada ronda (una vuelta completa)
+const TURN_LIMIT_MIN_MS = 3_000; // … hasta este mínimo
 const COUNTDOWN_MS = 4_000; // 3, 2, 1 antes del primer turno
 const REVEAL_OK_MS = 1_500; // pausa para ver un acierto antes del siguiente turno
 const REVEAL_FAIL_MS = 2_800; // … y un fallo (la cámara viaja al país correcto)
@@ -84,8 +87,11 @@ async function beginTurn(
 ) {
   const player = players.find((p) => p.playerId === playerId)!;
   const { iso3, used } = pickCountry(room, patch.used ?? room.used);
-  const limitMs = Math.min(player.timeMs, TURN_LIMIT_MS);
   const turn = room.turn + 1;
+  // Cada ronda (una vuelta de todos los jugadores que empezaron) hay menos tiempo para responder
+  const round = Math.floor((turn - (patch.startTurn ?? room.startTurn ?? turn)) / players.length);
+  const turnLimit = Math.max(TURN_LIMIT_MIN_MS, TURN_LIMIT_MS - round * TURN_LIMIT_STEP_MS);
+  const limitMs = Math.min(player.timeMs, turnLimit);
   await ctx.db.patch(room._id, {
     ...patch,
     players,
@@ -282,6 +288,7 @@ export const start = mutation({
     }
     await beginTurn(ctx, room, players, players[0].playerId, Date.now() + COUNTDOWN_MS, {
       status: 'playing',
+      startTurn: room.turn + 1,
       used: [],
       last: undefined,
       winnerId: undefined,
