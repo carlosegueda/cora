@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
 import type * as daily from "../daily.js";
 import type * as dailyCountries from "../dailyCountries.js";
 import type * as minigames from "../minigames.js";
@@ -22,6 +23,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
   daily: typeof daily;
   dailyCountries: typeof dailyCountries;
   minigames: typeof minigames;

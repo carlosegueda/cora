@@ -1,4 +1,4 @@
-// Reto diario (Jugar): 5 estados (10 hasta el 2026-11-18), los mismos para todos, distintos cada día (cambia a las 00:00 de UTC−6); un intento
+// Reto diario (Jugar): 5 estados (10 hasta el 2026-11-17), los mismos para todos, distintos cada día (cambia a las 00:00 de UTC−6); un intento
 // por jugador y día. Cada país vale hasta 1000 puntos (cercanía del clic al país, ponderada por
 // su tamaño, más rapidez); la tabla del día se ordena por puntos y, a igualdad, por menos tiempo.
 // Los puntos los calcula el cliente (necesita los contornos de los países); el servidor
@@ -13,7 +13,7 @@ import { dailyRound } from './schema';
 const DAY_MS = 86_400_000;
 // Países por día: 5 desde FIVE_FROM; los días anteriores fueron de 10 (se conserva para que
 // sus tablas y repasos sigan cuadrando)
-const FIVE_FROM = '2026-11-19';
+const FIVE_FROM = '2026-11-18';
 const perDay = (day: string) => (day >= FIVE_FROM ? 5 : 10);
 const MAX_POINTS_PER_COUNTRY = 1000;
 const MIN_MS_PER_ANSWER = 300; // nadie responde un país en menos de esto
@@ -41,6 +41,13 @@ function mulberry32(seed: number) {
 
 // Los países de un día. Se baraja la lista de estados una vez por "ciclo" (39 días con 5
 // países al día; 19 con 10) y cada día toma un tramo, así no se repite ningún país dentro de un mismo ciclo.
+// Rerolls: para cambiar los países de un día, se añade aquí con un número (y se sube el número
+// para volver a tirar). Ese día se baraja aparte, así que puede repetir países de días cercanos.
+// Quien ya jugó ese día conserva su resultado con los países anteriores.
+const REROLLS: Record<string, number> = {
+  '2026-11-18': 1,
+};
+
 export function countriesForDay(day: string): string[] {
   const dayNumber = Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
   const PER_DAY = perDay(day);
@@ -48,7 +55,8 @@ export function countriesForDay(day: string): string[] {
   const cycle = Math.floor(dayNumber / daysPerCycle);
   const slot = dayNumber - cycle * daysPerCycle;
   const order = [...DAILY_COUNTRIES];
-  const random = mulberry32(cycle * 2654435761 + 12345);
+  const reroll = REROLLS[day] ?? 0;
+  const random = mulberry32(reroll ? dayNumber * 2246822519 + reroll * 3266489917 : cycle * 2654435761 + 12345);
   for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [order[i], order[j]] = [order[j], order[i]];

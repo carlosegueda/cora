@@ -55,7 +55,7 @@ export default defineSchema({
     country: v.union(v.string(), v.null()), // país del jugador (ISO alfa-2), según su IP
     startedAt: v.number(),
     finished: v.boolean(),
-    score: v.optional(v.number()), // aciertos (0–5; 0–10 hasta el 2026-11-18)
+    score: v.optional(v.number()), // aciertos (0–5; 0–10 hasta el 2026-11-17)
     points: v.optional(v.number()), // puntos (0–5000; antes 0–10 000): cercanía, aciertos y rapidez
     timeMs: v.optional(v.number()),
     rank: v.optional(v.number()),
